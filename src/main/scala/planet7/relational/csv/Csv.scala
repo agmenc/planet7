@@ -12,12 +12,5 @@ trait RowLike
 case object Missing extends RowLike
 case class Row(values: List[(String, String)]) extends RowLike {
   def value(key: String): Option[String] = values.find(_._1 == key).map(_._2)
+  override def toString = values.map(_._2).mkString("[", ", ", "]")
 }
-
-
-/*
-
-List((Row(List((ID,G), (Name,H), (Value,I))),Row(List((ID,G), (Name,X), (Value,I)))), (Row(List((ID,D), (Name,E), (Value,F))),Missing))
-List((Row(List((ID,G), (Name,H), (Value,I))),Row(List((ID,G), (Name,X), (Value,I))),(Row(List((ID,D), (Name,E), (Value,F))),Missing)))
-
-*/
