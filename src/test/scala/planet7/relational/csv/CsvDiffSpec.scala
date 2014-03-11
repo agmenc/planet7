@@ -29,8 +29,12 @@ class CsvDiffSpec extends WordSpec {
     ))
   }
 
+  // Rows should have two lists: one of columns and one of values
+
   // Results summaries: added, missing, diff (set of column diff counts) ==> all now trivial
 
+  // Extra columns
+  // Missing columns
   // Identify duplicates in both lists
   // Keys made of sets of columns, to identify matches
   // Ability to ignore some columns
