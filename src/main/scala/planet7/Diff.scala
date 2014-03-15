@@ -29,11 +29,13 @@ object Diff {
     eliminateIdenticalRows(left.rows, right.rows, extract(key))(Nil)
   }
 
-  def apply[T,U](leftD: Diffable[T,U], rightD: Diffable[T,U], key: U => String): List[(U, U)] = {
+  def apply[U](leftD: Diffable[U], rightD: Diffable[U], key: Option[U] => String): List[(U, U)] = {
 
-    def eliminateIdenticalElements(left: List[U], right: List[U], key: U => String)(diffs: List[(U, U)]): List[(U, U)] = {
+    def eliminateIdenticalElements(left: List[U], right: List[U], key: Option[U] => String)(diffs: List[(U, U)]): List[(U, U)] = {
       if (left.isEmpty && right.isEmpty) diffs
-      else (key(left.head), key(right.head)) match {
+      else if (left.isEmpty)  right.map((leftD.zero, _)) ::: diffs
+      else if (right.isEmpty) left.map((_, rightD.zero)) ::: diffs
+      else (key(left.headOption), key(right.headOption)) match {
         case (l, r) if l > r => eliminateIdenticalElements(left, right.tail, key)((leftD.zero, right.head) :: diffs)
         case (l, r) if l < r => eliminateIdenticalElements(left.tail, right, key)((left.head, rightD.zero) :: diffs)
         case (l, r) => eliminateIdenticalElements(left.tail, right.tail, key)(if (left.head == right.head) diffs else (left.head, right.head) :: diffs)

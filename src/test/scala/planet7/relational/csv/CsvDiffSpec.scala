@@ -29,21 +29,21 @@ class CsvDiffSpec extends WordSpec {
   }
 
   "The result of diffing two rows is a list of field diffs" in {
-    val left: Row = Row(List(("ID", "G"), ("Name", "H"), ("Value", "I")))
-    val right: Row = Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))
+    val left = Row(List(("ID", "G"), ("Name", "H"), ("Value", "I")))
+    val right = Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))
 
-    val result: List[(Field, Field)] = Diff[Row,Field](left, right, _._1)
+    val result: List[(Field, Field)] = Diff[Field](left, right, Rows.key)
 
     assert(result === List(("Name", "H") ->("Name", "X")))
   }
 
   "We know which columns were added and removed" in {
-    val left: Row = Row(List(("ID", "G"), ("Name", "H"), ("Removed", "I")))
-    val right: Row = Row(List(("Added", "Q"), ("ID", "G"), ("Name", "H")))
+    val left = Row(List(("ID", "G"), ("Name", "H"), ("Removed", "I")))
+    val right = Row(List(("Added", "Q"), ("ID", "G"), ("Name", "H")))
 
-    val result: List[(Field, Field)] = Diff[Row,Field](left, right, _._1)
+    val result: List[(Field, Field)] = Diff[Field](left, right, Rows.key)
 
-    assert(result === List(EmptyField -> ("Added", "Q")))
+    assert(result === List(("Removed", "I") -> EmptyField, EmptyField -> ("Added", "Q")))
   }
 
   // Columns: extra, missing
