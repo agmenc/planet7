@@ -2,7 +2,9 @@ package planet7.relational.csv
 
 import org.scalatest.WordSpec
 import planet7.Diff
-import planet7.relational.csv.Fields._
+import planet7.relational.csv.FieldSupport._
+import planet7.relational.csv.RowSupport._
+import planet7.relational.csv.CsvSupport._
 
 class CsvDiffSpec extends WordSpec {
 
@@ -20,11 +22,11 @@ class CsvDiffSpec extends WordSpec {
                   |G,X,I
                 """.stripMargin
 
-    val result: List[(Row, Row)] = Diff(Csv(left), Csv(right), List("ID"))
+    val result: List[(Row, Row)] = Diff(Csv(left), CsvSupport.Csv(right), CsvSupport.key)
 
     assert(result === List(
       (Row(List(("ID", "G"), ("Name", "H"), ("Value", "I"))), Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))),
-      (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), Rows.emptyRow)
+      (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), RowSupport.emptyRow)
     ))
   }
 
@@ -32,7 +34,7 @@ class CsvDiffSpec extends WordSpec {
     val left = Row(List(("ID", "G"), ("Name", "H"), ("Value", "I")))
     val right = Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))
 
-    val result: List[(Field, Field)] = Diff[Field](left, right, Rows.key)
+    val result: List[(Field, Field)] = Diff[Field](left, right, RowSupport.key)
 
     assert(result === List(("Name", "H") ->("Name", "X")))
   }
@@ -41,16 +43,14 @@ class CsvDiffSpec extends WordSpec {
     val left = Row(List(("ID", "G"), ("Name", "H"), ("Removed", "I")))
     val right = Row(List(("Added", "Q"), ("ID", "G"), ("Name", "H")))
 
-    val result: List[(Field, Field)] = Diff[Field](left, right, Rows.key)
+    val result: List[(Field, Field)] = Diff[Field](left, right, RowSupport.key)
 
     assert(result === List(("Removed", "I") -> EmptyField, EmptyField -> ("Added", "Q")))
   }
 
-  // Columns: extra, missing
   // Columns: renamed
   // Results summaries: added, missing, diff (set of column diff counts) ==> all now trivial
   // Identify duplicates in both lists
-  // Keys made of sets of columns, to identify matches
   // Ability to ignore some columns
-  // Ability to set tolerances for some comparisons
+  // Ability to set tolerances for numerical field comparisons
 }
