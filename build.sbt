@@ -1,17 +1,14 @@
-// --------- Publishing -----------------------
-publishTo <<= version { v: String =>
-  val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
+import SonatypeKeys._
 
-publishMavenStyle := true
+sonatypeSettings
 
-publishArtifact in Test := false
+organization := "com.github.agmenc"
 
-pomIncludeRepository := { x => false }
+version := "0.0.1"
 
-pomExtra := (
+credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", "agmenc", "")
+
+pomExtra := {
   <url>https://github.com/agmenc/planet7</url>
   <licenses>
     <license>
@@ -21,7 +18,8 @@ pomExtra := (
     </license>
   </licenses>
   <scm>
-    <url>https://github.com/agmenc/planet7</url>
+    <url>git@github.com:agmenc/planet7</url>
+    <developerConnection>scm:git:git@github.com:agmenc/planet7.git</developerConnection>
     <connection>scm:git:git@github.com:agmenc/planet7.git</connection>
   </scm>
   <developers>
@@ -31,4 +29,4 @@ pomExtra := (
       <url>https://github.com/agmenc/planet7</url>
     </developer>
   </developers>
-)
+}
