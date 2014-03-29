@@ -2,11 +2,13 @@ package planet7.relational.csv
 
 import org.scalatest.WordSpec
 import planet7.Diff
-import planet7.relational.csv.FieldSupport._
-import planet7.relational.csv.RowSupport._
-import planet7.relational.csv.CsvSupport._
+import planet7.relational.{FieldSupport, RowSupport, CsvSupport}
+import FieldSupport._
+import planet7.relational.{RowSupport, CsvSupport}
+import RowSupport._
+import CsvSupport._
 
-class CsvDiffSpec extends WordSpec {
+class DiffSpec extends WordSpec {
 
   "The result of diffing two CSV lists is a list of rows that are different" in {
     val left = """

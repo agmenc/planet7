@@ -1,23 +1,10 @@
 package planet7.relational
 
 import org.scalatest.WordSpec
-import planet7.relational.csv.FieldSupport._
-import scala.Some
 import planet7.Diff
+import FieldSupport._
 
 class CaseClassSpec extends WordSpec {
-
-//  implicit class SomeCaseClassDiffable(cc: SomeCaseClass) extends Diffable[Field] {
-//    def zero = EmptyField
-//
-//    def keyExtractor(maybeU: Option[Field]) = ???
-//
-//    def sorted(key: (Option[Field]) => String) = List("name" -> cc.name, "age" -> cc.age.toString, "role" -> cc.role)
-//  }
-
-  "We can diff one case class instance with another" in {
-//    assert(result === List(("role", "x") -> ("role", "y")))
-  }
 
   "We can diff collections containing case class instances" in {
     case class SomeCaseClass(name: String, age: Integer, role: String)
@@ -48,5 +35,20 @@ class CaseClassSpec extends WordSpec {
       SomeCaseClass("c", 4, "r") -> SccDiffer.zero,
       SomeCaseClass("b", 3, "p") -> SomeCaseClass("b", 3, "q")
     ))
+  }
+
+  "We can diff one case class instance with another" in {
+    case class SomeOtherCaseClass(name: String, id: Integer, address: String)
+
+    implicit class FieldSucker(socc: SomeOtherCaseClass) {
+      def fields: List[Field] = List("name" -> socc.name, "id" -> socc.id.toString, "address" -> socc.address)
+    }
+
+    val left = SomeOtherCaseClass("bob", 1, "abc")
+    val right = SomeOtherCaseClass("bob", 1, "def")
+    
+    val result: List[(Field, Field)] = Diff(left.fields, right.fields, FieldDiffer)
+    
+    assert(result === List(("address", "abc") ->("address", "def")))
   }
 }

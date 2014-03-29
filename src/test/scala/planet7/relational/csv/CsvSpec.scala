@@ -1,8 +1,10 @@
 package planet7.relational.csv
 
 import org.scalatest.WordSpec
-import planet7.relational.csv.RowSupport._
-import planet7.relational.csv.CsvSupport._
+import planet7.relational.{RowSupport, CsvSupport}
+import RowSupport._
+import planet7.relational.CsvSupport
+import CsvSupport._
 
 class CsvSpec extends WordSpec {
   "We can construct a list of Rows from a CSV String" in {
