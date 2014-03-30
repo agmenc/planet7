@@ -1,12 +1,11 @@
-package planet7.relational.csv
+package planet7.relational
 
 import org.scalatest.WordSpec
 import planet7.Diff
-import planet7.relational.{FieldSupport, RowSupport, CsvSupport}
 import FieldSupport._
-import planet7.relational.{RowSupport, CsvSupport}
 import RowSupport._
 import CsvSupport._
+import scala.io.Source
 
 class DiffSpec extends WordSpec {
 
@@ -48,6 +47,38 @@ class DiffSpec extends WordSpec {
     val result: List[(Field, Field)] = Diff(left, right, FieldDiffer)
 
     assert(result === List(("Removed", "I") -> EmptyField, EmptyField -> ("Added", "Q")))
+  }
+
+  "Map CSV files to case classes representing the columns to compare" in {
+    case class ComparisonFields(a: String, b: String, d: String, e: Integer)
+
+    object Empty extends ComparisonFields("", "", "", 0) {
+      override def toString = "Empty"
+    }
+
+    object CfDiffer extends Differentiator[ComparisonFields] {
+      def zero = Empty
+      def key(u: ComparisonFields) = u.a
+    }
+
+    def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
+    def safeInt(s: String): Integer = if (s.isEmpty) 0 else s.toInt
+    def createComparison(row: Row) = ComparisonFields(row.value("A"), row.value("B"), row.value("D"), safeInt(row.value("E")))
+
+    val left: List[ComparisonFields] = Csv(readFile("left.csv")).rows map createComparison
+    val right: List[ComparisonFields] = Csv(readFile("right.csv")).rows map createComparison
+
+    val result: List[(ComparisonFields, ComparisonFields)] = Diff(left, right, CfDiffer)
+
+    assert(result === List(
+      CfDiffer.zero -> ComparisonFields("hjt", "waer", "iughv", 7653),
+      ComparisonFields("gfreejuy", "rer", "iu", 642) -> CfDiffer.zero,
+      ComparisonFields("", "", "", 0) -> CfDiffer.zero
+    ))
+  }
+
+  "Map long rows with disparate columns to shorter rows containing just the columns to compare" in {
+
   }
 
   // Columns: renamed

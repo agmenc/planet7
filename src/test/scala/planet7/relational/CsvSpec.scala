@@ -1,9 +1,7 @@
-package planet7.relational.csv
+package planet7.relational
 
 import org.scalatest.WordSpec
-import planet7.relational.{RowSupport, CsvSupport}
 import RowSupport._
-import planet7.relational.CsvSupport
 import CsvSupport._
 
 class CsvSpec extends WordSpec {
