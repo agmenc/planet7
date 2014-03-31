@@ -61,14 +61,12 @@ class DiffSpec extends WordSpec {
       def key(u: ComparisonFields) = u.a
     }
 
+    def toComparisons(fileName: String): List[ComparisonFields] = Csv(readFile(fileName)).rows map createComparison
     def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
-    def safeInt(s: String): Integer = if (s.isEmpty) 0 else s.toInt
     def createComparison(row: Row) = ComparisonFields(row.value("A"), row.value("B"), row.value("D"), safeInt(row.value("E")))
+    def safeInt(s: String): Integer = if (s.isEmpty) 0 else s.toInt
 
-    val left: List[ComparisonFields] = Csv(readFile("left.csv")).rows map createComparison
-    val right: List[ComparisonFields] = Csv(readFile("right.csv")).rows map createComparison
-
-    val result: List[(ComparisonFields, ComparisonFields)] = Diff(left, right, CfDiffer)
+    val result: List[(ComparisonFields, ComparisonFields)] = Diff(toComparisons("left.csv"), toComparisons("right.csv"), CfDiffer)
 
     assert(result === List(
       CfDiffer.zero -> ComparisonFields("hjt", "waer", "iughv", 7653),
@@ -78,7 +76,17 @@ class DiffSpec extends WordSpec {
   }
 
   "Map long rows with disparate columns to shorter rows containing just the columns to compare" in {
+    def toShortRows(fileName: String) = Csv(readFile(fileName)).rows.map(_.keepColumns("A", "B", "D", "E"))
+    def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
+    val differ: RowDiffer = RowDiffer("A")
 
+    val result: List[(Row, Row)] = Diff(toShortRows("left.csv"), toShortRows("right.csv"), differ)
+
+    assert(result === List(
+      differ.zero -> Row(List("A", "B", "D", "E") zip List("hjt", "waer", "iughv", "7653")),
+      Row(List("A", "B", "D", "E") zip List("gfreejuy", "rer", "iu", "642")) -> differ.zero,
+      differ.zero -> differ.zero
+    ))
   }
 
   // Columns: renamed
