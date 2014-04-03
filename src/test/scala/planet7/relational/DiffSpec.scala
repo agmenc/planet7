@@ -46,7 +46,7 @@ class DiffSpec extends WordSpec {
 
     val result: List[(Field, Field)] = Diff(left, right, FieldDiffer)
 
-    assert(result === List(("Removed", "I") -> EmptyField, EmptyField -> ("Added", "Q")))
+    assert(result === List(("Removed", "I") -> EmptyField, EmptyField ->("Added", "Q")))
   }
 
   "Map CSV files to case classes representing the columns to compare" in {
@@ -76,7 +76,7 @@ class DiffSpec extends WordSpec {
   }
 
   "Map long rows with disparate columns to shorter rows containing just the columns to compare" in {
-    def toShortRows(fileName: String) = Csv(readFile(fileName)).rows.map(_.keepColumns("A", "B", "D", "E"))
+    def toShortRows(fileName: String) = Csv(readFile(fileName)).keepColumns("A", "B", "D", "E").rows
     def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
     val differ: RowDiffer = RowDiffer("A")
 
@@ -89,9 +89,54 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  // Columns: renamed
+  "Rename columns between CSVs" in {
+    val left = """
+                 |ID,Name,Value
+                 |A,B,C
+                 |D,E,F
+                 |G,H,I
+               """.stripMargin
+
+    val right = """
+                  |ID,Nickname,Value
+                  |A,B,C
+                  |D,Q,F
+                  |G,H,I
+                """.stripMargin
+
+    val result: List[(Row, Row)] = Diff(Csv(left).renameColumns("Name" -> "Nickname").rows, Csv(right).rows, RowDiffer("ID"))
+
+    assert(result === List(
+      (Row(List(("ID", "D"), ("Nickname", "E"), ("Value", "F"))), Row(List(("ID", "D"), ("Nickname", "Q"), ("Value", "F"))))
+    ))
+  }
+
+  // See http://www.generatedata.com/#generator
+  // Both:    First name,Surname,Company,Company account,Postcode,New postcode,Pet's name,Email
+  // Before:  First name,Surname,Company,Company account,Postcode,Pet names
+  // After:   Company,Company ID,First name,Surname,Postcode,Email
+  "Map column data to equivalent values" in {
+//    def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
+//
+//    val before = Csv(readFile("before.csv"))
+//      .renameColumns("Company account" -> "Company ID")
+//      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
+//
+//    val after = Csv(readFile("after.csv"))
+//      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
+//
+//    val differ: RowDiffer = RowDiffer("Company ID")
+//
+//    val result: List[(Row, Row)] = Diff(before.rows, after.rows, differ)
+//
+//    assert(result === List(
+//      differ.zero -> Row(List("A", "B", "D", "E") zip List("hjt", "waer", "iughv", "7653")),
+//      Row(List("A", "B", "D", "E") zip List("gfreejuy", "rer", "iu", "642")) -> differ.zero,
+//      differ.zero -> differ.zero
+//    ))
+  }
+
   // Results summaries: added, missing, diff (set of column diff counts) ==> all now trivial
   // Identify duplicates in both lists
-  // Ability to ignore some columns
   // Ability to set tolerances for numerical field comparisons
 }
