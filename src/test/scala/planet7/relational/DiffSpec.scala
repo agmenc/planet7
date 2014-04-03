@@ -111,29 +111,50 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  // See http://www.generatedata.com/#generator
-  // Both:    First name,Surname,Company,Company account,Postcode,New postcode,Pet's name,Email
-  // Before:  First name,Surname,Company,Company account,Postcode,Pet names
-  // After:   Company,Company ID,First name,Surname,Postcode,Email
-  "Map column data to equivalent values" in {
-//    def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
-//
-//    val before = Csv(readFile("before.csv"))
-//      .renameColumns("Company account" -> "Company ID")
-//      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
-//
-//    val after = Csv(readFile("after.csv"))
-//      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
-//
-//    val differ: RowDiffer = RowDiffer("Company ID")
-//
-//    val result: List[(Row, Row)] = Diff(before.rows, after.rows, differ)
-//
-//    assert(result === List(
-//      differ.zero -> Row(List("A", "B", "D", "E") zip List("hjt", "waer", "iughv", "7653")),
-//      Row(List("A", "B", "D", "E") zip List("gfreejuy", "rer", "iu", "642")) -> differ.zero,
-//      differ.zero -> differ.zero
-//    ))
+  "Reorder columns between CSVs" in {
+    val left = Csv("""
+                 |ID,Name,Value
+                 |A,B,C
+                 |D,E,F
+                 |G,H,I
+               """.stripMargin).renameColumns("Name" -> "Nickname")
+
+    val right: Csv = Csv("""
+                  |ID,Value,Nickname
+                  |A,C,B
+                  |D,F,Q
+                  |G,I,H
+                """.stripMargin)
+
+    val result: List[(Row, Row)] = Diff(left.keepColumns("ID", "Value", "Nickname").rows, right.rows, RowDiffer("ID"))
+
+    assert(result === List(
+      (Row(List(("ID", "D"), ("Value", "F"), ("Nickname", "E"))), Row(List(("ID", "D"), ("Value", "F"), ("Nickname", "Q"))))
+    ))
+  }
+
+  "Map column data to equivalent values (postcode lookup)" in {
+    def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
+
+    def toTuple(row: Row): (String, String) = row.values match {
+      case beforeValue :: afterValue :: Nil => beforeValue._2 -> afterValue._2
+    }
+
+    val postcodeLookupTable = Map(Csv(readFile("postcodes.csv")).rows map toTuple:_*)
+
+    val before = Csv(readFile("before.csv"))
+      .renameColumns("Company account" -> "Company ID")
+      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
+      .withMapping("Postcode", postcodeLookupTable)
+
+    val after = Csv(readFile("after.csv"))
+      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
+
+    val differ: RowDiffer = RowDiffer("Company ID")
+
+    val result: List[(Row, Row)] = Diff(before.rows, after.rows, differ)
+
+    assert(result === Nil)
   }
 
   // Results summaries: added, missing, diff (set of column diff counts) ==> all now trivial

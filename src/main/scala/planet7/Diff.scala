@@ -5,7 +5,7 @@ import planet7.relational.Differentiator
 
 /**
  * Opinionated Diff:
- *  - We sort left and right inputs by the provided key, and the results follow this sort order
+ *  - We sort left and right inputs by a key, and so the results follow the same order
  *  - The result of a diff is a list of differences, each of which is also (potentially) diffable
  */
 object Diff {
