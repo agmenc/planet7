@@ -155,9 +155,24 @@ class DiffSpec extends WordSpec {
     assert(Diff(before.rows, after.rows, RowDiffer("Company ID")) === Nil)
   }
 
-  // withMapping ===> withMappings(*)
+  "Processing a list of Row Diffs to get a list of fields diffs" in {
+    val rowDiffs = List(
+      (Row(List(("ID", "G"), ("Name", "H"), ("Value", "I"))), Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))),
+      (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), RowSupport.EmptyRow)
+    )
 
-  // Process diffs to show the fields that changed
+    val moreFieldDiffs = rowDiffs map {
+      case (row, RowSupport.EmptyRow) => row.values map (_ -> EmptyField)
+      case (RowSupport.EmptyRow, row) => row.values map (EmptyField -> _)
+      case (left, right) => Diff(left.values, right.values, FieldDiffer)
+    }
+
+    assert(moreFieldDiffs === List(
+      List(("Name", "H") -> ("Name", "X")),
+      List(("ID", "D") -> EmptyField, ("Name", "E") -> EmptyField, ("Value", "F") -> EmptyField)
+    ))
+  }
+
   // Results summaries: added, missing, diff (set of column diff counts) ==> all now trivial
   // Identify duplicates in both lists
   // Ability to set tolerances for numerical field comparisons
