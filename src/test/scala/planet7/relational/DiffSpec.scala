@@ -89,7 +89,7 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  "Rename columns between CSVs" in {
+  "Rename columns between CSVs, so that simple column name changes don't cause differences" in {
     val left = """
                  |ID,Name,Value
                  |A,B,C
@@ -111,7 +111,7 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  "Reorder columns between CSVs" in {
+  "Reorder columns between CSVs, so that column position changes don't cause differences" in {
     val left = Csv("""
                  |ID,Name,Value
                  |A,B,C
@@ -133,30 +133,31 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  "Map column data to equivalent values (postcode lookup)" in {
-    def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
-
-    def toTuple(row: Row): (String, String) = row.values match {
-      case beforeValue :: afterValue :: Nil => beforeValue._2 -> afterValue._2
+  "Map column data to equivalent values (postcode lookup) so that equivalent data rows don't cause differences" in {
+    object CompanyAccountsData {
+      def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
+      def postcodeLookupTable = Map(Csv(readFile("postcodes.csv")).rows map toTuple:_*)
+      private def toTuple(row: Row): (String, String) = row.values match {
+        case beforeValue :: afterValue :: Nil => beforeValue._2 -> afterValue._2
+      }
     }
 
-    val postcodeLookupTable = Map(Csv(readFile("postcodes.csv")).rows map toTuple:_*)
+    import CompanyAccountsData._
 
     val before = Csv(readFile("before.csv"))
       .renameColumns("Company account" -> "Company ID")
       .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
-      .withMapping("Postcode", postcodeLookupTable)
+      .withMappings("Postcode" -> postcodeLookupTable)
 
     val after = Csv(readFile("after.csv"))
       .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    val differ: RowDiffer = RowDiffer("Company ID")
-
-    val result: List[(Row, Row)] = Diff(before.rows, after.rows, differ)
-
-    assert(result === Nil)
+    assert(Diff(before.rows, after.rows, RowDiffer("Company ID")) === Nil)
   }
 
+  // withMapping ===> withMappings(*)
+
+  // Process diffs to show the fields that changed
   // Results summaries: added, missing, diff (set of column diff counts) ==> all now trivial
   // Identify duplicates in both lists
   // Ability to set tolerances for numerical field comparisons
