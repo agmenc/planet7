@@ -2,9 +2,9 @@ package planet7.relational
 
 import org.scalatest.WordSpec
 import planet7.Diff
-import FieldSupport._
-import RowSupport._
-import CsvSupport._
+import planet7.relational.FieldSupport._
+import planet7.relational.RowSupport._
+import planet7.relational.CsvSupport._
 import scala.io.Source
 
 class DiffSpec extends WordSpec {
@@ -31,7 +31,7 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  "The result of diffing two rows is a list of field diffs" in {
+  "The result of diffing two lists of fields is a list of field diffs" in {
     val left = List(("ID", "G"), ("Name", "H"), ("Value", "I"))
     val right = List(("ID", "G"), ("Name", "X"), ("Value", "I"))
 
@@ -134,14 +134,6 @@ class DiffSpec extends WordSpec {
   }
 
   "Map column data to equivalent values (postcode lookup) so that equivalent data rows don't cause differences" in {
-    object CompanyAccountsData {
-      def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
-      def postcodeLookupTable = Map(Csv(readFile("postcodes.csv")).rows map toTuple:_*)
-      private def toTuple(row: Row): (String, String) = row.values match {
-        case beforeValue :: afterValue :: Nil => beforeValue._2 -> afterValue._2
-      }
-    }
-
     import CompanyAccountsData._
 
     val before = Csv(readFile("before.csv"))
@@ -155,25 +147,57 @@ class DiffSpec extends WordSpec {
     assert(Diff(before.rows, after.rows, RowDiffer("Company ID")) === Nil)
   }
 
-  "Processing a list of Row Diffs to get a list of fields diffs" in {
+  "Convert a list of Row Diffs to a list of Field diffs, so that we can see which columns have changed" in {
     val rowDiffs = List(
       (Row(List(("ID", "G"), ("Name", "H"), ("Value", "I"))), Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))),
       (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), RowSupport.EmptyRow)
     )
 
-    val moreFieldDiffs = rowDiffs map {
-      case (row, RowSupport.EmptyRow) => row.values map (_ -> EmptyField)
-      case (RowSupport.EmptyRow, row) => row.values map (EmptyField -> _)
+    val fieldDiffs = rowDiffs map {
       case (left, right) => Diff(left.values, right.values, FieldDiffer)
     }
 
-    assert(moreFieldDiffs === List(
+    assert(fieldDiffs === List(
       List(("Name", "H") -> ("Name", "X")),
       List(("ID", "D") -> EmptyField, ("Name", "E") -> EmptyField, ("Value", "F") -> EmptyField)
     ))
   }
 
-  // Results summaries: added, missing, diff (set of column diff counts) ==> all now trivial
-  // Identify duplicates in both lists
+  "Analyse the differences, so that we can display them clearly to the user" in {
+    import CompanyAccountsData._
+
+    val before = Csv(readFile("before.csv"))
+      .renameColumns("Company account" -> "Company ID")
+      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
+      .withMappings("Postcode" -> postcodeLookupTable)
+
+    val after = Csv(readFile("after_with_diffs.csv"))
+      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
+
+    val diffs: List[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer("Company ID"))
+
+    val summary = diffs.groupBy {
+      case (row, EmptyRow) => "Missing"
+      case (EmptyRow, row) => "Added"
+      case (row1, row2) => "Diffs"
+    }
+
+    val readableDiffs = summary("Diffs") map (d => Diff(d._1.values, d._2.values, FieldDiffer)) map (prettyPrint(_).mkString(", "))
+
+    printSummary(summary, readableDiffs)
+
+    assert(readableDiffs === List(
+      "Postcode: 43205 -> 432666, Company: Enim Sit Amet Incorporated -> Enim Sit Amet Limited",
+      "Postcode: 22656 -> 22756"
+    ))
+  }
+
+  def printSummary(summary: Map[String, List[(Row, Row)]], readableDiffs: List[String]) = {
+    println(s"""\nMissing:${summary("Missing").map(_._1).mkString("\n  -", "\n  -", "")}""")
+    println(s"""\nAdded:${summary("Added").map(_._2).mkString("\n  +", "\n  +", "")}""")
+    println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
+  }
+
   // Ability to set tolerances for numerical field comparisons
+  // Identify duplicates in both lists
 }
