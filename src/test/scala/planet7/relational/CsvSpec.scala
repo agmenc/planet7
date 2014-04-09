@@ -37,4 +37,22 @@ class CsvSpec extends WordSpec {
     assert(Csv("").rows=== Nil)
     assert(Csv("Some,Header,Columns").rows === Nil)
   }
+
+  "Merge CSVs, so that we can gather similar data from multiple sources" in {
+    val left = Csv( """
+                      |ID,Name,Value
+                      |A,B,C
+                    """.stripMargin)
+
+    val right = Csv( """
+                       |ID,Value,Name
+                       |D,F,E
+                     """.stripMargin).keepColumns("ID", "Name", "Value") // Put columns into the same order
+
+    assert(Csv(left, right) === Csv( """
+                                       |ID,Name,Value
+                                       |A,B,C
+                                       |D,E,F
+                                     """.stripMargin))
+  }
 }

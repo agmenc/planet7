@@ -17,7 +17,9 @@ object CsvSupport {
   object Csv {
     def apply(data: String): Csv = toCsv(data.trim.split("\n").toList)
     def apply(rows: List[Row]): Csv = Csv(rows.head.columnNames, rows.map(_.columnValues))
-    def apply(source: BufferedSource): Csv = Csv(source.getLines().mkString("\n"))
+    def apply(dataSource: BufferedSource): Csv = Csv(dataSource.getLines().mkString("\n"))
+    def apply(csvs: Csv*): Csv = apply(csvs)
+    def apply(csvs: Iterable[Csv]): Csv = Csv(csvs.head.headers, csvs.flatMap(_.data)(collection.breakOut): List[List[String]])
 
     private def toCsv(allRows: List[String]) = Csv(toRowValues(allRows.head), allRows.tail filter(_.trim.nonEmpty) map toRowValues)
     private def toRowValues(s: String) = s.split(",").toList

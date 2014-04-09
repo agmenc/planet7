@@ -6,6 +6,7 @@ import planet7.relational.FieldSupport._
 import planet7.relational.RowSupport._
 import planet7.relational.CsvSupport._
 import scala.io.Source
+import TestData._
 
 class DiffSpec extends WordSpec {
 
@@ -75,89 +76,15 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  "Map long rows with disparate columns to shorter rows containing just the columns to compare" in {
-    def toShortRows(fileName: String) = Csv(readFile(fileName)).keepColumns("A", "B", "D", "E").rows
-    def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
-    val differ: RowDiffer = RowDiffer("A")
-
-    val result: List[(Row, Row)] = Diff(toShortRows("left.csv"), toShortRows("right.csv"), differ)
-
-    assert(result === List(
-      differ.zero -> Row(List("A", "B", "D", "E") zip List("hjt", "waer", "iughv", "7653")),
-      Row(List("A", "B", "D", "E") zip List("gfreejuy", "rer", "iu", "642")) -> differ.zero,
-      differ.zero -> differ.zero
-    ))
-  }
-
-  "Rename columns between CSVs, so that simple column name changes don't cause differences" in {
-    val left = """
-                 |ID,Name,Value
-                 |A,B,C
-                 |D,E,F
-                 |G,H,I
-               """.stripMargin
-
-    val right = """
-                  |ID,Nickname,Value
-                  |A,B,C
-                  |D,Q,F
-                  |G,H,I
-                """.stripMargin
-
-    val result: List[(Row, Row)] = Diff(Csv(left).renameColumns("Name" -> "Nickname").rows, Csv(right).rows, RowDiffer("ID"))
-
-    assert(result === List(
-      (Row(List(("ID", "D"), ("Nickname", "E"), ("Value", "F"))), Row(List(("ID", "D"), ("Nickname", "Q"), ("Value", "F"))))
-    ))
-  }
-
-  "Reorder columns between CSVs, so that column position changes don't cause differences" in {
-    val left = Csv("""
-                 |ID,Name,Value
-                 |A,B,C
-                 |D,E,F
-                 |G,H,I
-               """.stripMargin).renameColumns("Name" -> "Nickname")
-
-    val right: Csv = Csv("""
-                  |ID,Value,Nickname
-                  |A,C,B
-                  |D,F,Q
-                  |G,I,H
-                """.stripMargin)
-
-    val result: List[(Row, Row)] = Diff(left.keepColumns("ID", "Value", "Nickname").rows, right.rows, RowDiffer("ID"))
-
-    assert(result === List(
-      (Row(List(("ID", "D"), ("Value", "F"), ("Nickname", "E"))), Row(List(("ID", "D"), ("Value", "F"), ("Nickname", "Q"))))
-    ))
-  }
-
-  "Map column data to equivalent values (postcode lookup) so that equivalent data rows don't cause differences" in {
-    import CompanyAccountsData._
-
-    val before = Csv(readFile("before.csv"))
-      .renameColumns("Company account" -> "Company ID")
-      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
-      .withMappings("Postcode" -> postcodeLookupTable)
-
-    val after = Csv(readFile("after.csv"))
-      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
-
-    assert(Diff(before.rows, after.rows, RowDiffer("Company ID")) === Nil)
-  }
-
   "Convert a list of Row Diffs to a list of Field diffs, so that we can see which columns have changed" in {
     val rowDiffs = List(
       (Row(List(("ID", "G"), ("Name", "H"), ("Value", "I"))), Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))),
       (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), RowSupport.EmptyRow)
     )
 
-    val fieldDiffs = rowDiffs map {
-      case (left, right) => Diff(left.values, right.values, FieldDiffer)
-    }
+    val toFieldDiffs = (l: Row, r: Row) => Diff(l.values, r.values, FieldDiffer)
 
-    assert(fieldDiffs === List(
+    assert((rowDiffs map toFieldDiffs.tupled) === List(
       List(("Name", "H") -> ("Name", "X")),
       List(("ID", "D") -> EmptyField, ("Name", "E") -> EmptyField, ("Value", "F") -> EmptyField)
     ))
@@ -197,6 +124,8 @@ class DiffSpec extends WordSpec {
     println(s"""\nAdded:${summary("Added").map(_._2).mkString("\n  +", "\n  +", "")}""")
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
   }
+
+  // TODO - CAS - 08/04/2014 - Make field mapper a function, not just a Map
 
   // Ability to set tolerances for numerical field comparisons
   // Identify duplicates in both lists

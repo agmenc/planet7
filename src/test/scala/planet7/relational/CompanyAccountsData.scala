@@ -4,9 +4,12 @@ import scala.io.Source
 import planet7.relational.CsvSupport.Csv
 import planet7.relational.RowSupport.Row
 
-object CompanyAccountsData {
+object TestData {
   def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
-  def postcodeLookupTable = Map(Csv(readFile("postcodes.csv")).rows map toTuple:_*)
+}
+
+object CompanyAccountsData {
+  def postcodeLookupTable = Map(Csv(TestData.readFile("postcodes.csv")).rows map toTuple:_*)
   private def toTuple(row: Row): (String, String) = row.values match {
     case beforeValue :: afterValue :: Nil => beforeValue._2 -> afterValue._2
     case _ => ???
