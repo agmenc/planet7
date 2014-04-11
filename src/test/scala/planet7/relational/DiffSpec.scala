@@ -96,7 +96,10 @@ class DiffSpec extends WordSpec {
     val before = Csv(readFile("before.csv"))
       .renameColumns("Company account" -> "Company ID")
       .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
-      .withMappings("Postcode" -> postcodeLookupTable)
+      .withMappings(
+        "Postcode" -> postcodeLookupTable,
+        "Company" -> (_.toUpperCase)
+      )
 
     val after = Csv(readFile("after_with_diffs.csv"))
       .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
@@ -114,7 +117,7 @@ class DiffSpec extends WordSpec {
     printSummary(summary, readableDiffs)
 
     assert(readableDiffs === List(
-      "Postcode: 43205 -> 432666, Company: Enim Sit Amet Incorporated -> Enim Sit Amet Limited",
+      "Postcode: 43205 -> 432666, Company: ENIM SIT AMET INCORPORATED -> ENIM SIT AMET LIMITED",
       "Postcode: 22656 -> 22756"
     ))
   }

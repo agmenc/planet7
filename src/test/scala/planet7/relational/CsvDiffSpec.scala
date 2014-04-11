@@ -49,19 +49,19 @@ class CsvDiffSpec extends WordSpec {
                       |A,B,C
                       |D,E,F
                       |G,H,I
-                    """.stripMargin).renameColumns("Name" -> "Nickname")
+                    """.stripMargin)
 
     val right: Csv = Csv( """
-                            |ID,Value,Nickname
+                            |ID,Value,Name
                             |A,C,B
                             |D,F,Q
                             |G,I,H
                           """.stripMargin)
 
-    val result: List[(Row, Row)] = Diff(left.keepColumns("ID", "Value", "Nickname").rows, right.rows, RowDiffer("ID"))
+    val result: List[(Row, Row)] = Diff(left.keepColumns("ID", "Value", "Name").rows, right.rows, RowDiffer("ID"))
 
     assert(result === List(
-      (Row(List(("ID", "D"), ("Value", "F"), ("Nickname", "E"))), Row(List(("ID", "D"), ("Value", "F"), ("Nickname", "Q"))))
+      (Row(List(("ID", "D"), ("Value", "F"), ("Name", "E"))), Row(List(("ID", "D"), ("Value", "F"), ("Name", "Q"))))
     ))
   }
 

@@ -6,12 +6,14 @@ import scala.io.BufferedSource
 object CsvSupport {
   case class Csv(headers: List[String], data: List[List[String]]) {
     def rows: List[Row] = data map(headers zip _) map Row
-    def withMappings(mappings: (String, Map[String, String])*): Csv = Csv(rows map (_.replace(Map(mappings:_*))))
+    def withMappings(mappings: (String, (String) => String)*): Csv = Csv(rows map (_.replace(Map(mappings:_*))))
     def keepColumns(columns: String*): Csv = Csv(rows map (_.keepColumns(columns:_*)))
 
     def renameColumns(nameChanges: (String,String)*): Csv = renameColumns(Map(nameChanges:_*))
     private def renameColumns(deltas: Map[String,String]): Csv = Csv(headers map (renameHeader(deltas, _)), data)
     private def renameHeader(deltas: Map[String,String], header: String) = if (deltas.contains(header)) deltas(header) else header
+
+    override def toString = (headers.mkString(",") + "\n") + (rows mkString "\n")
   }
 
   object Csv {
