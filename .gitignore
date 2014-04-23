@@ -38,3 +38,5 @@ lift_proto*
 
 # IntelliJ
 .idea*
+
+credentials.sbt
