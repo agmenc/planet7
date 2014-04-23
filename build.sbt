@@ -4,9 +4,7 @@ sonatypeSettings
 
 organization := "com.github.agmenc"
 
-version := "0.0.1"
-
-credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", "agmenc", "")
+version := "0.0.6"
 
 pomExtra := {
   <url>https://github.com/agmenc/planet7</url>
