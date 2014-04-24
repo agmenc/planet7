@@ -128,8 +128,6 @@ class DiffSpec extends WordSpec {
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
   }
 
-  // TODO - CAS - 08/04/2014 - Make field mapper a function, not just a Map
-
   // Ability to set tolerances for numerical field comparisons
   // Identify duplicates in both lists
 }
