@@ -2,7 +2,6 @@ package planet7.relational
 
 import org.scalatest.WordSpec
 import planet7.Diff
-import FieldSupport._
 
 class CaseClassSpec extends WordSpec {
 

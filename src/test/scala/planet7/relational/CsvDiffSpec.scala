@@ -2,8 +2,6 @@ package planet7.relational
 
 import org.scalatest.WordSpec
 import planet7.Diff
-import planet7.relational.RowSupport._
-import planet7.relational.CsvSupport._
 import TestData._
 
 class CsvDiffSpec extends WordSpec {

@@ -2,9 +2,6 @@ package planet7.relational
 
 import org.scalatest.WordSpec
 import planet7.Diff
-import planet7.relational.FieldSupport._
-import planet7.relational.RowSupport._
-import planet7.relational.CsvSupport._
 import scala.io.Source
 import TestData._
 
@@ -28,7 +25,7 @@ class DiffSpec extends WordSpec {
 
     assert(result === List(
       (Row(List(("ID", "G"), ("Name", "H"), ("Value", "I"))), Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))),
-      (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), RowSupport.EmptyRow)
+      (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), EmptyRow)
     ))
   }
 
@@ -79,7 +76,7 @@ class DiffSpec extends WordSpec {
   "Convert a list of Row Diffs to a list of Field diffs, so that we can see which columns have changed" in {
     val rowDiffs = List(
       (Row(List(("ID", "G"), ("Name", "H"), ("Value", "I"))), Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))),
-      (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), RowSupport.EmptyRow)
+      (Row(List(("ID", "D"), ("Name", "E"), ("Value", "F"))), EmptyRow)
     )
 
     val toFieldDiffs = (l: Row, r: Row) => Diff(l.values, r.values, FieldDiffer)

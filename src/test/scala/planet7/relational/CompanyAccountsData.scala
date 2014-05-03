@@ -1,8 +1,6 @@
 package planet7.relational
 
 import scala.io.Source
-import planet7.relational.CsvSupport.Csv
-import planet7.relational.RowSupport.Row
 
 object TestData {
   def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")

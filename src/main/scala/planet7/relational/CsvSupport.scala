@@ -1,9 +1,8 @@
 package planet7.relational
 
-import RowSupport.Row
 import scala.io.BufferedSource
 
-object CsvSupport {
+trait CsvSupport {
   case class Csv(headers: List[String], data: List[List[String]]) {
     def rows: List[Row] = data map(headers zip _) map Row
     def withMappings(mappings: (String, (String) => String)*): Csv = Csv(rows map (_.replace(Map(mappings:_*))))

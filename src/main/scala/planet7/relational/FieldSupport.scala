@@ -1,6 +1,6 @@
 package planet7.relational
 
-object FieldSupport {
+trait FieldSupport {
   type Field = (String, String)
   type FieldDiff = (Field, Field)
 
