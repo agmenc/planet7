@@ -7,6 +7,7 @@ object Build extends Build {
   def sharedSettings = Seq(
     name := "planet7",
     scalaVersion:= "2.11.0",
+    incOptions := incOptions.value.withNameHashing(true),
     crossScalaVersions := Seq("2.10.4", "2.11.0"),
     scalacOptions += "-deprecation",
     libraryDependencies ++= Seq(
