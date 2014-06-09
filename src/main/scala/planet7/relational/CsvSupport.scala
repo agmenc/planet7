@@ -5,14 +5,25 @@ import scala.io.BufferedSource
 trait CsvSupport {
   case class Csv(headers: List[String], data: List[List[String]]) {
     def rows: List[Row] = data map(headers zip _) map Row
-    def withMappings(mappings: (String, (String) => String)*): Csv = Csv(rows map (_.replace(Map(mappings:_*))))
-    def keepColumns(columns: String*): Csv = Csv(rows map (_.keepColumns(columns:_*)))
+    
+    def rename(nameChanges: (String,String)*): Csv = renameColumns(Map(nameChanges:_*))
+    
+    /**
+     * These columns will be:
+     *   * retained in the output
+     *   * re-ordered to the order you provide
+     */
+    def reorderAndRetain(columns: String*): Csv = Csv(rows map (_.keepColumns(columns:_*)))
 
-    def renameColumns(nameChanges: (String,String)*): Csv = renameColumns(Map(nameChanges:_*))
+    def remap(mappings: (String, (String) => String)*): Csv = Csv(rows map (_.replace(Map(mappings:_*))))
+    
+    def defineOutputColumns(columnMappings: (String,String)*): Csv = rename(columnMappings:_*).reorderAndRetain(columnMappings.map(_._2):_*)
+
     private def renameColumns(deltas: Map[String,String]): Csv = Csv(headers map (renameHeader(deltas, _)), data)
     private def renameHeader(deltas: Map[String,String], header: String) = if (deltas.contains(header)) deltas(header) else header
 
-    override def toString = (headers.mkString(",") + "\n") + (rows mkString "\n")
+    override def toString = (headers.mkString(",") + "\n") + contentsToShow
+    private def contentsToShow = if (rows.size > 2) (rows take 3 mkString "\n") + "\n..." else rows mkString "\n"
   }
 
   object Csv {

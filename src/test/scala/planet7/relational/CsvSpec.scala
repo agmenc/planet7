@@ -45,7 +45,7 @@ class CsvSpec extends WordSpec {
     val right = Csv( """
                        |ID,Value,Name
                        |D,F,E
-                     """.stripMargin).keepColumns("ID", "Name", "Value") // Put columns into the same order
+                     """.stripMargin).reorderAndRetain("ID", "Name", "Value") // Put columns into the same order
 
     assert(Csv(left, right) === Csv( """
                                        |ID,Name,Value

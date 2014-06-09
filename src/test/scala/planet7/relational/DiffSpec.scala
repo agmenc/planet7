@@ -91,15 +91,15 @@ class DiffSpec extends WordSpec {
     import CompanyAccountsData._
 
     val before = Csv(readFile("before.csv"))
-      .renameColumns("Company account" -> "Company ID")
-      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
-      .withMappings(
+      .rename("Company account" -> "Company ID")
+      .reorderAndRetain("First name", "Surname", "Company", "Company ID", "Postcode")
+      .remap(
         "Postcode" -> postcodeLookupTable,
         "Company" -> (_.toUpperCase)
       )
 
     val after = Csv(readFile("after_with_diffs.csv"))
-      .keepColumns("First name", "Surname", "Company", "Company ID", "Postcode")
+      .reorderAndRetain("First name", "Surname", "Company", "Company ID", "Postcode")
 
     val diffs: List[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer("Company ID"))
 
