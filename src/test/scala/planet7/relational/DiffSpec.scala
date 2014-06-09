@@ -92,14 +92,14 @@ class DiffSpec extends WordSpec {
 
     val before = Csv(readFile("before.csv"))
       .rename("Company account" -> "Company ID")
-      .reorderAndRetain("First name", "Surname", "Company", "Company ID", "Postcode")
+      .retainReorderOrAdd("First name", "Surname", "Company", "Company ID", "Postcode")
       .remap(
         "Postcode" -> postcodeLookupTable,
         "Company" -> (_.toUpperCase)
       )
 
     val after = Csv(readFile("after_with_diffs.csv"))
-      .reorderAndRetain("First name", "Surname", "Company", "Company ID", "Postcode")
+      .retainReorderOrAdd("First name", "Surname", "Company", "Company ID", "Postcode")
 
     val diffs: List[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer("Company ID"))
 

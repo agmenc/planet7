@@ -7,7 +7,7 @@ import TestData._
 class CsvDiffSpec extends WordSpec {
 
   "Map long rows with disparate columns to shorter rows containing just the columns to compare" in {
-    def toShortRows(fileName: String) = Csv(readFile(fileName)).reorderAndRetain("A", "B", "D", "E").rows
+    def toShortRows(fileName: String) = Csv(readFile(fileName)).retainReorderOrAdd("A", "B", "D", "E").rows
     val differ: RowDiffer = RowDiffer("A")
 
     val result: List[(Row, Row)] = Diff(toShortRows("left.csv"), toShortRows("right.csv"), differ)
@@ -15,7 +15,7 @@ class CsvDiffSpec extends WordSpec {
     assert(result === List(
       differ.zero -> Row(List("A", "B", "D", "E") zip List("hjt", "waer", "iughv", "7653")),
       Row(List("A", "B", "D", "E") zip List("gfreejuy", "rer", "iu", "642")) -> differ.zero,
-      differ.zero -> differ.zero
+      Row(List("A", "B", "D", "E") zip List("", "", "", "")) -> differ.zero
     ))
   }
 
@@ -56,7 +56,7 @@ class CsvDiffSpec extends WordSpec {
                             |G,I,H
                           """.stripMargin)
 
-    val result: List[(Row, Row)] = Diff(left.reorderAndRetain("ID", "Value", "Name").rows, right.rows, RowDiffer("ID"))
+    val result: List[(Row, Row)] = Diff(left.retainReorderOrAdd("ID", "Value", "Name").rows, right.rows, RowDiffer("ID"))
 
     assert(result === List(
       (Row(List(("ID", "D"), ("Value", "F"), ("Name", "E"))), Row(List(("ID", "D"), ("Value", "F"), ("Name", "Q"))))
@@ -68,11 +68,11 @@ class CsvDiffSpec extends WordSpec {
 
     val before = Csv(readFile("before.csv"))
       .rename("Company account" -> "Company ID")
-      .reorderAndRetain("First name", "Surname", "Company", "Company ID", "Postcode")
+      .retainReorderOrAdd("First name", "Surname", "Company", "Company ID", "Postcode")
       .remap("Postcode" -> postcodeLookupTable)
 
     val after = Csv(readFile("after.csv"))
-      .reorderAndRetain("First name", "Surname", "Company", "Company ID", "Postcode")
+      .retainReorderOrAdd("First name", "Surname", "Company", "Company ID", "Postcode")
 
     assert(Diff(before.rows, after.rows, RowDiffer("Company ID")) === Nil)
   }

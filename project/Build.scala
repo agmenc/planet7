@@ -1,6 +1,5 @@
 import sbt._
 import Keys._
-import xerial.sbt.Sonatype.SonatypeKeys._
 
 object Build extends Build {
 

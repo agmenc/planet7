@@ -45,12 +45,32 @@ class CsvSpec extends WordSpec {
     val right = Csv( """
                        |ID,Value,Name
                        |D,F,E
-                     """.stripMargin).reorderAndRetain("ID", "Name", "Value") // Put columns into the same order
+                     """.stripMargin).retainReorderOrAdd("ID", "Name", "Value") // Put columns into the same order
 
     assert(Csv(left, right) === Csv( """
                                        |ID,Name,Value
                                        |A,B,C
                                        |D,E,F
                                      """.stripMargin))
+  }
+
+  "We can add columns to CSVs" in {
+    val twoColumnsOfData = """
+                             |ID,Name
+                             |A,B
+                           """.stripMargin
+
+    val threeColumnsOfData = """
+                               |ID,Value,Name
+                               |A,Some default value,B
+                             """.stripMargin
+
+    def transform(data: String) =
+      Csv(twoColumnsOfData)
+        .retainReorderOrAdd("ID", "Value", "Name")
+        .remap("Value" -> (_ => "Some default value"))
+
+    assert(transform(twoColumnsOfData) === Csv(threeColumnsOfData))
+
   }
 }

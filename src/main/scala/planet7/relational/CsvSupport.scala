@@ -5,20 +5,43 @@ import scala.io.BufferedSource
 trait CsvSupport {
   case class Csv(headers: List[String], data: List[List[String]]) {
     def rows: List[Row] = data map(headers zip _) map Row
-    
-    def rename(nameChanges: (String,String)*): Csv = renameColumns(Map(nameChanges:_*))
-    
+
     /**
      * These columns will be:
-     *   * retained in the output
-     *   * re-ordered to the order you provide
+     *   * renamed
+     *   * retained in the output; all others will be dropped
+     *   * added if they are missing
+     *   * re-ordered to match the provided Sequence
      */
-    def reorderAndRetain(columns: String*): Csv = Csv(rows map (_.keepColumns(columns:_*)))
+    def defineOutputColumns(columnMappings: (String,String)*): Csv = rename(columnMappings:_*).retainReorderOrAdd(columnMappings.map(_._2):_*)
 
+    /**
+     * These columns will be:
+     *   * retained in the output; all others will be dropped
+     *   * added if they are missing
+     *   * re-ordered to match the provided Sequence
+     */
+    def retainReorderOrAdd(columns: String*): Csv = retain(columns:_*).reorderOrAdd(columns:_*)
+
+    def rename(nameChanges: (String,String)*): Csv = renameColumns(Map(nameChanges:_*))
+
+    /**
+     * These columns will be retained in the output; all others will be dropped
+     */
+    def retain(columns: String*): Csv = Csv(rows map (_.retainColumns(columns:_*)))
+
+    /**
+     * These columns will be:
+     *   * added if they are missing
+     *   * re-ordered to match the provided Sequence
+     */
+    def reorderOrAdd(columns: String*): Csv = Csv(rows map (_.reorderColumnsOrAdd(columns:_*)))
+
+    /**
+     * Map column values as defined by your function
+     */
     def remap(mappings: (String, (String) => String)*): Csv = Csv(rows map (_.replace(Map(mappings:_*))))
     
-    def defineOutputColumns(columnMappings: (String,String)*): Csv = rename(columnMappings:_*).reorderAndRetain(columnMappings.map(_._2):_*)
-
     private def renameColumns(deltas: Map[String,String]): Csv = Csv(headers map (renameHeader(deltas, _)), data)
     private def renameHeader(deltas: Map[String,String], header: String) = if (deltas.contains(header)) deltas(header) else header
 
