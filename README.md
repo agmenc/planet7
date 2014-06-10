@@ -9,4 +9,3 @@ Functional ETL:
 ```scala
 libraryDependencies += "com.github.agmenc" %% "planet7" % 0.0.6
 ```
-
