@@ -74,30 +74,34 @@ class CsvSpec extends WordSpec {
 
   }
 
-  "Produces CSV string" in {
+  "The default String representation of Csv is the entire contents, formatted as a CSV" in {
     assert(Csv(
       List("foo", "bar"),
       List(
         List("one", "two"),
         List("uno", "dos"),
-        List("eins", "zwei"))).toCsvString ===
-      """foo,bar
-        |one,two
-        |uno,dos
-        |eins,zwei
-        |""".stripMargin)
-  }
-
-  "String representation is CSV string, shortened if longer than 2 payload rows" in {
-    assert(Csv(
-      List("foo", "bar"),
-      List(
-        List("one", "two"),
-        List("uno", "dos"),
+        List("ichi", "ni"),
         List("eins", "zwei"))).toString ===
       """foo,bar
         |one,two
         |uno,dos
+        |ichi,ni
+        |eins,zwei
+        |""".stripMargin)
+  }
+
+  "For debugging and REPL development, Csv provides a truncated String" in {
+    assert(Csv(
+      List("foo", "bar"),
+      List(
+        List("one", "two"),
+        List("uno", "dos"),
+        List("ichi", "ni"),
+        List("eins", "zwei"))).toTruncString ===
+      """foo,bar
+        |one,two
+        |uno,dos
+        |ichi,ni
         |...""".stripMargin)
   }
 }

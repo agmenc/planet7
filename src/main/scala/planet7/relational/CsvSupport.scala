@@ -45,21 +45,25 @@ trait CsvSupport {
     private def renameColumns(deltas: Map[String,String]): Csv = Csv(headers map (renameHeader(deltas, _)), data)
     private def renameHeader(deltas: Map[String,String], header: String) = if (deltas.contains(header)) deltas(header) else header
 
-    override def toString = (headers.mkString(",") + "\n") + contentsToShow
-    private def contentsToShow = if (rows.size > 2) (rows take 2 mkString "\n") + "\n..." else rows mkString "\n"
+    def toTruncString = (headers.mkString(",") + "\n") + contentsToShow
+    private def contentsToShow = if (rows.size > 2) (rows take 3 mkString "\n") + "\n..." else rows mkString "\n"
 
-    def toCsvString: String = (headers.mkString(",") :: rows.map(_.toCsvString)).mkString("\n") + "\n"
+    override def toString: String = (headers.mkString(",") :: rows.map(_.toString)).mkString("\n") + "\n"
   }
 
   object Csv {
-    def fromSplitData(splitData: List[List[String]]): Csv = Csv(splitData.head, splitData.tail)
-    def apply(data: String): Csv = toCsv(data.trim.split("\n").toList)
+    def apply(external: RelationalDataSource): Csv = Csv(external.headers, external.data)
+    def apply(data: String): Csv = parse(data.trim.split("\n").toList)
     def apply(rows: List[Row]): Csv = Csv(rows.head.columnNames, rows.map(_.columnValues))
-    def apply(dataSource: BufferedSource): Csv = Csv(dataSource.getLines().mkString("\n"))
     def apply(csvs: Csv*): Csv = apply(csvs)
     def apply(csvs: Iterable[Csv]): Csv = Csv(csvs.head.headers, csvs.flatMap(_.data)(collection.breakOut): List[List[String]])
 
-    private def toCsv(allRows: List[String]): Csv = Csv(toRowValues(allRows.head), allRows.tail filter(_.trim.nonEmpty) map toRowValues)
+    private def parse(allRows: List[String]): Csv = Csv(toRowValues(allRows.head), allRows.tail filter(_.trim.nonEmpty) map toRowValues)
     private def toRowValues(s: String) = s.split(",").toList
+  }
+
+  trait RelationalDataSource {
+    def headers: List[String]
+    def data: List[List[String]]
   }
 }
