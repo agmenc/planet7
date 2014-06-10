@@ -52,6 +52,7 @@ trait CsvSupport {
   }
 
   object Csv {
+    def fromSplitData(splitData: List[List[String]]): Csv = Csv(splitData.head, splitData.tail)
     def apply(data: String): Csv = toCsv(data.trim.split("\n").toList)
     def apply(rows: List[Row]): Csv = Csv(rows.head.columnNames, rows.map(_.columnValues))
     def apply(dataSource: BufferedSource): Csv = Csv(dataSource.getLines().mkString("\n"))
