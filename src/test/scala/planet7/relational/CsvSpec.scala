@@ -73,4 +73,31 @@ class CsvSpec extends WordSpec {
     assert(transform(twoColumnsOfData) === Csv(threeColumnsOfData))
 
   }
+
+  "Produces CSV string" in {
+    assert(Csv(
+      List("foo", "bar"),
+      List(
+        List("one", "two"),
+        List("uno", "dos"),
+        List("eins", "zwei"))).toCsvString ===
+      """foo,bar
+        |one,two
+        |uno,dos
+        |eins,zwei
+        |""".stripMargin)
+  }
+
+  "String representation is CSV string, shortened if longer than 2 payload rows" in {
+    assert(Csv(
+      List("foo", "bar"),
+      List(
+        List("one", "two"),
+        List("uno", "dos"),
+        List("eins", "zwei"))).toString ===
+      """foo,bar
+        |one,two
+        |uno,dos
+        |...""".stripMargin)
+  }
 }

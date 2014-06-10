@@ -18,7 +18,8 @@ trait RowSupport {
 
     def columnValues = values map (v => v._2)
 
-    override def toString = values map(_._2) mkString ","
+    override def toString = toCsvString
+    def toCsvString = values map(_._2) mkString ","
   }
 
   object EmptyRow extends Row(Nil)
