@@ -1,7 +1,7 @@
 planet7
 =======
 
-Functional ETL:
+Functional ETL and rec tool:
 * Load and merge CSVs.
 * Rename, re-order and filter columns.
 * Diff two CSVs
@@ -9,3 +9,5 @@ Functional ETL:
 ```scala
 libraryDependencies += "com.github.agmenc" %% "planet7" % 0.0.6
 ```
+
+See the tests for example usage
