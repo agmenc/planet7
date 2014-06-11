@@ -4,6 +4,7 @@ import org.scalatest.WordSpec
 import planet7.Diff
 import scala.io.Source
 import TestData._
+import DefaultRelationalDatasources._
 
 class DiffSpec extends WordSpec {
 

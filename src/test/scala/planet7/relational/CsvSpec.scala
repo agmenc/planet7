@@ -1,6 +1,7 @@
 package planet7.relational
 
 import org.scalatest.WordSpec
+import DefaultRelationalDatasources._
 
 class CsvSpec extends WordSpec {
   "We can construct a list of Rows from a CSV String" in {
@@ -104,4 +105,6 @@ class CsvSpec extends WordSpec {
         |ichi,ni
         |...""".stripMargin)
   }
+
+
 }

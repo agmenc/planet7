@@ -2,7 +2,6 @@ package planet7.relational
 
 import org.scalatest.WordSpec
 
-
 class TransformCsvSpec extends WordSpec {
   "We can perform all transformations in one go (rename, reorder, drop unwanted columns, add missing columns)" in {
     val input = """ID,Name,Value

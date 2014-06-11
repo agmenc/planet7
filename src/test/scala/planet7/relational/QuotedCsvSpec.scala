@@ -7,7 +7,6 @@ import java.io.StringReader
 class QuotedCsvSpec extends WordSpec {
   "Allow us to pimp external CSV parsers so we can handle quoted headers and values" in {
 
-    // TODO - CAS - 10/06/2014 - Change this to pimp the external parsers into Csv peers
     implicit class ExternalParserPimp(csvReader: CSVReader) extends RelationalDataSource {
       private val headersAndData = csvReader.all()
       override def headers = headersAndData.head

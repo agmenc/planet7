@@ -3,6 +3,7 @@ package planet7.relational
 import org.scalatest.WordSpec
 import planet7.Diff
 import TestData._
+import DefaultRelationalDatasources._
 
 class CsvDiffSpec extends WordSpec {
 

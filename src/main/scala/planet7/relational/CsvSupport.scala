@@ -1,7 +1,5 @@
 package planet7.relational
 
-import scala.io.BufferedSource
-
 trait CsvSupport {
   case class Csv(headers: List[String], data: List[List[String]]) {
     def rows: List[Row] = data map(headers zip _) map Row
@@ -52,14 +50,23 @@ trait CsvSupport {
   }
 
   object Csv {
+    def apply(rawData: String): Csv = Csv(DefaultRelationalDatasources.PimpFromString(rawData))
     def apply(external: RelationalDataSource): Csv = Csv(external.headers, external.data)
-    def apply(data: String): Csv = parse(data.trim.split("\n").toList)
     def apply(rows: List[Row]): Csv = Csv(rows.head.columnNames, rows.map(_.columnValues))
     def apply(csvs: Csv*): Csv = apply(csvs)
     def apply(csvs: Iterable[Csv]): Csv = Csv(csvs.head.headers, csvs.flatMap(_.data)(collection.breakOut): List[List[String]])
+  }
 
-    private def parse(allRows: List[String]): Csv = Csv(toRowValues(allRows.head), allRows.tail filter(_.trim.nonEmpty) map toRowValues)
-    private def toRowValues(s: String) = s.split(",").toList
+  object DefaultRelationalDatasources {
+    implicit class PimpFromString(rawData: String) extends RelationalDataSource {
+      val allRows = rawData.trim.split("\n").toList
+      override def headers = toRowValues(allRows.head)
+      override def data = allRows.tail filter(_.trim.nonEmpty) map toRowValues
+
+      private def toRowValues(s: String) = s.split(",").toList
+    }
+
+    // TODO - CAS - 11/06/2014 - Buffered sources, common CSV parsers from pull requests, etc
   }
 
   trait RelationalDataSource {
