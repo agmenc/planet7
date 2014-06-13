@@ -4,45 +4,25 @@ trait CsvSupport {
   case class Csv(headers: List[String], data: List[List[String]]) {
     def rows: List[Row] = data map(headers zip _) map Row
 
+    def map(f: Row => Row): Csv = Csv(rows map f)
+
     /**
-     * These columns will be:
-     *   * renamed
-     *   * retained in the output; all others will be dropped
-     *   * added if they are missing
-     *   * re-ordered to match the provided Sequence
+     * Combines a rename with restructureColumns
      */
-    def defineOutputColumns(columnMappings: (String,String)*): Csv = rename(columnMappings:_*).retainReorderOrAdd(columnMappings.map(_._2):_*)
+    def renameAndRestructure(columnMappings: (String,String)*): Csv = rename(columnMappings:_*).restructure(columnMappings.map(_._2):_*)
+
+    def rename(nameChanges: (String,String)*): Csv = map(RowTransforms.rename(nameChanges:_*))
 
     /**
-     * These columns will be:
-     *   * retained in the output; all others will be dropped
-     *   * added if they are missing
-     *   * re-ordered to match the provided Sequence
+     * Change the column order. Any newly-introduced columns will be empty. Any columns not defined in newColumnOrder will be removed 
      */
-    def retainReorderOrAdd(columns: String*): Csv = retain(columns:_*).reorderOrAdd(columns:_*)
-
-    def rename(nameChanges: (String,String)*): Csv = renameColumns(Map(nameChanges:_*))
+    def restructure(newColumnOrder: String*): Csv = Csv(rows map (_.restructure(newColumnOrder:_*)))
 
     /**
-     * These columns will be retained in the output; all others will be dropped
-     */
-    def retain(columns: String*): Csv = Csv(rows map (_.retainColumns(columns:_*)))
-
-    /**
-     * These columns will be:
-     *   * added if they are missing
-     *   * re-ordered to match the provided Sequence
-     */
-    def reorderOrAdd(columns: String*): Csv = Csv(rows map (_.reorderColumnsOrAdd(columns:_*)))
-
-    /**
-     * Map column values as defined by your function
+     * Transform existing column values to new values, as defined by your function.
      */
     def remap(mappings: (String, (String) => String)*): Csv = Csv(rows map (_.replace(Map(mappings:_*))))
     
-    private def renameColumns(deltas: Map[String,String]): Csv = Csv(headers map (renameHeader(deltas, _)), data)
-    private def renameHeader(deltas: Map[String,String], header: String) = if (deltas.contains(header)) deltas(header) else header
-
     def toTruncString = (headers.mkString(",") + "\n") + contentsToShow
     private def contentsToShow = if (rows.size > 2) (rows take 3 mkString "\n") + "\n..." else rows mkString "\n"
 

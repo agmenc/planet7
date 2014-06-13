@@ -1,9 +1,8 @@
 package planet7.relational
 
 import org.scalatest.WordSpec
-import DefaultRelationalDatasources._
 
-class CsvSpec extends WordSpec {
+class CsvParsingSpec extends WordSpec {
   "We can construct a list of Rows from a CSV String" in {
     val data = """
                  |Some,Header,Columns
@@ -46,7 +45,7 @@ class CsvSpec extends WordSpec {
     val right = Csv( """
                        |ID,Value,Name
                        |D,F,E
-                     """.stripMargin).retainReorderOrAdd("ID", "Name", "Value") // Put columns into the same order
+                     """.stripMargin).restructure("ID", "Name", "Value") // Put columns into the same order
 
     assert(Csv(left, right) === Csv( """
                                        |ID,Name,Value
@@ -68,7 +67,7 @@ class CsvSpec extends WordSpec {
 
     def transform(data: String) =
       Csv(twoColumnsOfData)
-        .retainReorderOrAdd("ID", "Value", "Name")
+        .restructure("ID", "Value", "Name")
         .remap("Value" -> (_ => "Some default value"))
 
     assert(transform(twoColumnsOfData) === Csv(threeColumnsOfData))
@@ -105,6 +104,4 @@ class CsvSpec extends WordSpec {
         |ichi,ni
         |...""".stripMargin)
   }
-
-
 }
