@@ -4,8 +4,8 @@ import org.scalatest.WordSpec
 import com.github.tototoshi.csv.CSVReader
 import java.io.StringReader
 
-class QuotedCsvSpec extends WordSpec {
-  "Allow us to pimp external CSV parsers so we can handle quoted headers and values" in {
+class AugmentedCsvParsingSpec extends WordSpec {
+  "Allow us to pimp external CSV parsers so we can use them to handle quoted headers and values" in {
 
     implicit class ExternalParserPimp(csvReader: CSVReader) extends RelationalDataSource {
       private val headersAndData = csvReader.all()

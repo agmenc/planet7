@@ -2,7 +2,7 @@ package planet7.relational
 
 import org.scalatest.WordSpec
 
-class CsvParsingSpec extends WordSpec {
+class SimpleCsvParsingSpec extends WordSpec {
   "We can construct a list of Rows from a CSV String" in {
     val data = """
                  |Some,Header,Columns

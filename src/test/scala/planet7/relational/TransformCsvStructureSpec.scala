@@ -2,7 +2,7 @@ package planet7.relational
 
 import org.scalatest.WordSpec
 
-class TransformCsvSpec extends WordSpec {
+class TransformCsvStructureSpec extends WordSpec {
   val input = """ID,Name,Value
                 |A,B,C
                 |D,E,F
