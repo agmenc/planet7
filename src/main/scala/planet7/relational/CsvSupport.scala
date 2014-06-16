@@ -5,6 +5,7 @@ trait CsvSupport {
     def rows: List[Row] = data map(headers zip _) map Row
 
     def map(f: Row => Row): Csv = Csv(rows map f)
+    def filter(p: Row => Boolean): Csv = Csv(rows filter p)
 
     /**
      * Combines a rename with restructureColumns

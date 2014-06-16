@@ -12,6 +12,8 @@ trait RowSupport {
 
     def replace(mappings: Map[String, String => String]): Row = Row(values map replaceWith(mappings))
 
+    def and(predicates: (String, String => Boolean)*): Boolean = predicates.forall(pred => pred._2(value(pred._1)))
+
     private def replaceWith(mappings: Map[String, String => String])(field: Field) =
       field._1 -> mappings.getOrElse(field._1, identity[String] _)(field._2)
 
@@ -31,5 +33,9 @@ trait RowSupport {
   object RowTransforms {
     def rename(nameChanges: (String,String)*): Row => Row = row => row.rename(Map(nameChanges:_*))
     def restructure(columnNames: String*): Row => Row = row => row.restructure(columnNames:_*)
+  }
+
+  object RowPredicates {
+    def and(predicates: (String, String => Boolean)*): Row => Boolean = row => row.and(predicates:_*)
   }
 }
