@@ -23,7 +23,7 @@ class TransformCsvStructureSpec extends WordSpec {
 
   "We can use map to apply transformations to the CSV structure" in {
     val transformedCsv = Csv(input)
-      .map(RowTransforms.rename("Value" -> "value", "ID" -> "id"))
+      .map(RowTransforms.rename(Map("Value" -> "value", "ID" -> "id")))
       .map(RowTransforms.restructure("foo", "value", "id", "bar"))
 
     assert(transformedCsv.toString === expectedOutput)

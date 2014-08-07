@@ -9,7 +9,7 @@ class CsvPerformanceSpec extends WordSpec {
     val fragCollator = new TimingCollator(1)
     val oneShotCollator = new TimingCollator(1)
 
-    for (n <- 1 to 200) {
+    for (n <- 1 to 20) {
       {
         val fragmentedTimer = fragCollator.time
         import fragmentedTimer._

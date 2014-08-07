@@ -15,12 +15,9 @@ trait CsvSupport {
     /**
      * Combines a rename with restructureColumns
      */
-    def renameAndRestructure(columnMappings: (String,String)*): Csv = {
-      map(RowTransforms.rename(columnMappings:_*))
-      rename(columnMappings:_*).restructure(columnMappings.map(_._2):_*)
-    }
+    def renameAndRestructure(columnMappings: (String,String)*): Csv = map(RowTransforms.renameAndRestructure(Map(columnMappings:_*)))
 
-    def rename(nameChanges: (String,String)*): Csv = map(RowTransforms.rename(nameChanges:_*))
+    def rename(nameChanges: (String,String)*): Csv = map(RowTransforms.rename(Map(nameChanges:_*)))
 
     /**
      * Change the column order. Any newly-introduced columns will be empty. Any columns not defined in newColumnOrder will be removed 
