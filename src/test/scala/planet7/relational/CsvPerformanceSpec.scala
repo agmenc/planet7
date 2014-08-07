@@ -6,27 +6,44 @@ import TestData._
 
 class CsvPerformanceSpec extends WordSpec {
   "We can read a large dataset in X seconds" in {
-    val collator = new TimingCollator(1)
+    val fragCollator = new TimingCollator(1)
+    val oneShotCollator = new TimingCollator(1)
 
-    for (n <- 1 to 20) {
-      val timer = collator.time
-      import timer._
-      val fileContents = t"load" { readFile("large_dataset.csv") }
-      val csv = t"create" { Csv(fileContents) }
-      val renamed = t"rename" { csv.rename("first_name" -> "First Name") }
-      val restructured = t"restructure" { renamed.restructure("First Name", "last_name", "fee paid") }
-      val remapped = t"remap" { restructured.remap("last_name" -> (_.toUpperCase)) }
-      println(s"timer.total: ${timer.total}")
+    for (n <- 1 to 200) {
+      {
+        val fragmentedTimer = fragCollator.time
+        import fragmentedTimer._
+        val fileStream = t"load" {readFileToInputStream("large_dataset.csv")}
+        val csv = t"create" {Csv(fileStream)}
+        val renamed = t"rename" {csv.rename("first_name" -> "First Name")}
+        val restructured = t"restructure" {renamed.restructure("First Name", "last_name", "fee paid")}
+        val remapped = t"remap" {restructured.remap("last_name" -> (_.toUpperCase))}
+        println(s"Fragmented timer.total: ${fragmentedTimer.total}")
+      }
+
+      {
+        val oneShotTimer = oneShotCollator.time
+        import oneShotTimer._
+        val x = t"one-shot" {
+          Csv(readFile("large_dataset.csv"))
+            .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
+            .remap("last_name" -> (_.toUpperCase))
+        }
+        println(s"oneShotTimer.total: ${oneShotTimer.total}")
+      }
     }
 
-    println(s"collator.total: ${collator.total}")
-    println(s"collator.total.average: ${collator.total.average}")
+    println(s"collator.total: ${fragCollator.total}")
+    println(s"collator.total.average: ${fragCollator.total.average}")
     println("\n")
-    println(s"collator.load.average: ${collator.load.average}")
-    println(s"collator.create.average: ${collator.create.average}")
-    println(s"collator.rename.average: ${collator.rename.average}")
-    println(s"collator.restructure.average: ${collator.restructure.average}")
-    println(s"collator.remap.average: ${collator.remap.average}")
+    println(s"oneShot collator.total: ${oneShotCollator.total}")
+    println(s"oneShot collator.total.average: ${oneShotCollator.total.average}")
+    println("\n")
+    println(s"collator.load.average: ${fragCollator.load.average}")
+    println(s"collator.create.average: ${fragCollator.create.average}")
+    println(s"collator.rename.average: ${fragCollator.rename.average}")
+    println(s"collator.restructure.average: ${fragCollator.restructure.average}")
+    println(s"collator.remap.average: ${fragCollator.remap.average}")
     println("\n")
 
     // Drop the first

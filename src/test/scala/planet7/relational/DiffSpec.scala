@@ -60,7 +60,7 @@ class DiffSpec extends WordSpec {
       def key(u: ComparisonFields) = u.a
     }
 
-    def toComparisons(fileName: String): Seq[ComparisonFields] = Csv(readFile(fileName)).rows map createComparison
+    def toComparisons(fileName: String): Seq[ComparisonFields] = (Csv(readFile(fileName)).rows map createComparison).to[Seq]
     def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
     def createComparison(row: Row) = ComparisonFields(row.value("A"), row.value("B"), row.value("D"), safeInt(row.value("E")))
     def safeInt(s: String): Integer = if (s.isEmpty) 0 else s.toInt
