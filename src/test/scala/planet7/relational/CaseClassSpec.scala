@@ -27,7 +27,7 @@ class CaseClassSpec extends WordSpec {
       SomeCaseClass("d", 5, "s")
     )
 
-    val result: List[(SomeCaseClass, SomeCaseClass)] = Diff(left, right, SccDiffer)
+    val result: Seq[(SomeCaseClass, SomeCaseClass)] = Diff(left, right, SccDiffer)
 
     assert(result === List(
       SccDiffer.zero -> SomeCaseClass("d", 5, "s"),
@@ -46,7 +46,7 @@ class CaseClassSpec extends WordSpec {
     val left = SomeOtherCaseClass("bob", 1, "abc")
     val right = SomeOtherCaseClass("bob", 1, "def")
     
-    val result: List[(Field, Field)] = Diff(left.fields, right.fields, FieldDiffer)
+    val result: Seq[(Field, Field)] = Diff(left.fields, right.fields, FieldDiffer)
     
     assert(result === List(("address", "abc") ->("address", "def")))
   }

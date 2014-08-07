@@ -21,13 +21,19 @@ class CsvPerformanceSpec extends WordSpec {
 
     println(s"collator.total: ${collator.total}")
     println(s"collator.total.average: ${collator.total.average}")
+    println("\n")
+    println(s"collator.load.average: ${collator.load.average}")
+    println(s"collator.create.average: ${collator.create.average}")
+    println(s"collator.rename.average: ${collator.rename.average}")
+    println(s"collator.restructure.average: ${collator.restructure.average}")
     println(s"collator.remap.average: ${collator.remap.average}")
-
+    println("\n")
 
     // Drop the first
     // Average the next ten
     // record in a comment the average time for each collection type, e.g.:
-    // List: 680 ms
+    // List: 530 ms
+    // Seq:  410 ms
     // Vector: ...
 
 

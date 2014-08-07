@@ -11,7 +11,7 @@ trait FieldSupport {
     def key(u: Field) = u._1 // sort fields by field name
   }
 
-  def prettyPrint(fieldDiffs: List[FieldDiff]): List[String] = fieldDiffs.map {
+  def prettyPrint(fieldDiffs: Seq[FieldDiff]): Seq[String] = fieldDiffs.map {
     case (left, right) => s"${left._1}: ${left._2} -> ${right._2}"
   }
 }

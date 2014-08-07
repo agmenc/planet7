@@ -22,7 +22,7 @@ class DiffSpec extends WordSpec {
                   |G,X,I
                 """.stripMargin
 
-    val result: List[(Row, Row)] = Diff(Csv(left).rows, Csv(right).rows, RowDiffer("ID"))
+    val result: Seq[(Row, Row)] = Diff(Csv(left).rows, Csv(right).rows, RowDiffer("ID"))
 
     assert(result === List(
       (Row(List(("ID", "G"), ("Name", "H"), ("Value", "I"))), Row(List(("ID", "G"), ("Name", "X"), ("Value", "I")))),
@@ -34,7 +34,7 @@ class DiffSpec extends WordSpec {
     val left = List(("ID", "G"), ("Name", "H"), ("Value", "I"))
     val right = List(("ID", "G"), ("Name", "X"), ("Value", "I"))
 
-    val result: List[(Field, Field)] = Diff(left, right, FieldDiffer)
+    val result: Seq[(Field, Field)] = Diff(left, right, FieldDiffer)
 
     assert(result === List(("Name", "H") ->("Name", "X")))
   }
@@ -43,7 +43,7 @@ class DiffSpec extends WordSpec {
     val left = List(("ID", "G"), ("Name", "H"), ("Removed", "I"))
     val right = List(("Added", "Q"), ("ID", "G"), ("Name", "H"))
 
-    val result: List[(Field, Field)] = Diff(left, right, FieldDiffer)
+    val result: Seq[(Field, Field)] = Diff(left, right, FieldDiffer)
 
     assert(result === List(("Removed", "I") -> EmptyField, EmptyField ->("Added", "Q")))
   }
@@ -60,12 +60,12 @@ class DiffSpec extends WordSpec {
       def key(u: ComparisonFields) = u.a
     }
 
-    def toComparisons(fileName: String): List[ComparisonFields] = Csv(readFile(fileName)).rows map createComparison
+    def toComparisons(fileName: String): Seq[ComparisonFields] = Csv(readFile(fileName)).rows map createComparison
     def readFile(name: String) = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
     def createComparison(row: Row) = ComparisonFields(row.value("A"), row.value("B"), row.value("D"), safeInt(row.value("E")))
     def safeInt(s: String): Integer = if (s.isEmpty) 0 else s.toInt
 
-    val result: List[(ComparisonFields, ComparisonFields)] = Diff(toComparisons("left.csv"), toComparisons("right.csv"), CfDiffer)
+    val result: Seq[(ComparisonFields, ComparisonFields)] = Diff(toComparisons("left.csv"), toComparisons("right.csv"), CfDiffer)
 
     assert(result === List(
       CfDiffer.zero -> ComparisonFields("hjt", "waer", "iughv", 7653),
@@ -102,7 +102,7 @@ class DiffSpec extends WordSpec {
     val after = Csv(readFile("after_with_diffs.csv"))
       .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    val diffs: List[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer("Company ID"))
+    val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer("Company ID"))
 
     val summary = diffs.groupBy {
       case (row, EmptyRow) => "Missing"
@@ -120,7 +120,7 @@ class DiffSpec extends WordSpec {
     ))
   }
 
-  def printSummary(summary: Map[String, List[(Row, Row)]], readableDiffs: List[String]) = {
+  def printSummary(summary: Map[String, Seq[(Row, Row)]], readableDiffs: Seq[String]) = {
     println(s"""\nMissing:${summary("Missing").map(_._1).mkString("\n  -", "\n  -", "")}""")
     println(s"""\nAdded:${summary("Added").map(_._2).mkString("\n  +", "\n  +", "")}""")
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")

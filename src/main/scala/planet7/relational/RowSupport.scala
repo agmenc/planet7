@@ -1,14 +1,14 @@
 package planet7.relational
 
 trait RowSupport {
-  case class Row(values: List[(String, String)])  {
+  case class Row(values: Seq[(String, String)])  {
     def value(fieldName: String): String = field(fieldName).fold("")(_._2)
     private def field(fieldName: String): Option[(String, String)] = values find (x => x._1 == fieldName)
 
     def rename(deltas: Map[String, String]): Row = Row(values map (f => renameHeader(deltas, f._1) -> f._2))
     private def renameHeader(deltas: Map[String,String], header: String) = deltas.getOrElse(header, header)
     
-    def restructure(names: String*): Row = Row(names map (name => field(name).fold(name -> "")(identity)) toList)
+    def restructure(names: String*): Row = Row(names map (name => field(name).fold(name -> "")(identity)))
 
     def replace(mappings: Map[String, String => String]): Row = Row(values map replaceWith(mappings))
 

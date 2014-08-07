@@ -10,7 +10,7 @@ class CsvDiffSpec extends WordSpec {
     def toShortRows(fileName: String) = Csv(readFile(fileName)).restructure("A", "B", "D", "E").rows
     val differ: RowDiffer = RowDiffer("A")
 
-    val result: List[(Row, Row)] = Diff(toShortRows("left.csv"), toShortRows("right.csv"), differ)
+    val result: Seq[(Row, Row)] = Diff(toShortRows("left.csv"), toShortRows("right.csv"), differ)
 
     assert(result === List(
       differ.zero -> Row(List("A", "B", "D", "E") zip List("hjt", "waer", "iughv", "7653")),
@@ -34,7 +34,7 @@ class CsvDiffSpec extends WordSpec {
                   |G,H,I
                 """.stripMargin
 
-    val result: List[(Row, Row)] = Diff(Csv(left).rename("Name" -> "Nickname").rows, Csv(right).rows, RowDiffer("ID"))
+    val result: Seq[(Row, Row)] = Diff(Csv(left).rename("Name" -> "Nickname").rows, Csv(right).rows, RowDiffer("ID"))
 
     assert(result === List(
       (Row(List(("ID", "D"), ("Nickname", "E"), ("Value", "F"))), Row(List(("ID", "D"), ("Nickname", "Q"), ("Value", "F"))))
@@ -56,7 +56,7 @@ class CsvDiffSpec extends WordSpec {
                             |G,I,H
                           """.stripMargin)
 
-    val result: List[(Row, Row)] = Diff(left.restructure("ID", "Value", "Name").rows, right.rows, RowDiffer("ID"))
+    val result: Seq[(Row, Row)] = Diff(left.restructure("ID", "Value", "Name").rows, right.rows, RowDiffer("ID"))
 
     assert(result === List(
       (Row(List(("ID", "D"), ("Value", "F"), ("Name", "E"))), Row(List(("ID", "D"), ("Value", "F"), ("Name", "Q"))))
