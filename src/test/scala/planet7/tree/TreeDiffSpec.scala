@@ -47,8 +47,11 @@ class TreeDiffSpec extends WordSpec {
       """.stripMargin
       )
 
-      // ADDED   = the diffs, filtered by "left is not on right"
-      // REMOVED = the diffs, filtered by "right is not on left"
-      // CHANGED = left != right
+    // TODO - CAS - 07/08/2014 - Er, write the assertions
+    // ADDED   = the diffs, filtered by "left is not on right"
+    // REMOVED = the diffs, filtered by "right is not on left"
+    // CHANGED = left != right
+
+    fail("Write me")
   }
 }

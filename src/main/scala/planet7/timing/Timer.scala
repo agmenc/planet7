@@ -19,6 +19,8 @@ class Timer {
     def t(args: Any*): Record = Record(sc.parts.mkString(""))
   }
 
+  def apply[A](f: => A) = Record("time")(f)
+
   def total = results("finish") - results("start")
 
   override def toString = results.toString()
@@ -32,6 +34,8 @@ object Timer {
       timers = new Timer +: timers
       timers.head
     }
+
+    def apply[A](f: => A) = time(f)
 
     def selectDynamic(key: String): Seq[Long] = (timers dropRight droppingFirst).map(_.results(key))
 
