@@ -11,9 +11,6 @@ case class Csv(source: RelationalDataSource) {
   // TODO - CAS - 08/08/2014 - Use withFilter on the Traversable[Row], as filter materialises the list when it filters it
 }
 
-// TODO - CAS - 08/08/2014 - Make this explicit
-case class MaterialisedCsv()
-
 //object Csv {
 //  def apply[A](x: A)(implicit f: A => RelationalDataSource): Csv = Csv(f(x))
 //}

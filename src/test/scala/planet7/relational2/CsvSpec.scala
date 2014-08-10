@@ -1,8 +1,9 @@
 package planet7.relational2
 
-import java.io.File
+import java.io.FileInputStream
 
 import org.scalatest.{MustMatchers, WordSpec}
+import planet7.relational.TestData._
 
 class CsvSpec extends WordSpec with MustMatchers {
   "We can construct a Csv from a RelationalInputSource, including blank rows" in {
@@ -26,20 +27,28 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(csv) mustEqual unblankedData
   }
 
-  "All-features usage and performance test" in {
+  "All methods of accessing data produce the same result" in {
+    fail("write me")
+  }
+
+  "Performance test for different file-access methods" in {
     import planet7.timing.Timer._
 
     // TODO - CAS - 08/08/2014 - Timing runs should automatically be collated.
     val collator = new TimingCollator(3)
     for (i <- 1 to 20) {
       collator {
-        Csv(new File("large_dataset.csv"))
+        // TODO - CAS - 10/08/2014 - Try File as an InputStream, too
+        val file = new FileInputStream(testData("large_dataset.csv"))
+        val csv = Csv(file)
         //      .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
         //      .remap("last_name" -> (_.toUpperCase))
+
+        export(csv)
       }
     }
 
-    collator.total.average must be < 100.0
+    collator.total.average must be < 200.0
   }
 
 //  "An empty Csv2 behaves itself" in {
