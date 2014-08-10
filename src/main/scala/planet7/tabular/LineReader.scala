@@ -1,4 +1,4 @@
-package planet7.relational2
+package planet7.tabular
 
 import java.io.BufferedReader
 

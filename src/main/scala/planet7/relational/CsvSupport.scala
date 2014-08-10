@@ -3,10 +3,6 @@ package planet7.relational
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 
 trait CsvSupport {
-  // TODO - CAS - 07/08/2014 - A Y-shaped pipeline (spits out two CSVs)
-  // TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
-  // TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
-
   case class Csv(headers: Seq[String], data: Traversable[Seq[String]]) {
     def rows: Traversable[Row] = data.map(row => Row(headers zip row))
     def map(f: Row => Row): Csv = Csv(rows map f)

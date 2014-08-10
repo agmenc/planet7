@@ -1,8 +1,8 @@
-package planet7.relational2
+package planet7.tabular
 
 import java.io.{BufferedReader, Reader}
 
-class BufferedDataSource(source: Reader) extends RelationalDataSource {
+class BufferedDataSource(source: Reader) extends TabularDataSource {
   val lines: BufferedReader = new BufferedReader(source)
 
   val header = {

@@ -1,4 +1,4 @@
-package planet7.relational2
+package planet7.tabular
 
 import java.io.FileInputStream
 
@@ -27,8 +27,25 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(csv) mustEqual unblankedData
   }
 
+  "We can rename and restructure the columns in a Csv" in {
+    val data = """Index,Name,Value
+                 |D,E,F
+                 |G,H,I""".stripMargin
+
+    val result = """Amount,Name
+                 |F,E
+                 |I,H""".stripMargin
+
+    val csv = Csv(data).columnStructure(
+      "Value" -> "Amount", "Name"
+    )
+
+    csv.header mustEqual Row(Array("Amount", "Name"))
+    export(csv) mustEqual result
+  }
+
   "All methods of accessing data produce the same result" in {
-    fail("write me")
+    fail("write me, or make me implicit in the next test")
   }
 
   "Performance test for different file-access methods" in {
@@ -38,9 +55,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     val collator = new TimingCollator(3)
     for (i <- 1 to 20) {
       collator {
-        // TODO - CAS - 10/08/2014 - Try File as an InputStream, too
-        val file = new FileInputStream(testData("large_dataset.csv"))
-        val csv = Csv(file)
+        val csv = Csv(testData("large_dataset.csv"))
         //      .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
         //      .remap("last_name" -> (_.toUpperCase))
 
