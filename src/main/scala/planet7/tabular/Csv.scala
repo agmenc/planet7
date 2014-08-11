@@ -13,17 +13,21 @@ package planet7.tabular
 case class Csv(source: TabularDataSource, columnStructureTx: Row => Row = identity, headerRenameTx: Row => Row = identity) {
   def header: Row = headerRenameTx(columnStructureTx(source.header))
 
-  def rows: Traversable[Row] = source.rows.map(columnStructureTx)
+  def rows: Traversable[Row] = source.rows(columnStructureTx)
 
-  def columnStructure(columns: (String, String)*): Csv = {
+  def columnStructure(columns: (String, String)*): Csv = Csv(
+    source,
+    columnStructureTx andThen nextColumnStructureTx(columns: _*),
+    headerRenameTx andThen nextHeaderRenameTx(columns: _*)
+  )
+
+  private[tabular] def nextColumnStructureTx(columns: (String, String)*): (Row) => Row = {
     val headerRow: Row = header
-    val lookup: Array[Int] = columns.map{case (sourceCol, targetCol) => headerRow.data.indexOf(sourceCol)}(collection.breakOut)
-    val newColumnStructureTx: Row => Row = row => Row(lookup.map(row.data))
-
-    val columnRenames = Map(columns:_*)
-    val newHeaderRenamer: Row => Row = row => Row(row.data.map(columnRenames))
-    Csv(source, columnStructureTx andThen newColumnStructureTx, headerRenameTx andThen newHeaderRenamer)
+    val lookup: Array[Int] = columns.map { case (sourceCol, targetCol) => headerRow.data.indexOf(sourceCol) }(collection.breakOut)
+    row => Row(lookup.map(row.data))
   }
+
+  private[tabular] def nextHeaderRenameTx(columns: (String, String)*) = (row: Row) => Row(row.data.map(Map(columns: _*)))
 
   // TODO - CAS - 08/08/2014 - Use withFilter on the Traversable[Row], as filter materialises the list when it filters it
 }
