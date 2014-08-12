@@ -8,10 +8,11 @@ import scala.collection.AbstractTraversable
 
 trait TabularDataSource {
   def header: Row
+
+  // TODO - CAS - 12/08/2014 - Change to iterator because Kevin says so
   def rows(columnStructureTx: Row => Row): Traversable[Row]
 }
 
-// 384 ms (vs 196 ms for the BufferedReader approach)
 class ScannerDataSource(file: File) extends TabularDataSource {
   val scanner = new Scanner(Paths.get(file.toURI))
   val header = if (scanner.hasNext) toRow(scanner.nextLine()) else throw new EmptyFileException

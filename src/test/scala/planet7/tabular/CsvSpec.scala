@@ -1,9 +1,12 @@
 package planet7.tabular
 
-import java.io.FileInputStream
+import java.io.{ByteArrayInputStream, FileInputStream}
+import java.nio.charset.StandardCharsets
 
 import org.scalatest.{MustMatchers, WordSpec}
 import planet7.relational.TestData._
+
+import scala.io.Source
 
 class CsvSpec extends WordSpec with MustMatchers {
   "We can construct a Csv from a RelationalInputSource, including blank rows" in {
@@ -44,26 +47,102 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(csv) mustEqual result
   }
 
+  "We cannot read from the same datasource twice" in {
+    def file = asFile("large_dataset.csv")
+
+    val possibleLoadMethods = Map(
+      //      "string" -> fromString(string),
+      "file" -> fromFile(file) //,
+      //      "stringInputStream" -> fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8))),
+      //      "fileInputStream" -> fromInputStream(new FileInputStream(file)),
+      //      "exp. memoryMappedFile" -> experimentalFromMemoryMappedFile(file),
+      //      "exp. scanner" -> experimentalFromScanner(file),
+      //      "exp. wholeFile" -> experimentalFromWholeFile(file)
+    )
+
+    val poo: TabularDataSource = fromFile(file)
+    poo.rows(identity)
+
+    // Should throw exception:
+    poo.rows(identity)
+  }
+
   "All methods of accessing data produce the same result" in {
     fail("write me, or make me implicit in the next test")
   }
 
-  "Performance test for different file-access methods" in {
-    import planet7.timing.Timer._
+  "XXXXXXXX Performance test for different file-access methods" in {
+    import planet7.timing._
 
-    // TODO - CAS - 08/08/2014 - Timing runs should automatically be collated.
-    val collator = new TimingCollator(3)
-    for (i <- 1 to 20) {
-      collator {
-        val csv = Csv(testData("large_dataset.csv"))
+    val all = new Timer()
+    all {
+      // TODO - CAS - 08/08/2014 - Timing runs should automatically be collated.
+      val collator = new Timer(3)
+      import collator._
+
+      for (i <- 1 to 20) {
+        t"load" {
+          val csv = Csv(asFile("large_dataset.csv"))
+          //      .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
+          //      .remap("last_name" -> (_.toUpperCase))
+
+          export(csv)
+        }
+      }
+
+      println(s"collator: ${collator}")
+//      collator.load.average must be < 200.0
+    }
+
+    println(all)
+  }
+
+  "Performance test for different file-access methods" in {
+    import planet7.timing._
+
+    val all = new Timer()
+    all {
+
+      def processLargeDataset(datasource: TabularDataSource) = {
+        val csv = Csv(datasource)
         //      .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
         //      .remap("last_name" -> (_.toUpperCase))
 
         export(csv)
+        // Assert it is correct
       }
+
+      def file = asFile("large_dataset.csv")
+      def string = Source.fromFile(file).mkString
+
+      val possibleLoadMethods = Map(
+        //      "string" -> fromString(string),
+        "file" -> fromFile(file) //,
+        //      "stringInputStream" -> fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8))),
+        //      "fileInputStream" -> fromInputStream(new FileInputStream(file)),
+        //      "exp. memoryMappedFile" -> experimentalFromMemoryMappedFile(file),
+        //      "exp. scanner" -> experimentalFromScanner(file),
+        //      "exp. wholeFile" -> experimentalFromWholeFile(file)
+      )
+
+      val timer = new Timer(3)
+      import timer._
+
+      val label = "file"
+      val loadMethod = fromFile(file)
+      for {
+      //      (label, loadMethod) <- possibleLoadMethods
+        i <- 1 to 20
+      } {
+        println(s"i: ${i}")
+        t"$label" {processLargeDataset(loadMethod)}
+      }
+
+      println(timer)
+//      timer.file.average must be < 200.0
     }
 
-    collator.total.average must be < 200.0
+    println(all)
   }
 
 //  "An empty Csv2 behaves itself" in {

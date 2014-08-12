@@ -10,7 +10,7 @@ package object tabular {
   implicit def fromFile(f: File): TabularDataSource = new BufferedDataSource(new FileReader(f))
   implicit def fromInputStream(is: InputStream): TabularDataSource = new BufferedDataSource(new InputStreamReader(is))
 
-  // About the same speed as the LineReader approach for a 3.5 MB file, but much uglier
+  // 210 ms. About the same speed as the LineReader approach for a 3.5 MB file, but much uglier
   def experimentalFromMemoryMappedFile(f: File): TabularDataSource = {
     val rf = new RandomAccessFile(f, "r")
     val decoder = Charset.defaultCharset().newDecoder()
@@ -24,6 +24,9 @@ package object tabular {
 
   // 255 ms. Should only be used on small files, whatever that means
   def experimentalFromWholeFile(f: File): TabularDataSource = fromInputStream(new ByteArrayInputStream(Files.readAllBytes(Paths.get(f.toURI))))
+
+  // 384 ms. Should only be used on small files, whatever that means
+  def experimentalFromScanner(f: File): TabularDataSource = new ScannerDataSource(f)
 
   def toRow(line: String) = Row(line.split(","))
 

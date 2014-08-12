@@ -6,6 +6,13 @@ package planet7.tabular
  *
  * All materialisation of the datasource is done OUTSIDE of the Csv.
  *
+ *
+ * // TODO - CAS - 12/08/2014 - A CSV should just be an iterator of Rows, with some extra gubbins around it
+ *  - Iterators give the nicest ponce-only approach
+ *  - Csv should be closeable - or returned iterator could close streams on next() == null
+ *  - Kevin has given me dispensation to use mutability inside my iterator
+ *
+ *
  * TODO - CAS - 07/08/2014 - A Y-shaped pipeline (spits out two CSVs)
  * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
  * TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
