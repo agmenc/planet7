@@ -1,55 +1,31 @@
 package planet7.timing
 
+import scala.collection.mutable.ListBuffer
 import scala.language.dynamics
 
-class Timer {
-  var results = Map("start" -> System.currentTimeMillis())
+class Timer(droppingFirst: Int = 0) extends Dynamic {
+  var results: Map[String, ListBuffer[Long]] = Map()
+
+  def apply[A](f: => A) = Record("time")(f)
+
+  def selectDynamic(key: String): Seq[Long] = trim(results(key))
 
   case class Record(description: String) {
     def apply[A](f: => A) = {
       val start = System.currentTimeMillis()
       val result = f
-      val finish = System.currentTimeMillis()
-      results += (description -> (finish - start), "finish" -> finish)
+      if (!results.contains(description)) results += (description -> ListBuffer())
+      results(description) += (System.currentTimeMillis() - start)
       result
     }
   }
 
-  implicit class TimerEventDescription(val sc: StringContext) {
-    def t(args: Any*): Record = Record(sc.parts.mkString(""))
+  // TODO - CAS - 12/08/2014 - Also support a t("monkeys") method, since I am told by Kevin that this violates the principle of least surprise
+  implicit class TimerStringInterpolator(val sc: StringContext) {
+    def t(args: Any*): Record = Record(sc.s(args:_*))
   }
 
-  def apply[A](f: => A) = Record("time")(f)
+  override def toString = results.map{ case (key, timings) => s"$key: ${trim(timings).average} ms (average of ${trim(timings).size}})" }.mkString("\n")
 
-  def total = results("finish") - results("start")
-
-  override def toString = results.toString()
+  private def trim(buf: ListBuffer[Long]) = buf dropRight droppingFirst
 }
-
-object Timer {
-  class TimingCollator(droppingFirst: Int) extends Dynamic {
-    var timers: Seq[Timer] = List()
-
-    def time: Timer = {
-      timers = new Timer +: timers
-      timers.head
-    }
-
-    def apply[A](f: => A) = time(f)
-
-    def selectDynamic(key: String): Seq[Long] = (timers dropRight droppingFirst).map(_.results(key))
-
-    def total: Seq[Long] = (timers dropRight droppingFirst).map(_.total)
-  }
-
-  implicit class Measurable(coll: Iterable[Long]) {
-    def average: Double = coll.foldLeft(0 -> 0.0)(incrementAverage)._2
-
-    private def incrementAverage(acc: (Int, Double), amount: Long): (Int, Double) = {
-      val (count, average) = acc
-      val newAverage = ((average * count) + amount)/(count + 1)
-      (count + 1, newAverage)
-    }
-  }
-}
-
