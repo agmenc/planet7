@@ -7,6 +7,9 @@ import planet7.relational.Differentiator
  * Opinionated Diff:
  *  - We sort left and right inputs by a key, and so the results follow the same order
  *  - The result of a diff is a Seq of differences, each of which is also (potentially) diffable
+ *
+ *  // TODO - CAS - 12/08/2014 - Kev's suggestion: split out sorting from the primary concern of Diffing. After all, many datasets will be sorted correctly
+ *  anyway. Mix in sorting if needed (it costs time on large datasets)
  */
 object Diff {
   def apply[U](lefts: Iterable[U], rights: Iterable[U], differ: Differentiator[U]): Seq[(U, U)] = apply(lefts.iterator, rights.iterator, differ)
