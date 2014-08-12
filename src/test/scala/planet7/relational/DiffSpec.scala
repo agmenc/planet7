@@ -91,7 +91,7 @@ class DiffSpec extends WordSpec {
   "Analyse the differences, so that we can display them clearly to the user" in {
     import CompanyAccountsData._
 
-    val before = Csv(readFile("before.csv"))
+    val before = Csv(asString("before.csv"))
       .rename("Company account" -> "Company ID")
       .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
       .remap(
@@ -99,7 +99,7 @@ class DiffSpec extends WordSpec {
         "Company" -> (_.toUpperCase)
       )
 
-    val after = Csv(readFile("after_with_diffs.csv"))
+    val after = Csv(asString("after_with_diffs.csv"))
       .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
     val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer("Company ID"))

@@ -7,7 +7,7 @@ import TestData._
 class CsvDiffSpec extends WordSpec {
 
   "Map long rows with disparate columns to shorter rows containing just the columns to compare" in {
-    def toShortRows(fileName: String) = Csv(readFile(fileName)).restructure("A", "B", "D", "E").rows
+    def toShortRows(fileName: String) = Csv(asString(fileName)).restructure("A", "B", "D", "E").rows
     val differ: RowDiffer = RowDiffer("A")
 
     val result: Seq[(Row, Row)] = Diff(toShortRows("left.csv"), toShortRows("right.csv"), differ)
@@ -66,12 +66,12 @@ class CsvDiffSpec extends WordSpec {
   "Map column data to equivalent values (postcode lookup) so that equivalent data rows don't cause differences" in {
     import CompanyAccountsData._
 
-    val before = Csv(readFile("before.csv"))
+    val before = Csv(asString("before.csv"))
       .rename("Company account" -> "Company ID")
       .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
       .remap("Postcode" -> postcodeLookupTable)
 
-    val after = Csv(readFile("after.csv"))
+    val after = Csv(asString("after.csv"))
       .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
     assert(Diff(before.rows, after.rows, RowDiffer("Company ID")) === Nil)

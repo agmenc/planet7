@@ -3,8 +3,10 @@ package planet7.relational
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 
 trait CsvSupport {
-  case class Csv(headers: Seq[String], data: Traversable[Seq[String]]) {
-    def rows: Traversable[Row] = data.map(row => Row(headers zip row))
+  case class Csv(headers: Seq[String], data: Iterator[Seq[String]]) {
+    def rows: Iterator[Row] = data.map(row => Row(headers zip row))
+
+    // map, filter, restructure and Csv.apply(rows: Iterator[Row]) are creating a new Csv without the header. Most of these methods need to add, and restructure, the header
     def map(f: Row => Row): Csv = Csv(rows map f)
     def filter(p: Row => Boolean): Csv = Csv(rows filter p)
 
@@ -18,7 +20,12 @@ trait CsvSupport {
     /**
      * Change the column order. Any newly-introduced columns will be empty. Any columns not defined in newColumnOrder will be removed 
      */
-    def restructure(newColumnOrder: String*): Csv = Csv(rows map (_.restructure(newColumnOrder:_*)))
+    def restructure(newColumnOrder: String*): Csv = {
+      println(s"rows: ${rows}")
+      val poos: Iterator[Row] = rows map (_.restructure(newColumnOrder: _*))
+      println(s"poos: ${poos}")
+      Csv(poos)
+    }
 
     /**
      * Transform existing column values to new values, as defined by your function.
@@ -51,8 +58,8 @@ trait CsvSupport {
     def apply(inputStream: InputStream): Csv = Csv(DefaultRelationalDatasources.PimpFromInputStream(inputStream))
     def apply(rawData: String): Csv = Csv(DefaultRelationalDatasources.PimpFromString(rawData))
     def apply(external: RelationalDataSource): Csv = Csv(external.headers, external.data)
-    def apply(rows: Traversable[Row]): Csv = Csv(rows.head.columnNames, rows.map(_.columnValues))
-    def apply(csv: Csv, csvs: Csv*): Csv = Csv((csv +: csvs).head.headers, (csv +: csvs).flatMap(_.data)(collection.breakOut): Seq[Seq[String]])
+    def apply(rows: Iterator[Row]): Csv = new Csv(rows.next.columnNames, rows.map(_.columnValues))
+    def apply(csv: Csv, csvs: Csv*): Csv = Csv(csv.headers, (csv +: csvs).flatMap(_.data)(collection.breakOut): Iterator[Seq[String]])
   }
 
   object DefaultRelationalDatasources {
@@ -61,7 +68,7 @@ trait CsvSupport {
     implicit class PimpFromString(rawData: String) extends RelationalDataSource {
       private val allRows = rawData.trim.split("\n")
       override def headers = toRowValues(allRows.head)
-      override def data = allRows.tail filter(_.trim.nonEmpty) map toRowValues
+      override def data = allRows.tail.iterator.filter(_.trim.nonEmpty) map toRowValues
     }
 
     private def toRowValues(s: String) = s.split(",").toSeq
@@ -69,13 +76,15 @@ trait CsvSupport {
     implicit class PimpFromInputStream(is: InputStream) extends RelationalDataSource {
       private val br: BufferedReader = new BufferedReader(new InputStreamReader(is))
       override def headers = toRowValues(br.readLine())
-      override def data = new Traversable[Seq[String]] {
-        override def foreach[U](f: (Seq[String]) => U) =  {
-          var  line = br.readLine()
-          while(line != null) {
-            f(toRowValues(line))
-            line = br.readLine()
-          }
+      override def data = new Iterator[Seq[String]] {
+        private var line = br.readLine()
+
+        override def hasNext = line != null
+
+        override def next() = {
+          val oldLine = line
+          line = br.readLine()
+          toRowValues(oldLine)
         }
       }
     }
@@ -83,6 +92,6 @@ trait CsvSupport {
 
   trait RelationalDataSource {
     def headers: Seq[String]
-    def data: Traversable[Seq[String]]
+    def data: Iterator[Seq[String]]
   }
 }

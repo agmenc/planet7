@@ -5,13 +5,14 @@ import java.io.{File, FileInputStream, InputStream}
 import scala.io.Source
 
 object TestData {
-  def readFile(name: String): String = Source.fromFile(s"src/test/resources/planet7/relational/csv/$name").getLines().mkString("\n")
-  def readFileToInputStream(name: String): InputStream = new FileInputStream(s"src/test/resources/planet7/relational/csv/$name")
-  def testData(name: String) = new File(s"src/test/resources/planet7/relational/csv/$name")
+  val base = "src/test/resources/planet7/relational/csv"
+  def asString(fileName: String): String = Source.fromFile(s"$base/$fileName").getLines().mkString("\n")
+  def asInputStream(fileName: String): InputStream = new FileInputStream(s"$base/$fileName")
+  def asFile(fileName: String) = new File(s"$base/$fileName")
 }
 
 object CompanyAccountsData {
-  def postcodeLookupTable = Map((Csv(TestData.readFile("postcodes.csv")).rows map toTuple).to[Seq]:_*)
+  def postcodeLookupTable = Map((Csv(TestData.asString("postcodes.csv")).rows map toTuple).to[Seq]:_*)
   private def toTuple(row: Row): (String, String) = row.values match {
     case beforeValue :: afterValue :: Nil => beforeValue._2 -> afterValue._2
     case _ => ???

@@ -1,8 +1,8 @@
 package planet7.relational
 
-import org.scalatest.WordSpec
+import org.scalatest.{MustMatchers, WordSpec}
 
-class SimpleCsvParsingSpec extends WordSpec {
+class SimpleCsvParsingSpec extends WordSpec with MustMatchers {
   "We can construct a list of Rows from a CSV String" in {
     val data = """
                  |Some,Header,Columns
@@ -10,7 +10,7 @@ class SimpleCsvParsingSpec extends WordSpec {
                  |G,H,I
                """.stripMargin
 
-    assert(Csv(data).rows.head === Row(List(("Some", "D"), ("Header", "E"), ("Columns", "F"))))
+    assert(Csv(data).rows.next === Row(List(("Some", "D"), ("Header", "E"), ("Columns", "F"))))
   }
 
   "We handle blank rows" in {
@@ -25,15 +25,15 @@ class SimpleCsvParsingSpec extends WordSpec {
                  |
                """.stripMargin
 
-    assert(Csv(data).rows === List(
+    assert(Csv(data).rows.to[Seq] === Seq(
       Row(List(("Some", "D"), ("Header", "E"), ("Columns", "F"))),
       Row(List(("Some", "G"), ("Header", "H"), ("Columns", "I")))
     ))
   }
 
   "An empty CSV behaves itself" in {
-    assert(Csv("").rows=== Nil)
-    assert(Csv("Some,Header,Columns").rows === Nil)
+    assert(Csv("").rows.isEmpty)
+    assert(Csv("Some,Header,Columns").rows.isEmpty)
   }
 
   "Merge CSVs, so that we can gather similar data from multiple sources" in {
@@ -42,15 +42,21 @@ class SimpleCsvParsingSpec extends WordSpec {
                       |A,B,C
                     """.stripMargin)
 
-    val right = Csv( """
+    val middle = Csv( """
                        |ID,Value,Name
                        |D,F,E
                      """.stripMargin).restructure("ID", "Name", "Value") // Put columns into the same order
 
-    assert(Csv(left, right) === Csv( """
+    val right = Csv( """
+                       |ID,Name,Value
+                       |G,H,I
+                     """.stripMargin)
+
+    assert(Csv(left, middle, right) === Csv( """
                                        |ID,Name,Value
                                        |A,B,C
                                        |D,E,F
+                                       |G,H,I
                                      """.stripMargin))
   }
 
@@ -81,7 +87,7 @@ class SimpleCsvParsingSpec extends WordSpec {
         List("one", "two"),
         List("uno", "dos"),
         List("ichi", "ni"),
-        List("eins", "zwei"))).toString ===
+        List("eins", "zwei")).iterator).toString ===
       """foo,bar
         |one,two
         |uno,dos
@@ -97,7 +103,7 @@ class SimpleCsvParsingSpec extends WordSpec {
         List("one", "two"),
         List("uno", "dos"),
         List("ichi", "ni"),
-        List("eins", "zwei"))).toTruncString ===
+        List("eins", "zwei")).iterator).toTruncString ===
       """foo,bar
         |one,two
         |uno,dos

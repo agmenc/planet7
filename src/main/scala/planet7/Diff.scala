@@ -9,7 +9,9 @@ import planet7.relational.Differentiator
  *  - The result of a diff is a Seq of differences, each of which is also (potentially) diffable
  */
 object Diff {
-  def apply[U](lefts: Traversable[U], rights: Traversable[U], differ: Differentiator[U]): Seq[(U, U)] = {
+  def apply[U](lefts: Iterable[U], rights: Iterable[U], differ: Differentiator[U]): Seq[(U, U)] = apply(lefts.iterator, rights.iterator, differ)
+
+  def apply[U](lefts: Iterator[U], rights: Iterator[U], differ: Differentiator[U]): Seq[(U, U)] = {
 
     @tailrec
     def eliminateIdenticalElements(left: Seq[U], right: Seq[U], key: Option[U] => String)(diffs: Seq[(U, U)]): Seq[(U, U)] = {

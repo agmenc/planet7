@@ -8,9 +8,9 @@ class AugmentedCsvParsingSpec extends WordSpec {
   "Allow us to pimp external CSV parsers so we can use them to handle quoted headers and values" in {
 
     implicit class ExternalParserPimp(csvReader: CSVReader) extends RelationalDataSource {
-      private val headersAndData = csvReader.all()
-      override def headers = headersAndData.head
-      override def data = headersAndData.tail
+      private val headersAndData = csvReader.all().iterator
+      override val headers = headersAndData.next
+      override def data = headersAndData
     }
 
     val input = """ID,"Name,Value"

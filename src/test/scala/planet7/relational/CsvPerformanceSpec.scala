@@ -1,62 +1,42 @@
 package planet7.relational
 
 import org.scalatest.WordSpec
-import planet7.timing.Timer._
+import planet7.timing._
 import TestData._
 
 class CsvPerformanceSpec extends WordSpec {
   "We can read a large dataset in X seconds" in {
-    val fragCollator = new TimingCollator(1)
-    val oneShotCollator = new TimingCollator(1)
+    val timer = new Timer(1)
+    import timer._
 
     for (n <- 1 to 20) {
-      {
-        val fragmentedTimer = fragCollator.time
-        import fragmentedTimer._
-        val fileStream = t"load" {readFileToInputStream("large_dataset.csv")}
+      val x = t"fragments" {
+        val fileStream = t"load" {asInputStream("large_dataset.csv")}
         val csv = t"create" {Csv(fileStream)}
         val renamed = t"rename" {csv.rename("first_name" -> "First Name")}
         val restructured = t"restructure" {renamed.restructure("First Name", "last_name", "fee paid")}
         val remapped = t"remap" {restructured.remap("last_name" -> (_.toUpperCase))}
-        println(s"Fragmented timer.total: ${fragmentedTimer.total}")
+
+        remapped.toString
       }
 
-      {
-        val oneShotTimer = oneShotCollator.time
-        import oneShotTimer._
-        val x = t"one-shot" {
-          Csv(readFile("large_dataset.csv"))
-            .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
-            .remap("last_name" -> (_.toUpperCase))
-        }
-        println(s"oneShotTimer.total: ${oneShotTimer.total}")
+      val y = t"oneShot" {
+        val one = Csv(asInputStream("large_dataset.csv"))
+          .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
+          .remap("last_name" -> (_.toUpperCase))
+
+        one.toString
       }
     }
 
-    println(s"collator.total: ${fragCollator.total}")
-    println(s"collator.total.average: ${fragCollator.total.average}")
-    println("\n")
-    println(s"oneShot collator.total: ${oneShotCollator.total}")
-    println(s"oneShot collator.total.average: ${oneShotCollator.total.average}")
-    println("\n")
-    println(s"collator.load.average: ${fragCollator.load.average}")
-    println(s"collator.create.average: ${fragCollator.create.average}")
-    println(s"collator.rename.average: ${fragCollator.rename.average}")
-    println(s"collator.restructure.average: ${fragCollator.restructure.average}")
-    println(s"collator.remap.average: ${fragCollator.remap.average}")
-    println("\n")
+    println(s"fragments: ${timer.fragments.average}")
+    println(s"oneShot: ${timer.oneShot.average}")
 
-    // Drop the first
-    // Average the next ten
-    // record in a comment the average time for each collection type, e.g.:
-    // List: 530 ms
-    // Seq:  410 ms
+    // Average timings for oneShot across 20 iterations, dropping the first one to allow for JIT compilations
+    // List:      530 ms
+    // Seq:       410 ms
+    // Iterator:  160 ms
     // Vector: ...
-
-
-    // Test the all-in-one method
-    // Test the diff
-    // Create some benchmarks and assert that we stay within them
 
 
 
