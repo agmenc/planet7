@@ -16,8 +16,7 @@ trait RowSupport {
 
     def and(predicates: (String, String => Boolean)*): Boolean = predicates.forall(pred => pred._2(value(pred._1)))
 
-    private def replaceWith(mappings: Map[String, String => String])(field: Field) =
-      field._1 -> mappings.getOrElse(field._1, identity[String] _)(field._2)
+    private def replaceWith(mappings: Map[String, String => String])(field: Field) = field._1 -> mappings.getOrElse(field._1, identity[String] _)(field._2)
 
     lazy val columnNames = values map (v => v._1)
     lazy val columnValues = values map (v => v._2)

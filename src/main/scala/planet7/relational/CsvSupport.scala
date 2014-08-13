@@ -6,9 +6,15 @@ trait CsvSupport {
   case class Csv(headers: Seq[String], data: Iterator[Seq[String]]) {
     def rows: Iterator[Row] = data.map(row => Row(headers zip row))
 
+
+
     // map, filter, restructure and Csv.apply(rows: Iterator[Row]) are creating a new Csv without the header. Most of these methods need to add, and restructure, the header
-    def map(f: Row => Row): Csv = Csv(rows map f)
-    def filter(p: Row => Boolean): Csv = Csv(rows filter p)
+    private val headerRow = Row(headers zip headers)
+    private def andHeader(it: Iterator[Row]): Iterator[Row] = Iterator.single[Row](headerRow) ++ it
+    
+
+    def map(f: Row => Row): Csv = Csv(andHeader(rows) map f)
+    def filter(p: Row => Boolean): Csv = Csv(andHeader(rows filter p))
 
     /**
      * Combines a rename with restructureColumns
@@ -20,17 +26,12 @@ trait CsvSupport {
     /**
      * Change the column order. Any newly-introduced columns will be empty. Any columns not defined in newColumnOrder will be removed 
      */
-    def restructure(newColumnOrder: String*): Csv = {
-      println(s"rows: ${rows}")
-      val poos: Iterator[Row] = rows map (_.restructure(newColumnOrder: _*))
-      println(s"poos: ${poos}")
-      Csv(poos)
-    }
+    def restructure(newColumnOrder: String*): Csv = Csv(andHeader(rows) map (_.restructure(newColumnOrder: _*)))
 
     /**
      * Transform existing column values to new values, as defined by your function.
      */
-    def remap(mappings: (String, (String) => String)*): Csv = Csv(rows map (_.remap(Map(mappings:_*))))
+    def remap(mappings: (String, (String) => String)*): Csv = Csv(andHeader(rows map (_.remap(Map(mappings:_*)))))
     
     def toTruncString = (headers.mkString(",") + "\n") + contentsToShow
     private def contentsToShow = if (rows.size > 2) (rows take 3 mkString "\n") + "\n..." else rows mkString "\n"
@@ -58,7 +59,7 @@ trait CsvSupport {
     def apply(inputStream: InputStream): Csv = Csv(DefaultRelationalDatasources.PimpFromInputStream(inputStream))
     def apply(rawData: String): Csv = Csv(DefaultRelationalDatasources.PimpFromString(rawData))
     def apply(external: RelationalDataSource): Csv = Csv(external.headers, external.data)
-    def apply(rows: Iterator[Row]): Csv = new Csv(rows.next.columnNames, rows.map(_.columnValues))
+    def apply(rowsIncludingHeader: Iterator[Row]): Csv = new Csv(rowsIncludingHeader.next.columnNames, rowsIncludingHeader.map(_.columnValues))
     def apply(csv: Csv, csvs: Csv*): Csv = Csv(csv.headers, (csv +: csvs).flatMap(_.data)(collection.breakOut): Iterator[Seq[String]])
   }
 

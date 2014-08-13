@@ -1,5 +1,7 @@
 package planet7.relational
 
+import java.io.FileWriter
+
 import org.scalatest.WordSpec
 import planet7.Diff
 import TestData._
@@ -71,9 +73,12 @@ class CsvDiffSpec extends WordSpec {
       .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
       .remap("Postcode" -> postcodeLookupTable)
 
+    // Extra row
     val after = Csv(asString("after.csv"))
       .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    assert(Diff(before.rows, after.rows, RowDiffer("Company ID")) === Nil)
+    val diffo = Diff(before.rows, after.rows, RowDiffer("Company ID"))
+    println(s"diffo: ${diffo}")
+    assert(diffo === Nil)
   }
 }

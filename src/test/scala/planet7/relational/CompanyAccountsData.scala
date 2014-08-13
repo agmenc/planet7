@@ -13,7 +13,7 @@ object TestData {
 
 object CompanyAccountsData {
   def postcodeLookupTable = Map((Csv(TestData.asString("postcodes.csv")).rows map toTuple).to[Seq]:_*)
-  private def toTuple(row: Row): (String, String) = row.values match {
+  private def toTuple(row: Row): (String, String) = row.values.to[List] match {
     case beforeValue :: afterValue :: Nil => beforeValue._2 -> afterValue._2
     case _ => ???
   }
