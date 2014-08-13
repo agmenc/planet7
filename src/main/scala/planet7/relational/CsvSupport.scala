@@ -6,12 +6,8 @@ trait CsvSupport {
   case class Csv(headers: Seq[String], data: Iterator[Seq[String]]) {
     def rows: Iterator[Row] = data.map(row => Row(headers zip row))
 
-
-
-    // map, filter, restructure and Csv.apply(rows: Iterator[Row]) are creating a new Csv without the header. Most of these methods need to add, and restructure, the header
     private val headerRow = Row(headers zip headers)
     private def andHeader(it: Iterator[Row]): Iterator[Row] = Iterator.single[Row](headerRow) ++ it
-    
 
     def map(f: Row => Row): Csv = Csv(andHeader(rows) map f)
     def filter(p: Row => Boolean): Csv = Csv(andHeader(rows filter p))
@@ -34,7 +30,7 @@ trait CsvSupport {
     def remap(mappings: (String, (String) => String)*): Csv = Csv(andHeader(rows map (_.remap(Map(mappings:_*)))))
     
     def toTruncString = (headers.mkString(",") + "\n") + contentsToShow
-    private def contentsToShow = if (rows.size > 2) (rows take 3 mkString "\n") + "\n..." else rows mkString "\n"
+    private def contentsToShow = rows take 3 mkString "\n"
 
     override def toString: String = headers.mkString(",") + "\n" + rows.map(_.toString).mkString("\n") + "\n"
   }

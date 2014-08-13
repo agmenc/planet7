@@ -52,12 +52,11 @@ class SimpleCsvParsingSpec extends WordSpec with MustMatchers {
                        |G,H,I
                      """.stripMargin)
 
-    assert(Csv(left, middle, right) === Csv( """
-                                       |ID,Name,Value
-                                       |A,B,C
-                                       |D,E,F
-                                       |G,H,I
-                                     """.stripMargin))
+    assert(Csv(left, middle, right).toString === Csv( """
+                                                        |ID,Name,Value
+                                                        |A,B,C
+                                                        |D,E,F
+                                                        |G,H,I""".stripMargin).toString)
   }
 
   "We can add columns to CSVs" in {
@@ -76,38 +75,35 @@ class SimpleCsvParsingSpec extends WordSpec with MustMatchers {
         .restructure("ID", "Value", "Name")
         .remap("Value" -> (_ => "Some default value"))
 
-    assert(transform(twoColumnsOfData) === Csv(threeColumnsOfData))
+    assert(transform(twoColumnsOfData).toString === Csv(threeColumnsOfData).toString)
 
   }
 
   "The default String representation of Csv is the entire contents, formatted as a CSV" in {
-    assert(Csv(
-      List("foo", "bar"),
-      List(
-        List("one", "two"),
-        List("uno", "dos"),
-        List("ichi", "ni"),
-        List("eins", "zwei")).iterator).toString ===
-      """foo,bar
-        |one,two
-        |uno,dos
-        |ichi,ni
-        |eins,zwei
-        |""".stripMargin)
+    val csv = Csv(List("foo", "bar"), List(
+      List("one", "two"),
+      List("uno", "dos"),
+      List("ichi", "ni"),
+      List("eins", "zwei")).iterator)
+
+    assert(csv.toString === """foo,bar
+                              |one,two
+                              |uno,dos
+                              |ichi,ni
+                              |eins,zwei
+                              |""".stripMargin)
   }
 
   "For debugging and REPL development, Csv provides a truncated String" in {
-    assert(Csv(
-      List("foo", "bar"),
-      List(
-        List("one", "two"),
-        List("uno", "dos"),
-        List("ichi", "ni"),
-        List("eins", "zwei")).iterator).toTruncString ===
-      """foo,bar
-        |one,two
-        |uno,dos
-        |ichi,ni
-        |...""".stripMargin)
+    val csv = Csv(List("foo", "bar"), List(
+      List("one", "two"),
+      List("uno", "dos"),
+      List("ichi", "ni"),
+      List("eins", "zwei")).iterator)
+
+    assert(csv.toTruncString === """foo,bar
+                                   |one,two
+                                   |uno,dos
+                                   |ichi,ni""".stripMargin)
   }
 }
