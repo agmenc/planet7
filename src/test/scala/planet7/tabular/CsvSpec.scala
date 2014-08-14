@@ -71,9 +71,9 @@ class CsvSpec extends WordSpec with MustMatchers {
       def file = asFile("large_dataset.csv")
       def string = Source.fromFile(file).mkString
 
-      val possibleLoadMethods = Map(
+      val possibleLoadMethods = Map[String, () => TabularDataSource](
         //      "string" -> fromString(string),
-        "file" -> fromFile(file) //,
+        "file" -> (() => fromFile(file)) //,
         //      "stringInputStream" -> fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8))),
         //      "fileInputStream" -> fromInputStream(new FileInputStream(file)),
         //      "exp. memoryMappedFile" -> experimentalFromMemoryMappedFile(file),
@@ -84,16 +84,15 @@ class CsvSpec extends WordSpec with MustMatchers {
       val timer = new Timer(3)
       import timer._
 
-      val label = "file"
-      val loadMethod = fromFile(file)
       for {
-      //      (label, loadMethod) <- possibleLoadMethods
+        (label, loadMethod) <- possibleLoadMethods
         i <- 1 to 20
       } {
-        println(s"i: ${i}")
-        t"$label" {processLargeDataset(loadMethod)}
+        println(s"$label: $i")
+        t"$label" {processLargeDataset(loadMethod())}
       }
 
+      println(s"timer.results: ${timer.results}")
       println(timer)
 //      timer.file.average must be < 200.0
     }
@@ -101,7 +100,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     println(all)
   }
 
-  "Performance test for pimped CsvReader datasource" in {
+  "We can gauge the performance impact of external parsers such as CsvReader" in {
     // Use iterator from CsvReader
     fail("write me")
   }

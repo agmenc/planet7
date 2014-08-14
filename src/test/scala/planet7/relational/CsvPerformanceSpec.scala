@@ -37,39 +37,7 @@ class CsvPerformanceSpec extends WordSpec {
     // Average timings for oneShot across 20 iterations, dropping the first three to allow for JIT compilations
     // List:      530 ms
     // Seq:       410 ms
-    // Iterator:  160 ms
+    // Iterator:  250 ms
     // Vector: ...
-
-
-
-
-//      .rename("Company account" -> "Company ID")
-//      .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
-//      .remap(
-//        "Postcode" -> postcodeLookupTable,
-//        "Company" -> (_.toUpperCase)
-//      )
-
-//    val after = Csv(readFile("after_with_diffs.csv"))
-//      .restructure("First name", "Surname", "Company", "Company ID", "Postcode")
-//
-//    val diffs: List[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer("Company ID"))
-//
-//    val summary = diffs.groupBy {
-//      case (row, EmptyRow) => "Missing"
-//      case (EmptyRow, row) => "Added"
-//      case (row1, row2) => "Diffs"
-//    }
-//
-//    val readableDiffs = summary("Diffs") map (d => Diff(d._1.values, d._2.values, FieldDiffer)) map (prettyPrint(_).mkString(", "))
-//
-//    assert(readableDiffs === List(
-//      "Postcode: 43205 -> 432666, Company: ENIM SIT AMET INCORPORATED -> ENIM SIT AMET LIMITED",
-//      "Postcode: 22656 -> 22756"
-//    ))
-  }
-
-  "We can gauge the performance impact of external parsers" in {
-
   }
 }
