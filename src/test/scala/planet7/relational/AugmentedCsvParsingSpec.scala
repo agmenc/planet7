@@ -9,7 +9,7 @@ class AugmentedCsvParsingSpec extends WordSpec {
 
     implicit class ExternalParserPimp(csvReader: CSVReader) extends RelationalDataSource {
       private val headersAndData = csvReader.all().iterator
-      override val headers = headersAndData.next
+      override val headers = headersAndData.next()
       override def data = headersAndData
     }
 
@@ -21,8 +21,8 @@ class AugmentedCsvParsingSpec extends WordSpec {
     val externalParser = CSVReader.open(new StringReader(input))
 
     val csv = Csv(externalParser)
-    assert(csv.headers === List("ID", "Name,Value"))
-    assert(csv.data === List(
+    assert(csv.headers === Seq("ID", "Name,Value"))
+    assert(csv.data.toList === List(
         List("A", "B,C"),
         List("D", "E,F"),
         List("G", "H,I")

@@ -71,32 +71,6 @@ class CsvSpec extends WordSpec with MustMatchers {
     fail("write me, or make me implicit in the next test")
   }
 
-  "XXXXXXXX Performance test for different file-access methods" in {
-    import planet7.timing._
-
-    val all = new Timer()
-    all {
-      // TODO - CAS - 08/08/2014 - Timing runs should automatically be collated.
-      val collator = new Timer(3)
-      import collator._
-
-      for (i <- 1 to 20) {
-        t"load" {
-          val csv = Csv(asFile("large_dataset.csv"))
-          //      .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
-          //      .remap("last_name" -> (_.toUpperCase))
-
-          export(csv)
-        }
-      }
-
-      println(s"collator: ${collator}")
-//      collator.load.average must be < 200.0
-    }
-
-    println(all)
-  }
-
   "Performance test for different file-access methods" in {
     import planet7.timing._
 
@@ -143,6 +117,11 @@ class CsvSpec extends WordSpec with MustMatchers {
     }
 
     println(all)
+  }
+
+  "Performance test for pimped CsvReader datasource" in {
+    // Use iterator from CsvReader
+    fail("write me")
   }
 
 //  "An empty Csv2 behaves itself" in {
