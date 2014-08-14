@@ -56,48 +56,41 @@ class CsvSpec extends WordSpec with MustMatchers {
   "Performance test for different file-access methods" in {
     import planet7.timing._
 
-    val all = new Timer()
-    all {
+    def processLargeDataset(datasource: TabularDataSource) = {
+      val csv = Csv(datasource)
+      //      .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
+      //      .remap("last_name" -> (_.toUpperCase))
 
-      def processLargeDataset(datasource: TabularDataSource) = {
-        val csv = Csv(datasource)
-        //      .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
-        //      .remap("last_name" -> (_.toUpperCase))
-
-        export(csv)
-        // Assert it is correct
-      }
-
-      def file = asFile("large_dataset.csv")
-      def string = Source.fromFile(file).mkString
-
-      val possibleLoadMethods = Map[String, () => TabularDataSource](
-        //      "string" -> fromString(string),
-        "file" -> (() => fromFile(file)) //,
-        //      "stringInputStream" -> fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8))),
-        //      "fileInputStream" -> fromInputStream(new FileInputStream(file)),
-        //      "exp. memoryMappedFile" -> experimentalFromMemoryMappedFile(file),
-        //      "exp. scanner" -> experimentalFromScanner(file),
-        //      "exp. wholeFile" -> experimentalFromWholeFile(file)
-      )
-
-      val timer = new Timer(3)
-      import timer._
-
-      for {
-        (label, loadMethod) <- possibleLoadMethods
-        i <- 1 to 20
-      } {
-        println(s"$label: $i")
-        t"$label" {processLargeDataset(loadMethod())}
-      }
-
-      println(s"timer.results: ${timer.results}")
-      println(timer)
-//      timer.file.average must be < 200.0
+      export(csv)
+      // Assert it is correct
     }
 
-    println(all)
+    def file = asFile("large_dataset.csv")
+    def string = Source.fromFile(file).mkString
+
+    val possibleLoadMethods = Map[String, () => TabularDataSource](
+      "string" -> (() => fromString(string)),
+      "file" -> (() => fromFile(file)),
+      "stringInputStream" -> (() => fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)))),
+      "fileInputStream" -> (() => fromInputStream(new FileInputStream(file))),
+      "exp. memoryMappedFile" -> (() => experimentalFromMemoryMappedFile(file)),
+      "exp. scanner" -> (() => experimentalFromScanner(file)),
+      "exp. wholeFile" -> (() => experimentalFromWholeFile(file))
+    )
+
+    val timer = new Timer(3)
+    import timer._
+
+    for {
+      (label, loadMethod) <- possibleLoadMethods
+      i <- 1 to 20
+    } t"$label" {
+      if (i == 10) println(label)
+      processLargeDataset(loadMethod())
+    }
+
+    println(timer)
+    timer.file.average must be < 180.0
   }
 
   "We can gauge the performance impact of external parsers such as CsvReader" in {

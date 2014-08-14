@@ -4,8 +4,6 @@ import java.io._
 import java.nio.file.Paths
 import java.util.Scanner
 
-import scala.collection.AbstractTraversable
-
 trait TabularDataSource extends Closeable {
   def header: Row
 
@@ -18,16 +16,9 @@ class ScannerDataSource(file: File) extends TabularDataSource {
   val header = if (scanner.hasNext) toRow(scanner.nextLine()) else throw new EmptyFileException
 
   override def rows = new Iterator[Row] {
-    var line = scanner.nextLine()
+    override def hasNext = scanner.hasNext
 
-    override def hasNext = line != null
-
-    override def next() = {
-      val oldLine = line
-      line = scanner.nextLine()
-      if (line == null) scanner.close()
-      toRow(oldLine)
-    }
+    override def next() = if (scanner.hasNext) toRow(scanner.nextLine()) else null
   }
 
   override def close() = scanner.close()
