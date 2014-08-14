@@ -81,6 +81,7 @@ trait CsvSupport {
         override def next() = {
           val oldLine = line
           line = br.readLine()
+          if (line == null) is.close()
           toRowValues(oldLine)
         }
       }

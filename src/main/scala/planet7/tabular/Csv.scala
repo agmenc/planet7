@@ -8,7 +8,7 @@ package planet7.tabular
  *
  *
  * // TODO - CAS - 12/08/2014 - A CSV should just be an iterator of Rows, with some extra gubbins around it
- *  - Iterators give the nicest ponce-only approach
+ *  - Iterators give the nicest once-only approach
  *  - Csv should be closeable - or returned iterator could close streams on next() == null
  *  - Kevin has given me dispensation to use mutability inside my iterator
  *
@@ -20,7 +20,7 @@ package planet7.tabular
 case class Csv(source: TabularDataSource, columnStructureTx: Row => Row = identity, headerRenameTx: Row => Row = identity) {
   def header: Row = headerRenameTx(columnStructureTx(source.header))
 
-  def rows: Traversable[Row] = source.rows(columnStructureTx)
+  def rows: Iterator[Row] = source.rows.map(columnStructureTx)
 
   def columnStructure(columns: (String, String)*): Csv = Csv(
     source,

@@ -5,26 +5,30 @@ import java.io.{BufferedReader, Reader}
 import scala.collection.AbstractTraversable
 
 class BufferedDataSource(source: Reader) extends TabularDataSource {
-  val lines: BufferedReader = new BufferedReader(source)
+  val lines = new LineReader(new BufferedReader(source))
+  val header = lines.next()
 
-  val header = {
-    val line = lines.readLine()
-    if (line != null) toRow(line) else throw new EmptyFileException
-  }
-
-  override def rows(columnStructureTx: Row => Row) = new LineReader(lines, columnStructureTx)
+  override def rows = lines
+  override def close() = source.close()
 }
 
-class LineReader(lines: BufferedReader, columnStructureTx: Row => Row) extends AbstractTraversable[Row] {
-  override def foreach[U](f: (Row) => U) = {
-    // 256 ms
-    // Stream.continually(lines.readLine()).takeWhile(_ != null).withFilter(_.nonEmpty).foreach(line => f(toRow(line)))
+class LineReader(lines: BufferedReader) extends Iterator[Row] {
+  private var line = nextNonEmptyLine
 
-    // 196 ms
-    var line = lines.readLine()
-    while (line != null) {
-      if (line.nonEmpty) f(columnStructureTx(toRow(line)))
-      line = lines.readLine()
+  override def hasNext = line != null
+
+  override def next() = {
+    val oldLine = line
+    line = nextNonEmptyLine
+    if (line == null) lines.close()
+    toRow(oldLine)
+  }
+
+  private def nextNonEmptyLine = {
+    var l = lines.readLine()
+    while (l != null && l.isEmpty) {
+      l = lines.readLine()
     }
+    l
   }
 }

@@ -12,6 +12,8 @@ class CsvSpec extends WordSpec with MustMatchers {
   "We can construct a Csv from a RelationalInputSource, including blank rows" in {
     val data = """
                  |
+                 |
+                 |
                  |Some,Header,Columns
                  |
                  |
@@ -45,26 +47,6 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     csv.header mustEqual Row(Array("Amount", "Name"))
     export(csv) mustEqual result
-  }
-
-  "We cannot read from the same datasource twice" in {
-    def file = asFile("large_dataset.csv")
-
-    val possibleLoadMethods = Map(
-      //      "string" -> fromString(string),
-      "file" -> fromFile(file) //,
-      //      "stringInputStream" -> fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8))),
-      //      "fileInputStream" -> fromInputStream(new FileInputStream(file)),
-      //      "exp. memoryMappedFile" -> experimentalFromMemoryMappedFile(file),
-      //      "exp. scanner" -> experimentalFromScanner(file),
-      //      "exp. wholeFile" -> experimentalFromWholeFile(file)
-    )
-
-    val poo: TabularDataSource = fromFile(file)
-    poo.rows(identity)
-
-    // Should throw exception:
-    poo.rows(identity)
   }
 
   "All methods of accessing data produce the same result" in {
