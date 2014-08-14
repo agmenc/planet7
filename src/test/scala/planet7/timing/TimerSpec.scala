@@ -2,6 +2,8 @@ package planet7.timing
 
 import org.scalatest.{MustMatchers, WordSpec}
 
+import scala.collection.mutable.ListBuffer
+
 class TimerSpec extends WordSpec with MustMatchers {
   "We can calculate the average of some times" in {
     val times: Seq[Long] = Seq(30, 40, 50, 60)
@@ -42,8 +44,15 @@ class TimerSpec extends WordSpec with MustMatchers {
       t"fill" {Thread.sleep(75)}
     }
 
-    println(timer)
     timer.dig.average must be < timer.fill.average
     timer.total.average must be > 125.0
+  }
+
+  "We drop the first N items of any sequence to show JIT-optimised times" in {
+    val timer = new Timer(3) {
+      results = Map("fetchWater" -> ListBuffer(100L, 80L, 60L, 40L, 20L, 0L))
+    }
+
+    assert(timer.fetchWater.average === 20)
   }
 }

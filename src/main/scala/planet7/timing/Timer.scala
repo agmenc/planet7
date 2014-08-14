@@ -25,7 +25,7 @@ class Timer(droppingFirst: Int = 0) extends Dynamic {
     def t(args: Any*): Record = Record(sc.s(args:_*))
   }
 
-  override def toString = results.map{ case (key, timings) => s"$key: ${trim(timings).average} ms (average of ${trim(timings).size}})" }.mkString("\n")
+  override def toString = results.map{ case (key, timings) => s"$key: ${trim(timings).average} ms (average of ${trim(timings).size})" }.mkString("\n")
 
-  private def trim(buf: ListBuffer[Long]) = buf dropRight droppingFirst
+  private def trim(buf: ListBuffer[Long]) = buf drop droppingFirst
 }
