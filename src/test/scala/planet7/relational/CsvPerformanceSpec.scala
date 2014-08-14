@@ -6,7 +6,7 @@ import TestData._
 
 class CsvPerformanceSpec extends WordSpec {
   "We can read a large dataset in X seconds" in {
-    val timer = new Timer(1)
+    val timer = new Timer(3)
     import timer._
 
     for (n <- 1 to 20) {
@@ -32,7 +32,9 @@ class CsvPerformanceSpec extends WordSpec {
     println(s"fragments: ${timer.fragments.average}")
     println(s"oneShot: ${timer.oneShot.average}")
 
-    // Average timings for oneShot across 20 iterations, dropping the first one to allow for JIT compilations
+    assert(timer.oneShot.average < 350)
+
+    // Average timings for oneShot across 20 iterations, dropping the first three to allow for JIT compilations
     // List:      530 ms
     // Seq:       410 ms
     // Iterator:  160 ms

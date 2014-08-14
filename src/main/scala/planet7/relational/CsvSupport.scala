@@ -15,7 +15,7 @@ trait CsvSupport {
     /**
      * Combines a rename with restructureColumns
      */
-    def renameAndRestructure(columnMappings: (String,String)*): Csv = map(RowTransforms.renameAndRestructure(Map(columnMappings:_*)))
+    def renameAndRestructure(columnMappings: (String,String)*): Csv = map(RowTransforms.renameAndRestructure(columnMappings))
 
     def rename(nameChanges: (String,String)*): Csv = map(RowTransforms.rename(Map(nameChanges:_*)))
 
