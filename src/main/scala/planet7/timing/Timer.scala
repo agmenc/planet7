@@ -25,7 +25,16 @@ class Timer(droppingFirst: Int = 0) extends Dynamic {
     def t(args: Any*): Record = Record(sc.s(args:_*))
   }
 
-  override def toString = results.map{ case (key, timings) => s"$key: ${trim(timings).average} ms (average of ${trim(timings).size})" }.mkString("\n")
+  override def toString = {
+    val sorted: Seq[(String, Double, Int)] = results
+      .map{ case (key, timings) => (key, trim(timings).average, trim(timings).size) }(collection.breakOut)
+      .sortBy{ case (key, time, count) => key -> time }
+
+    def format(time: Double) = f"$time%1.2f"
+
+    val maxLength = results.keySet.foldLeft(0){case (max, key) => if (key.length > max) key.length else max}
+    "\n\n" + sorted.map{ case (key, time, count) => f"$key%20s ${format(time)}%12s ms (avg. of $count readings)" }.mkString("\n") + "\n\n"
+  }
 
   private def trim(buf: ListBuffer[Long]) = buf drop droppingFirst
 }

@@ -55,4 +55,22 @@ class TimerSpec extends WordSpec with MustMatchers {
 
     assert(timer.fetchWater.average === 20)
   }
+
+  "toString is sorted by descending average values and formatted adequately" in {
+    val timer = new Timer(2) {
+      results = Map(
+        "medium" -> ListBuffer(50L, 50L, 50L, 50L, 50L, 50L),
+        "high" -> ListBuffer(200L, 200L, 200L, 200L),
+        "really very quick" -> ListBuffer(4L, 4L, 4L, 4L, 4L,4L, 4L, 4L, 4L)
+      )
+    }
+
+    assert(timer.toString === """
+                                |
+                                |                high       200.00 ms (avg. of 2 readings)
+                                |              medium        50.00 ms (avg. of 4 readings)
+                                |   really very quick         4.00 ms (avg. of 7 readings)
+                                |
+                                |""".stripMargin)
+  }
 }
