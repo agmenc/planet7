@@ -67,9 +67,9 @@ class TimerSpec extends WordSpec with MustMatchers {
 
     assert(timer.toString === """
                                 |
-                                |                high       200.00 ms (avg. of 2 readings)
-                                |              medium        50.00 ms (avg. of 4 readings)
-                                |   really very quick         4.00 ms (avg. of 7 readings)
+                                |                   high       200.00 ms (avg. of 2 readings)
+                                |                 medium        50.00 ms (avg. of 4 readings)
+                                |      really very quick         4.00 ms (avg. of 7 readings)
                                 |
                                 |""".stripMargin)
   }

@@ -53,6 +53,17 @@ class CsvSpec extends WordSpec with MustMatchers {
     fail("write me, or make me implicit in the next test")
   }
 
+  /**
+   * Typical results:
+
+           exp. scanner       347.82 ms (avg. of 17 readings)
+         exp. wholeFile       341.00 ms (avg. of 17 readings)
+      stringInputStream       331.24 ms (avg. of 17 readings)
+                 string       255.76 ms (avg. of 17 readings)
+        fileInputStream       223.35 ms (avg. of 17 readings)
+  exp. memoryMappedFile       201.65 ms (avg. of 17 readings)
+                   file       177.53 ms (avg. of 17 readings)
+   */
   "Performance test for different file-access methods" in {
     import planet7.timing._
 
