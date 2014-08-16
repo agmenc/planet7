@@ -31,12 +31,14 @@ case class Csv(source: TabularDataSource, columnStructureTx: Row => Row = identi
   private[tabular] def nextColumnStructureTx(columns: (String, String)*): (Row) => Row = {
     val headerRow: Row = header
     val lookup: Array[Int] = columns.map { case (sourceCol, targetCol) => headerRow.data.indexOf(sourceCol) }(collection.breakOut)
+
+    // TODO - CAS - 15/08/2014 - If row has fewer elements than lookup, i.e. it is invalid, this fn throws ArrayIndexOutOfBoundsException
     row => Row(lookup.map(row.data))
   }
 
   private[tabular] def nextHeaderRenameTx(columns: (String, String)*) = (row: Row) => Row(row.data.map(Map(columns: _*)))
 
-  // TODO - CAS - 08/08/2014 - Use withFilter on the Traversable[Row], as filter materialises the list when it filters it
+  // TODO - CAS - 08/08/2014 - Use withFilter on the Iterator[Row], as filter materialises the list when it filters it
 }
 
 //object Csv {
