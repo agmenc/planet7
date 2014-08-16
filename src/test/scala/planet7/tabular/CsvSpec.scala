@@ -1,9 +1,8 @@
 package planet7.tabular
 
-import java.io.{ByteArrayInputStream, FileInputStream}
+import java.io._
 import java.nio.charset.StandardCharsets
 
-import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
 import planet7.relational.TestData._
 
@@ -89,8 +88,8 @@ class CsvSpec extends WordSpec with MustMatchers {
       "string" -> (() => fromString(string)),
       "stringInputStream" -> (() => fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)))),
       "file" -> (() => fromFile(file)),
-      "fileInputStream" -> (() => fromInputStream(new FileInputStream(file)))
-      //      "exp. memoryMappedFile" -> (() => experimentalFromMemoryMappedFile(file))//,
+      "fileInputStream" -> (() => fromInputStream(new FileInputStream(file))),
+      "exp. memoryMappedFile" -> (() => experimentalFromMemoryMappedFile(file))
     )
 
     val timer = new Timer(3)

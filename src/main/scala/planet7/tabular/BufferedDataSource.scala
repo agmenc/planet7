@@ -15,7 +15,7 @@ class BufferedDataSource(source: Reader) extends TabularDataSource {
 class LineReader(lines: BufferedReader) extends Iterator[Row] {
   private var line = nextNonEmptyLine
 
-  override def hasNext = line != null
+  override def hasNext = line != null && !line.trim.isEmpty
 
   override def next() = {
     val oldLine = line
@@ -25,10 +25,8 @@ class LineReader(lines: BufferedReader) extends Iterator[Row] {
   }
 
   private def nextNonEmptyLine = {
-    var l = lines.readLine()
-    while (l != null && l.isEmpty) {
-      l = lines.readLine()
-    }
-    l
+    var nnel = lines.readLine()
+    while (nnel != null && nnel.trim.isEmpty) { nnel = lines.readLine() }
+    nnel
   }
 }
