@@ -49,8 +49,36 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(csv) mustEqual result
   }
 
-  "All methods of accessing data produce the same result" in {
-    fail("write me, or make me implicit in the next test")
+  def possibleLoadMethods = {
+    def file = asFile("large_dataset.csv")
+    def string = Source.fromFile(file).mkString
+
+    Map[String, () => TabularDataSource](
+      "exp. scanner" -> (() => experimentalFromScanner(file)),
+      "exp. wholeFile" -> (() => experimentalFromWholeFile(file)),
+      "string" -> (() => fromString(string)),
+      "stringInputStream" -> (() => fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)))),
+      "file" -> (() => fromFile(file)),
+      "fileInputStream" -> (() => fromInputStream(new FileInputStream(file))),
+      "exp. memoryMappedFile" -> (() => experimentalFromMemoryMappedFile(file))
+    )
+  }
+
+  "All methods of accessing data produce the same Csv structure" in {
+    val expectedHeader = Row(Array("id", "first_name", "last_name", "dob", "email", "country", "ip_address", "comment", "fee paid"))
+    val expectedFirstRow = Row(Array("1", "Louise", "Fernandez", "10/6/2009", "lfernandez@jaxspan.name", "Sudan", "2.165.175.158", "orci vehicula condimentum curabitur in libero ut massa volutpat convallis", "£825877.71"))
+    val expectedLastRow = Row(Array("25000", "Craig", "Sullivan", "11/12/2000", "csullivan@livepath.edu", "Saint Pierre and Miquelon", "146.20.244.214", "mi sit amet lobortis sapien sapien non mi integer ac neque duis bibendum morbi non quam nec dui", "£138363.42"))
+    val expectedRowCount = 25000
+
+    for ((label, loadMethod) <- possibleLoadMethods) {
+      val csv = Csv(loadMethod())
+      csv.header must equal(expectedHeader)
+
+      val allRowsMaterialised = csv.rows.to[List]
+      allRowsMaterialised.size must be (expectedRowCount)
+      allRowsMaterialised.head must be (expectedFirstRow)
+      allRowsMaterialised.last must be (expectedLastRow)
+    }
   }
 
   /**
@@ -59,13 +87,14 @@ class CsvSpec extends WordSpec with MustMatchers {
    *
    * Typical results:
 
-           exp. scanner       347.82 ms (avg. of 17 readings)
-         exp. wholeFile       341.00 ms (avg. of 17 readings)
-      stringInputStream       331.24 ms (avg. of 17 readings)
-                 string       255.76 ms (avg. of 17 readings)
-        fileInputStream       223.35 ms (avg. of 17 readings)
-  exp. memoryMappedFile       201.65 ms (avg. of 17 readings)
-                   file       177.53 ms (avg. of 17 readings)
+           exp. scanner       273.94 ms (avg. of 17 readings)
+      stringInputStream       259.76 ms (avg. of 17 readings)
+                 string       230.18 ms (avg. of 17 readings)
+         exp. wholeFile       166.00 ms (avg. of 17 readings)
+  exp. memoryMappedFile       120.65 ms (avg. of 17 readings)
+                   file        96.24 ms (avg. of 17 readings)
+        fileInputStream        93.47 ms (avg. of 17 readings)
+
    */
   "Performance test for different file-access methods" in {
     import planet7.timing._
@@ -76,21 +105,7 @@ class CsvSpec extends WordSpec with MustMatchers {
       //      .remap("last_name" -> (_.toUpperCase))
 
       export(csv)
-      // Assert it is correct
     }
-
-    def file = asFile("large_dataset.csv")
-    def string = Source.fromFile(file).mkString
-
-    val possibleLoadMethods = Map[String, () => TabularDataSource](
-      "exp. scanner" -> (() => experimentalFromScanner(file)),
-      "exp. wholeFile" -> (() => experimentalFromWholeFile(file)),
-      "string" -> (() => fromString(string)),
-      "stringInputStream" -> (() => fromInputStream(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)))),
-      "file" -> (() => fromFile(file)),
-      "fileInputStream" -> (() => fromInputStream(new FileInputStream(file))),
-      "exp. memoryMappedFile" -> (() => experimentalFromMemoryMappedFile(file))
-    )
 
     val timer = new Timer(3)
     import timer._
@@ -99,7 +114,7 @@ class CsvSpec extends WordSpec with MustMatchers {
       (label, loadMethod) <- possibleLoadMethods
       i <- 1 to 20
     } t"$label" {
-      if (i == 10) println(label)
+      if (i == 1) println(label)
       processLargeDataset(loadMethod())
     }
 

@@ -5,7 +5,7 @@ import planet7.timing._
 import TestData._
 
 class CsvPerformanceSpec extends WordSpec {
-  "We can read a large dataset in X seconds" in {
+  "We can read a large dataset in under 350 milliseconds" in {
     val timer = new Timer(3)
     import timer._
 
