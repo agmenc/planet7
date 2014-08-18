@@ -3,6 +3,7 @@ package planet7.tabular
 import java.io._
 import java.nio.charset.StandardCharsets
 
+import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
 import planet7.relational.TestData._
 
@@ -49,8 +50,8 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(csv) mustEqual result
   }
 
-  def possibleLoadMethods = {
-    def file = asFile("large_dataset.csv")
+  def possibleLoadMethods(filename: String) = {
+    def file = asFile(filename)
     def string = Source.fromFile(file).mkString
 
     Map[String, () => TabularDataSource](
@@ -65,12 +66,9 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
 
   "All methods of accessing data produce the same Csv structure" in {
-    val expectedHeader = Row(Array("id", "first_name", "last_name", "dob", "email", "country", "ip_address", "comment", "fee paid"))
-    val expectedFirstRow = Row(Array("1", "Louise", "Fernandez", "10/6/2009", "lfernandez@jaxspan.name", "Sudan", "2.165.175.158", "orci vehicula condimentum curabitur in libero ut massa volutpat convallis", "£825877.71"))
-    val expectedLastRow = Row(Array("25000", "Craig", "Sullivan", "11/12/2000", "csullivan@livepath.edu", "Saint Pierre and Miquelon", "146.20.244.214", "mi sit amet lobortis sapien sapien non mi integer ac neque duis bibendum morbi non quam nec dui", "£138363.42"))
-    val expectedRowCount = 25000
+    import LargeDataSet._
 
-    for ((label, loadMethod) <- possibleLoadMethods) {
+    for ((label, loadMethod) <- possibleLoadMethods("large_dataset.csv")) {
       val csv = Csv(loadMethod())
       csv.header must equal(expectedHeader)
 
@@ -97,6 +95,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
    */
   "Performance test for different file-access methods" in {
+    import LargeDataSet._
     import planet7.timing._
 
     def processLargeDataset(datasource: TabularDataSource) = {
@@ -111,7 +110,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     import timer._
 
     for {
-      (label, loadMethod) <- possibleLoadMethods
+      (label, loadMethod) <- possibleLoadMethods(largeDataFile)
       i <- 1 to 20
     } t"$label" {
       if (i == 1) println(label)
@@ -122,14 +121,25 @@ class CsvSpec extends WordSpec with MustMatchers {
     timer.file.average must be < 180.0
   }
 
-  "We can use external parsers such as CsvReader" in {
-    // Implicit adaptor from CsvReader to TabularDataSource
-//    new CSVReader()
-//    val csv = Csv(datasource)
-//      .columnStructure("first_name" -> "First Name", "last_name", "fee paid")
+  // 143 seconds to load 25000 rows, i.e. 1,000 times slower than just reading the file into Csv Rows. Hells bells.
+  "We can use external parsers such as (the incredibly slow) CsvReader" in {
+    implicit def fromCsvReader(reader: CSVReader): TabularDataSource = new TabularDataSource {
+      override val header = reader.readNext() match {
+        case Some(items) => Row(items.toArray)
+        case None => throw new NoDataInSourceException(reader.toString)
+      }
 
+      override def rows = reader.iterator.map(items => Row(items.toArray))
 
-    fail("write me")
+      override def close() = reader.close()
+    }
+
+    import LargeDataSet._
+
+    val reader = CSVReader.open(asFile(largeDataFile))
+    val csv = Csv(fromCsvReader(reader))
+    csv.header must equal(expectedHeader)
+    csv.rows.next() must be (expectedFirstRow)
   }
 
   "We can gauge the performance impact of external parsers such as CsvReader" in {
