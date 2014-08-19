@@ -86,6 +86,18 @@ class CsvSpec extends WordSpec with MustMatchers {
     } a [NoDataInSourceException] should be thrownBy Csv(loadMethod()).header
   }
 
+  "All methods of accessing data handle header-only files correctly" in {
+    for {
+      filename <- Seq("header-only.csv", "header-and-blank-lines.csv")
+      (label, loadMethod) <- possibleLoadMethods(filename)
+    } {
+      val csv = Csv(loadMethod())
+
+      csv.header must equal(Row(Array("First name", "Surname", "Company", "Company account", "Postcode", "Pet names")))
+      csv.rows mustBe empty
+    }
+  }
+
   /**
    * Data is sourced from Mockaroo. To regenerate:
    * curl http://www.mockaroo.com/7aa9b980/download?count=1000 > "My Saved Schema.csv"
