@@ -142,28 +142,41 @@ class CsvSpec extends WordSpec with MustMatchers {
 
   // 143 seconds to load 25000 rows, i.e. 1,000 times slower than just reading the file into Csv Rows. Hells bells.
   "We can use external parsers such as (the incredibly slow) CsvReader" in {
-    implicit def fromCsvReader(reader: CSVReader): TabularDataSource = new TabularDataSource {
-      override val header = reader.readNext() match {
-        case Some(items) => Row(items.toArray)
-        case None => throw new NoDataInSourceException(reader.toString)
-      }
-
-      override def rows = reader.iterator.map(items => Row(items.toArray))
-
-      override def close() = reader.close()
-    }
-
     import LargeDataSet._
 
-    val reader = CSVReader.open(asFile(largeDataFile))
-    val csv = Csv(fromCsvReader(reader))
+    val csv = Csv(CSVReader.open(asFile(largeDataFile)))
+
     csv.header must equal(expectedHeader)
     csv.rows.next() must be (expectedFirstRow)
   }
 
-  "We can gauge the performance impact of external parsers such as CsvReader" in {
-    // Use iterator from CsvReader
-    fail("write me")
+  implicit def fromCsvReader(reader: CSVReader): TabularDataSource = new TabularDataSource {
+    override val header = reader.readNext() match {
+      case Some(items) => Row(items.toArray)
+      case None => throw new NoDataInSourceException(reader.toString)
+    }
+
+    override def rows = reader.iterator.map(items => Row(items.toArray))
+
+    override def close() = reader.close()
+  }
+
+  "Users of the planet7 library can gauge the performance impact of external parsers such as CsvReader" in {
+    import planet7.timing._
+
+    val timer = new Timer(2)
+    import timer._
+
+    for (i <- 1 to 5) {
+      t"overallTime" {
+        val csvReader = t"shouldBeQuick" { CSVReader.open(asFile("before.csv")) }
+        val csv = t"shouldAlsoBeQuick" { Csv(csvReader) }
+        t"veryExpensive" { export(csv) }
+      }
+    }
+
+    println(timer)
+    timer.overallTime.average must be < 150.0
   }
 
 //  "An empty Csv2 behaves itself" in {

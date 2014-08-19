@@ -32,7 +32,7 @@ class TimerSpec extends WordSpec with MustMatchers {
     }
 
     timer.total.last must be >= 125L
-    timer.total.last must be < 170L
+    timer.total.last must be < 250L
   }
 
   "We can time multiple runs across named code snippets and find the average" in {
