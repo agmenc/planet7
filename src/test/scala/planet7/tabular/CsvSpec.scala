@@ -68,7 +68,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   "All methods of accessing data produce the same Csv structure" in {
     import LargeDataSet._
 
-    for ((label, loadMethod) <- possibleLoadMethods("large_dataset.csv")) {
+    for ((label, loadMethod) <- possibleLoadMethods(largeDataFile)) {
       val csv = Csv(loadMethod())
       csv.header must equal(expectedHeader)
 
@@ -77,6 +77,13 @@ class CsvSpec extends WordSpec with MustMatchers {
       allRowsMaterialised.head must be (expectedFirstRow)
       allRowsMaterialised.last must be (expectedLastRow)
     }
+  }
+
+  "All methods of accessing data handle empty files correctly" in {
+    for {
+      filename <- Seq("completely-empty.csv", "blank-lines.csv")
+      (label, loadMethod) <- possibleLoadMethods(filename)
+    } a [NoDataInSourceException] should be thrownBy Csv(loadMethod()).header
   }
 
   /**

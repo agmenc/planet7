@@ -2,11 +2,9 @@ package planet7.tabular
 
 import java.io.{BufferedReader, Reader}
 
-import scala.collection.AbstractTraversable
-
 class BufferedDataSource(source: Reader) extends TabularDataSource {
   val lines = new LineReader(new BufferedReader(source))
-  val header = lines.next()
+  val header = if (lines.hasNext) lines.next() else throw new NoDataInSourceException(source.toString)
 
   override def rows = lines
   override def close() = source.close()
