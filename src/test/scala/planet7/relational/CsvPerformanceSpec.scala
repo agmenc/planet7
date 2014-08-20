@@ -29,8 +29,7 @@ class CsvPerformanceSpec extends WordSpec {
       }
     }
 
-    println(s"fragments: ${timer.fragments.average}")
-    println(s"oneShot: ${timer.oneShot.average}")
+    println(timer)
 
     assert(timer.oneShot.average < 350)
 

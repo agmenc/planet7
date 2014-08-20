@@ -179,29 +179,23 @@ class CsvSpec extends WordSpec with MustMatchers {
     timer.overallTime.average must be < 150.0
   }
 
-//  "An empty Csv2 behaves itself" in {
-//    assert(Csv2("").rows=== Nil)
-//    assert(Csv2("Some,Header,Columns").rows === Nil)
-//  }
-//
-//  "Merge Csv2s, so that we can gather similar data from multiple sources" in {
-//    val left = Csv2( """
-//                      |ID,Name,Value
-//                      |A,B,C
-//                    """.stripMargin)
-//
-//    val right = Csv2( """
-//                       |ID,Value,Name
-//                       |D,F,E
-//                     """.stripMargin).restructure("ID", "Name", "Value") // Put columns into the same order
-//
-//    assert(Csv2(left, right) === Csv2( """
-//                                       |ID,Name,Value
-//                                       |A,B,C
-//                                       |D,E,F
-//                                     """.stripMargin))
-//  }
-//
+  "We can add empty columns to a Csv" in {
+    val twoColumns = Csv("""
+                       |Name,ID
+                       |B,A
+                     """.stripMargin)
+
+    val threeColumns = Csv("""
+                         |ID,Value,Name
+                         |A,,B
+                       """.stripMargin)
+
+    val result = twoColumns.columnStructure("ID", "Value", "Name")
+
+    result.header mustEqual Row(Array("ID", "Value", "Name"))
+    result.rows.toList must equal(threeColumns.rows.toList)
+  }
+
 //  "We can add columns to Csv2s" in {
 //    val twoColumnsOfData = """
 //                             |ID,Name
