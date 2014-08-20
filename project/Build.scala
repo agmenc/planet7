@@ -12,7 +12,8 @@ object Build extends Build {
     libraryDependencies ++= Seq(
       "junit" % "junit" % "4.11" % "test->default",
       "org.scalatest" %% "scalatest" % "2.1.3" % "test",
-      "com.github.tototoshi" %% "scala-csv" % "1.0.0" % "test"
+      "com.github.tototoshi" %% "scala-csv" % "1.0.0" % "test",
+      "net.sf.opencsv" % "opencsv" % "2.0" % "test"
     ),
     // add scala-xml dependency when needed (for Scala 2.11 and newer)
     // this mechanism supports cross-version publishing
