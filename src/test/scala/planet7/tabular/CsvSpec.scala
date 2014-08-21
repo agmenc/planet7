@@ -196,26 +196,35 @@ class CsvSpec extends WordSpec with MustMatchers {
     result.rows.toList must equal(threeColumns.rows.toList)
   }
 
-//  "We can add columns to Csv2s" in {
-//    val twoColumnsOfData = """
-//                             |ID,Name
-//                             |A,B
-//                           """.stripMargin
-//
-//    val threeColumnsOfData = """
-//                               |ID,Value,Name
-//                               |A,Some default value,B
-//                             """.stripMargin
-//
-//    def transform(data: String) =
-//      Csv2(twoColumnsOfData)
-//        .restructure("ID", "Value", "Name")
-//        .remap("Value" -> (_ => "Some default value"))
-//
-//    assert(transform(twoColumnsOfData) === Csv2(threeColumnsOfData))
-//
-//  }
-//
+  "We can provide data mappings and default values per column" in {
+    val twoColumns = Csv("""
+                           |Name,ID
+                           |BOB,A
+                           |DAVE,C
+                         """.stripMargin)
+
+    val threeColumns = Csv("""
+                             |ID,Value,Name
+                             |1,X,bob
+                             |3,X,dave
+                           """.stripMargin)
+
+    def alphaToNum(alpha: String): String = alpha match {
+      case "A" => "1"
+      case _ => "3"
+    }
+
+    val result = twoColumns
+      .columnStructure("ID", "Value", "Name")
+      .withMappings(
+        "ID" -> alphaToNum,
+        "Name" -> (_.toLowerCase),
+        "Value" -> (_ => "X")
+      )
+
+    result.rows.toList must equal(threeColumns.rows.toList)
+  }
+
 //  "The default String representation of Csv2 is the entire contents, formatted as a Csv2" in {
 //    assert(Csv2(
 //      List("foo", "bar"),

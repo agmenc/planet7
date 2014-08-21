@@ -1,5 +1,7 @@
 package planet7.tabular
 
+import scala.collection.immutable.Iterable
+
 /**
  * A Csv is a Traversable input source and a set of transformations
  * A Csv provides a Traversable of ???
@@ -17,15 +19,16 @@ package planet7.tabular
  * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
  * TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
  */
-case class Csv(source: TabularDataSource, columnStructureTx: Row => Row = identity, headerRenameTx: Row => Row = identity) {
+case class Csv(source: TabularDataSource, columnStructureTx: Row => Row = identity, headerRenameTx: Row => Row = identity, valuesTx: Row => Row = identity) {
   def header: Row = headerRenameTx(columnStructureTx(source.header))
 
-  def rows: Iterator[Row] = source.rows.map(columnStructureTx)
+  def rows: Iterator[Row] = source.rows.map(columnStructureTx andThen valuesTx)
 
   def columnStructure(columns: (String, String)*): Csv = Csv(
     source,
     columnStructureTx andThen nextColumnStructureTx(columns: _*),
-    headerRenameTx andThen nextHeaderRenameTx(columns: _*)
+    headerRenameTx andThen nextHeaderRenameTx(columns: _*),
+    valuesTx
   )
 
   private[tabular] def nextColumnStructureTx(columns: (String, String)*): (Row) => Row = {
@@ -39,6 +42,25 @@ case class Csv(source: TabularDataSource, columnStructureTx: Row => Row = identi
   private[tabular] def nextHeaderRenameTx(columns: (String, String)*) = (row: Row) => Row(columns.map {
     case (before, after) => after
   }(collection.breakOut))
+
+  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(
+    source,
+    columnStructureTx,
+    headerRenameTx,
+    valuesTx andThen nextValuesTx(mappings: _*)
+  )
+
+  private[tabular] def nextValuesTx(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
+    val headerRow: Row = header
+    val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => headerRow.data.indexOf(column) -> mapper }(collection.breakOut)
+
+    // TODO - CAS - 21/08/2014 - Mutates the row.data Array. Find another way.
+    val map = desiredMappings.foreach{
+      case (index, mapper) => row.data(index) = mapper(row.data(index))
+    }
+
+    Row(row.data)
+  }
 
   // TODO - CAS - 08/08/2014 - Use withFilter() on the Iterator[Row], as filter() materialises the list when it filters it and withFilter() doesn't
 }
