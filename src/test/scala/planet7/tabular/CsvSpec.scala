@@ -117,13 +117,11 @@ class CsvSpec extends WordSpec with MustMatchers {
     import LargeDataSet._
     import planet7.timing._
 
-    def processLargeDataset(datasource: TabularDataSource) = {
-      val csv = Csv(datasource)
-            .columnStructure("first_name" -> "First Name", "last_name", "fee paid")
-      //      .remap("last_name" -> (_.toUpperCase))
-
-      export(csv)
-    }
+    def processLargeDataset(datasource: TabularDataSource) = export(
+      Csv(datasource)
+        .columnStructure("first_name" -> "First Name", "last_name", "fee paid")
+        .withMappings("last_name" -> (_.toUpperCase))
+    )
 
     val timer = new Timer(3)
     import timer._
@@ -217,42 +215,23 @@ class CsvSpec extends WordSpec with MustMatchers {
     val result = twoColumns
       .columnStructure("ID", "Value", "Name")
       .withMappings(
+        "Value" -> (_ => "X"),
         "ID" -> alphaToNum,
-        "Name" -> (_.toLowerCase),
-        "Value" -> (_ => "X")
+        "Name" -> (_.toLowerCase)
       )
 
     result.rows.toList must equal(threeColumns.rows.toList)
   }
 
-//  "The default String representation of Csv2 is the entire contents, formatted as a Csv2" in {
-//    assert(Csv2(
-//      List("foo", "bar"),
-//      List(
-//        List("one", "two"),
-//        List("uno", "dos"),
-//        List("ichi", "ni"),
-//        List("eins", "zwei"))).toString ===
-//      """foo,bar
-//        |one,two
-//        |uno,dos
-//        |ichi,ni
-//        |eins,zwei
-//        |""".stripMargin)
-//  }
-//
-//  "For debugging and REPL development, Csv2 provides a truncated String" in {
-//    assert(Csv2(
-//      List("foo", "bar"),
-//      List(
-//        List("one", "two"),
-//        List("uno", "dos"),
-//        List("ichi", "ni"),
-//        List("eins", "zwei"))).toTruncString ===
-//      """foo,bar
-//        |one,two
-//        |uno,dos
-//        |ichi,ni
-//        |...""".stripMargin)
-//  }
+  "Exporting a Csv generates output which could be read by any other CSV parser" in {
+    val rows = List("foo,bar", "one,two", "uno,dos", "ichi,ni", "eins,zwei")
+
+    val expected = """foo,bar
+                   |one,two
+                   |uno,dos
+                   |ichi,ni
+                   |eins,zwei""".stripMargin
+
+    assert(export(Csv(rows)) === expected)
+  }
 }

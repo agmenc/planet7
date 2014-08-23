@@ -10,6 +10,13 @@ package object tabular {
   implicit def fromFile(f: File): TabularDataSource = new BufferedDataSource(new FileReader(f))
   implicit def fromInputStream(is: InputStream): TabularDataSource = new BufferedDataSource(new InputStreamReader(is))
 
+  implicit def fromIterable(it: Iterable[String]): TabularDataSource = new TabularDataSource {
+    private val lines = it.iterator
+    override val header = toRow(lines.next())
+    override def rows = lines map toRow
+    override def close() = Unit
+  }
+
   // 210 ms. About the same speed as the LineReader approach for a several-MB file, but much uglier
   def experimentalFromMemoryMappedFile(f: File): TabularDataSource = {
     val rf = new RandomAccessFile(f, "r")
