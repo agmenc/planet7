@@ -62,6 +62,8 @@ case class Csv(source: TabularDataSource, columnStructureTx: Row => Row = identi
     Row(row.data)
   }
 
+  def filter(predicates: (String, String => Boolean)*): Csv = ???
+
   // TODO - CAS - 08/08/2014 - Use withFilter() on the Iterator[Row], as filter() materialises the list when it filters it and withFilter() doesn't
 }
 

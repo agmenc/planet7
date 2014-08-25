@@ -10,7 +10,7 @@ class CsvPerformanceSpec extends WordSpec {
     import timer._
 
     for (n <- 1 to 20) {
-      val x = t"fragments" {
+      t"fragments" {
         val fileStream = t"load" {asInputStream("large_dataset.csv")}
         val csv = t"create" {Csv(fileStream)}
         val renamed = t"rename" {csv.rename("first_name" -> "First Name")}
@@ -20,7 +20,7 @@ class CsvPerformanceSpec extends WordSpec {
         remapped.toString
       }
 
-      val y = t"oneShot" {
+      t"oneShot" {
         val one = Csv(asInputStream("large_dataset.csv"))
           .renameAndRestructure("first_name" -> "First Name", "last_name", "fee paid")
           .remap("last_name" -> (_.toUpperCase))

@@ -194,7 +194,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     result.rows.toList must equal(threeColumns.rows.toList)
   }
 
-  "We can provide data mappings and default values per column" in {
+  "We can map data and specify default values by column" in {
     val twoColumns = Csv("""
                            |Name,ID
                            |BOB,A
@@ -215,9 +215,9 @@ class CsvSpec extends WordSpec with MustMatchers {
     val result = twoColumns
       .columnStructure("ID", "Value", "Name")
       .withMappings(
-        "Value" -> (_ => "X"),
-        "ID" -> alphaToNum,
-        "Name" -> (_.toLowerCase)
+        "Value" -> (_ => "X"),      // Default value (for the empty column we added)
+        "ID" -> alphaToNum,         // Mapping function
+        "Name" -> (_.toLowerCase)   // Mapping function
       )
 
     result.rows.toList must equal(threeColumns.rows.toList)
@@ -232,6 +232,32 @@ class CsvSpec extends WordSpec with MustMatchers {
                    |ichi,ni
                    |eins,zwei""".stripMargin
 
-    assert(export(Csv(rows)) === expected)
+    export(Csv(rows)) must equal (expected)
+  }
+
+  "We can filter rows according to a column-based predicate" in {
+    val input = """ID,Name,Value
+                  |A,B,C
+                  |D,E,F
+                  |G,H,I
+                  |J,K,L
+                  |M,N,O""".stripMargin
+
+    val expectedOutput = """ID,Name,Value
+                           |A,B,C
+                           |G,H,I
+                           |M,N,O
+                           |""".stripMargin
+
+    val transformedCsv = Csv(input).filter(
+      "ID" -> (_ != "D"),
+      "ID" -> (_ != "J")
+    )
+
+    export(transformedCsv) must equal (expectedOutput)
+  }
+
+  "We can use Diff Csv instances and generate readable output" in {
+    fail("write me")
   }
 }
