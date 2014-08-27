@@ -21,67 +21,39 @@ package planet7.tabular
  * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
  * TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
  */
-case class Csv(source: TabularDataSource,
-               columnStructureTx: Row => Row = identity,
-               headerRenameTx: Row => Row = identity,
-               valuesTx: Row => Row = identity,
-               rowFilter: Row => Boolean = Csv.accept) {
+case class Csv(header: Row, rows: Iterator[Row]) {
 
-  val header: Row = headerRenameTx(columnStructureTx(source.header))
+  def columnStructure(columns: (String, String)*): Csv = {
+    val columnXformer = columnXformerFor(columns: _*)
+    val headerRenamer = headerRenamerFor(columns: _*)
+    Csv(headerRenamer(columnXformer(header)), rows.map(columnXformer))
+  }
 
-
-
-  // TODO - CAS - 26/08/2014 - The row filter must match the column structure. This doesn't work in long chains where multiple filters are described after multiple column structure changes
-  def rows: Iterator[Row] = source.rows.map(columnStructureTx andThen valuesTx).withFilter(rowFilter)
-  // TODO - CAS - 26/08/2014 - Consider: Csv(header, row), and simply chaining the transforms on to the row iterator at the point of creating the new header
-
-
-
-  def columnStructure(columns: (String, String)*): Csv = Csv(
-    source,
-    columnStructureTx andThen nextColumnStructureTx(columns: _*),
-    headerRenameTx andThen nextHeaderRenameTx(columns: _*),
-    valuesTx,
-    rowFilter
-  )
-
-  private[tabular] def nextColumnStructureTx(columns: (String, String)*): (Row) => Row = {
+  private[tabular] def columnXformerFor(columns: (String, String)*): (Row) => Row = {
     val desiredColumnIndices: Array[Int] = columns.map { case (sourceCol, targetCol) => header.data.indexOf(sourceCol) }(collection.breakOut)
 
     // TODO - CAS - 15/08/2014 - If row has fewer elements than lookup, i.e. it is invalid, this fn throws ArrayIndexOutOfBoundsException
     row => Row(desiredColumnIndices map (index => if (index == -1) "" else row.data(index)))
   }
 
-  private[tabular] def nextHeaderRenameTx(columns: (String, String)*) = (row: Row) => Row(columns.map {
+  private[tabular] def headerRenamerFor(columns: (String, String)*) = (row: Row) => Row(columns.map {
     case (before, after) => after
   }(collection.breakOut))
 
-  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(
-    source,
-    columnStructureTx,
-    headerRenameTx,
-    valuesTx andThen nextValuesTx(mappings: _*),
-    rowFilter
-  )
+  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, rows.map(valuesTx(mappings: _*)))
 
-  private[tabular] def nextValuesTx(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
+  private[tabular] def valuesTx(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
     val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => header.data.indexOf(column) -> mapper }(collection.breakOut)
 
     // TODO - CAS - 21/08/2014 - Mutates the row.data Array. Find another way.
-    val map = desiredMappings.foreach{
+    desiredMappings.foreach{
       case (index, mapper) => row.data(index) = mapper(row.data(index))
     }
 
     Row(row.data)
   }
 
-  def filter(predicates: (String, String => Boolean)*): Csv = Csv(
-    source,
-    columnStructureTx,
-    headerRenameTx,
-    valuesTx,
-    (row: Row) => rowFilter(row) && nextRowFilter(predicates:_*)(row)
-  )
+  def filter(predicates: (String, String => Boolean)*): Csv = Csv(header, rows.withFilter(nextRowFilter(predicates:_*)))
 
   private[tabular] def nextRowFilter(predicates: (String, String => Boolean)*): Row => Boolean = row => predicates.forall {
     case (columnName, predicate) => predicate(row.data(header.data.indexOf(columnName)))
@@ -89,15 +61,8 @@ case class Csv(source: TabularDataSource,
 }
 
 object Csv {
-
-
-
-//  def apply[A](x: A)(implicit f: A => TabularDataSource): Csv = {
-//    val dataSource = f(x)
-//    Csv(dataSource.header, dataSource.rows)
-//  }
-
-
-
-  def accept(row: Row): Boolean = true
+  def apply[A](x: A)(implicit f: A => TabularDataSource): Csv = {
+    val dataSource = f(x)
+    Csv(dataSource.header, dataSource.rows)
+  }
 }
