@@ -246,18 +246,17 @@ class CsvSpec extends WordSpec with MustMatchers {
     val expectedOutput = """ID,Name,Value
                            |A,B,C
                            |G,H,I
-                           |M,N,O
-                           |""".stripMargin
+                           |M,N,O""".stripMargin
 
     val transformedCsv = Csv(input).filter(
       "ID" -> (_ != "D"),
-      "ID" -> (_ != "J")
+      "Value" -> (List("C", "I", "O") contains _)
     )
 
     export(transformedCsv) must equal (expectedOutput)
   }
 
-  "We can use Diff Csv instances and generate readable output" in {
+  "We can Diff Csv instances and generate readable output" in {
     fail("write me")
   }
 }
