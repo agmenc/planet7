@@ -32,7 +32,7 @@ case class Csv(header: Row, rows: Iterator[Row]) {
   private[tabular] def columnXformerFor(columns: (String, String)*): (Row) => Row = {
     val desiredColumnIndices: Array[Int] = columns.map { case (sourceCol, targetCol) => header.data.indexOf(sourceCol) }(collection.breakOut)
 
-    // TODO - CAS - 15/08/2014 - If row has fewer elements than lookup, i.e. it is invalid, this fn throws ArrayIndexOutOfBoundsException
+    // TODO - CAS - 15/08/2014 - If row has fewer elements than lookup index, i.e. it is invalid, this fn throws ArrayIndexOutOfBoundsException
     row => Row(desiredColumnIndices map (index => if (index == -1) "" else row.data(index)))
   }
 
@@ -40,9 +40,9 @@ case class Csv(header: Row, rows: Iterator[Row]) {
     case (before, after) => after
   }(collection.breakOut))
 
-  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, rows.map(valuesTx(mappings: _*)))
+  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, rows.map(valuesXformerFor(mappings: _*)))
 
-  private[tabular] def valuesTx(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
+  private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
     val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => header.data.indexOf(column) -> mapper }(collection.breakOut)
 
     // TODO - CAS - 21/08/2014 - Mutates the row.data Array. Find another way.
