@@ -1,7 +1,5 @@
 package planet7.tabular
 
-import planet7.relational.Differentiator
-
 case class RowDiffer(indicesOfKey: Int*) extends Differentiator[Row] {
   def zero = EmptyRow
   def key(u: Row) = indicesOfKey.map(u.data).mkString

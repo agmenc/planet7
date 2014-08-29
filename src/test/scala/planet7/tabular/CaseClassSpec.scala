@@ -1,4 +1,4 @@
-package planet7.relational
+package planet7.tabular
 
 import org.scalatest.WordSpec
 import planet7.Diff
@@ -40,13 +40,13 @@ class CaseClassSpec extends WordSpec {
     case class SomeOtherCaseClass(name: String, id: Integer, address: String)
 
     implicit class FieldSucker(socc: SomeOtherCaseClass) {
-      def fields: List[Field] = List("name" -> socc.name, "id" -> socc.id.toString, "address" -> socc.address)
+      def fields: List[(String, String)] = List("name" -> socc.name, "id" -> socc.id.toString, "address" -> socc.address)
     }
 
     val left = SomeOtherCaseClass("bob", 1, "abc")
     val right = SomeOtherCaseClass("bob", 1, "def")
     
-    val result: Seq[(Field, Field)] = Diff(left.fields, right.fields, FieldDiffer)
+    val result: Seq[((String, String), (String, String))] = Diff(left.fields, right.fields, FieldDiffer)
     
     assert(result === List(("address", "abc") ->("address", "def")))
   }

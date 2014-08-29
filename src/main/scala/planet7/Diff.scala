@@ -1,7 +1,8 @@
 package planet7
 
+import planet7.tabular.Differentiator
+
 import scala.annotation.tailrec
-import planet7.relational.Differentiator
 
 /**
  * Opinionated Diff:

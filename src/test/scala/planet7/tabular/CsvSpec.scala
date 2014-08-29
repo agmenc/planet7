@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.relational.TestData._
+import TestData._
 
 import scala.io.Source
 
@@ -256,9 +256,32 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(transformedCsv) must equal (expectedOutput)
   }
 
+  "We can merge CSVs, so that we can gather similar data from multiple sources" in {
+    val left = Csv( """
+                      |ID,Name,Value
+                      |A,B,C
+                    """.stripMargin)
+
+    val middle = Csv( """
+                        |ID,Value,Name
+                        |D,F,E
+                      """.stripMargin).columnStructure("ID", "Name", "Value") // Put columns into the same order
+
+    val right = Csv( """
+                       |ID,Name,Value
+                       |G,H,I
+                     """.stripMargin)
+
+    assert(Csv(left, middle, right).toString === Csv( """
+                                                        |ID,Name,Value
+                                                        |A,B,C
+                                                        |D,E,F
+                                                        |G,H,I""".stripMargin).toString)
+  }
+
   "We can Diff Csv instances and generate readable output" in {
     import planet7.Diff
-    import planet7.relational.CompanyAccountsData._
+    import CompanyAccountsData._
 
     val before = Csv(asFile("before.csv"))
       .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
@@ -300,7 +323,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
   
   "Extract a CSV, remodel it, and convert the data" in {
-    import planet7.relational.CompanyAccountsData._
+    import CompanyAccountsData._
 
     // CSV file with header: First name,Surname,Company,Company account,Postcode,Pet names
     val someFile = asFile("before.csv")

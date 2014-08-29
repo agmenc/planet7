@@ -65,4 +65,6 @@ object Csv {
     val dataSource = f(x)
     Csv(dataSource.header, dataSource.rows)
   }
+
+  def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.rows))
 }

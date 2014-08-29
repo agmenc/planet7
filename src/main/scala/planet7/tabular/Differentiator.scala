@@ -1,4 +1,4 @@
-package planet7.relational
+package planet7.tabular
 
 trait Differentiator[U] {
   def zero: U
