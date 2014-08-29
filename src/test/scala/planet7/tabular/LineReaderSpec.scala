@@ -1,10 +1,12 @@
 package planet7.tabular
 
-import java.io.{IOException, BufferedReader, StringReader}
+import java.io.{BufferedReader, IOException, StringReader}
 
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
 
-class LineReaderSpec extends WordSpec with MustMatchers {
+class LineReaderSpec extends WordSpec with MustMatchers with MockitoSugar {
   implicit def buffy(str: String) = new BufferedReader(new StringReader(str))
 
   val whitespace = "   \n   \t   \r   "
@@ -37,5 +39,15 @@ class LineReaderSpec extends WordSpec with MustMatchers {
     lr.next().toString must be ("three")
 
     an [IOException] should be thrownBy lr.next()
+  }
+
+  "When the iterator is exhausted, the data source is closed" in {
+    val reader = mock[BufferedReader]
+    when(reader.readLine()) thenReturn "One line only" thenReturn null
+
+    val lr = new LineReader(reader)
+    lr.next().toString must be ("One line only")
+
+    verify(reader).close()
   }
 }

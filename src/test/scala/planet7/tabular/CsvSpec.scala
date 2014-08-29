@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.relational.CompanyAccountsData
 import planet7.relational.TestData._
 
 import scala.io.Source
@@ -273,18 +272,21 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(3))
 
+    // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows
     val summary = diffs.groupBy {
       case (row, EmptyRow) => "Missing"
       case (EmptyRow, row) => "Added"
       case (row1, row2) => "Diffs"
     }
 
-    val readableDiffs = summary("Diffs") map {
+    // We can Diff rows which have changed. We zip the header information with each row, so that we know the names of the fields which changed.
+    val fieldDifferences = summary("Diffs") map {
       case (leftRow, rightRow) => Diff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
-    } map (FieldDiffer.prettyPrint(_).mkString(", "))
+    }
 
+    // Let's print the name of the field which changed, and the before and after values
+    val readableDiffs = fieldDifferences map (FieldDiffer.prettyPrint(_).mkString(", "))
     printSummary(summary, readableDiffs)
-
     assert(readableDiffs === List(
       "Postcode: 43205 -> 432666, Company: ENIM SIT AMET INCORPORATED -> ENIM SIT AMET LIMITED",
       "Postcode: 22656 -> 22756"
