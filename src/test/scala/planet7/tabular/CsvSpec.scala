@@ -298,4 +298,23 @@ class CsvSpec extends WordSpec with MustMatchers {
     println(s"""\nAdded:${summary("Added").map(_._2).mkString("\n  +", "\n  +", "")}""")
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
   }
+  
+  "ETL example for the website" in {
+    import planet7.relational.CompanyAccountsData._
+
+    // CSV file with header: First name,Surname,Company,Company account,Postcode,Pet names
+    val someFile = asFile("before.csv")
+
+    // Retain only three of the original columns, in a different order, renaming "Postcode" to "Zip code", and adding "Fee owing"
+    val reshapedCsv = Csv(someFile)
+      .columnStructure("Surname", "First name", "Postcode" -> "Zip code", "Fee owing")
+      .withMappings(
+        "Zip code" -> postcodeLookupTable,  // Map the old postcodes to zip codes, using a lookup table (Map)
+        "Surname" -> (_.toUpperCase),       // Make all surnames upper case
+        "Fee owing" -> (_ => "0.00")        // Add a default value for "Fee owing" of 0.00
+      )
+
+    // Now convert the data to your data model, or export to a feed, or reconcile against another source, etc.
+    // reshapedCsv.rows map ( ... )
+  }
 }
