@@ -299,9 +299,8 @@ class CsvSpec extends WordSpec with MustMatchers {
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
   }
   
-  "ETL example for the website" in {
+  "Extract a CSV, remodel it, and convert the data" in {
     import planet7.relational.CompanyAccountsData._
-    //---------------------------------------------------
 
     // CSV file with header: First name,Surname,Company,Company account,Postcode,Pet names
     val someFile = asFile("before.csv")
@@ -318,11 +317,5 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     // Now convert the data to your data model, or export to a feed, or reconcile against another source, etc.
     // reshapedCsv.rows map ( ... )
-
-    //---------------------------------------------------
-
-    val allYourData: String = export(reshapedCsv)
-
-    //---------------------------------------------------
   }
 }
