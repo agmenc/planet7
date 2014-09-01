@@ -18,16 +18,15 @@ object Diff {
   def apply[U](lefts: Iterator[U], rights: Iterator[U], differ: Differentiator[U]): Seq[(U, U)] = {
 
     @tailrec
-    def eliminateIdenticalElements(left: Seq[U], right: Seq[U], key: Option[U] => String)(diffs: Seq[(U, U)]): Seq[(U, U)] = {
-      if (left.isEmpty && right.isEmpty) diffs
-      else if (left.isEmpty)  right.map((differ.zero, _)) ++ diffs
-      else if (right.isEmpty) left.map((_, differ.zero)) ++ diffs
-      else (key(left.headOption), key(right.headOption)) match {
+    def eliminateIdenticalElements(left: Seq[U], right: Seq[U], key: Option[U] => String)(diffs: Seq[(U, U)]): Seq[(U, U)] =
+      (key(left.headOption), key(right.headOption)) match {
+        case ("", "") => diffs
+        case ("", r) => right.map((differ.zero, _)) ++ diffs
+        case (l, "") => left.map((_, differ.zero)) ++ diffs
         case (l, r) if l > r => eliminateIdenticalElements(left, right.tail, key)((differ.zero, right.head) +: diffs)
         case (l, r) if l < r => eliminateIdenticalElements(left.tail, right, key)((left.head, differ.zero) +: diffs)
         case (l, r) => eliminateIdenticalElements(left.tail, right.tail, key)(if (left.head == right.head) diffs else (left.head, right.head) +: diffs)
       }
-    }
 
     eliminateIdenticalElements(lefts.to[Seq].sortBy(differ.key), rights.to[Seq].sortBy(differ.key), differ.keyOrEmpty)(Nil)
   }

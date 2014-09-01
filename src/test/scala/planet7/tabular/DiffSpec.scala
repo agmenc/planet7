@@ -1,9 +1,12 @@
 package planet7.tabular
 
-import org.scalatest.WordSpec
+import org.scalatest.{MustMatchers, WordSpec}
 import planet7.Diff
+import TestData._
+import CompanyAccountsData._
+import planet7.timing._
 
-class DiffSpec extends WordSpec {
+class DiffSpec extends WordSpec with MustMatchers {
 
   "The result of diffing two CSV lists is a list of rows that are different" in {
     val left = """
@@ -59,6 +62,33 @@ class DiffSpec extends WordSpec {
       List(("Name", "H") -> ("Name", "X")),
       List(("ID", "D") -> FieldDiffer.zero, ("Name", "E") -> FieldDiffer.zero, ("Value", "F") -> FieldDiffer.zero)
     ))
+  }
+
+  private def afterCsv = Csv(asFile("after_with_diffs.csv"))
+    .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
+
+  private def beforeCsv = Csv(asFile("before.csv"))
+    .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
+    .withMappings(
+      "Postcode" -> postcodeLookupTable,
+      "Company" -> (_.toUpperCase)
+    )
+
+  "Diff performs" in {
+    import planet7.Diff
+
+    val timer = new Timer(3)
+    import timer._
+    for (i <- 1 to 53) t"diff" { Diff(beforeCsv, afterCsv, RowDiffer(3)) }
+
+    println(timer)
+    timer.diff.average must be < 25.0
+  }
+
+  "Pre-sorted data does not have to be sorted by Diff" in {
+    import planet7.Diff
+
+    val diffs: Seq[(Row, Row)] = Diff(beforeCsv, afterCsv, RowDiffer(3))
   }
 
   // Ability to set tolerances for numerical field comparisons
