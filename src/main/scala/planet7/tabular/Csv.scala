@@ -21,7 +21,7 @@ package planet7.tabular
  * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
  * TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
  */
-case class Csv(header: Row, rows: Iterator[Row]) {
+case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
 
   def columnStructure(columns: (String, String)*): Csv = {
     val columnXformer = columnXformerFor(columns: _*)
@@ -58,6 +58,8 @@ case class Csv(header: Row, rows: Iterator[Row]) {
   private[tabular] def nextRowFilter(predicates: (String, String => Boolean)*): Row => Boolean = row => predicates.forall {
     case (columnName, predicate) => predicate(row.data(header.data.indexOf(columnName)))
   }
+
+  override def iterator = rows
 }
 
 object Csv {

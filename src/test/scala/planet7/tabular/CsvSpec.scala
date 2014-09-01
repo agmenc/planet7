@@ -341,4 +341,20 @@ class CsvSpec extends WordSpec with MustMatchers {
     // Now convert the data to your data model, or export to a feed, or reconcile against another source, etc.
     // reshapedCsv.rows map ( ... )
   }
+
+  "We can Diff Csvs directly" in {
+    import planet7.Diff
+
+    val left = Csv("""Some,Header,Columns
+                 |D,E,F
+                 |G,H,I""".stripMargin)
+
+    val right = Csv("""Some,Header,Columns
+                 |D,E,F
+                 |G,x,I""".stripMargin)
+
+    val results = Diff(left, right, RowDiffer(0))
+
+    results must contain (Row(Array("G", "H", "I")) -> Row(Array("G", "x", "I")))
+  }
 }
