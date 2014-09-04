@@ -1,13 +1,20 @@
 package planet7.tabular
 
-case class RowDiffer(indicesOfKey: Int*) extends Differentiator[Row] {
+case class RowDiffer(indicesOfKey: Int*) extends SortingDifferentiator[Row] {
   def zero = EmptyRow
-  def key(u: Row) = indicesOfKey.map(u.data).mkString
+  def key(row: Row) = indicesOfKey.map(row.data).mkString
+}
+
+object RowDiffer {
+  def apply(csv: Csv, columnNames: String*): RowDiffer = {
+    val indices = columnNames map (cn => csv.header.data.indexOf(cn))
+    new RowDiffer(indices:_*)
+  }
 }
 
 object EmptyRow extends Row(Array.empty[String])
 
-case object FieldDiffer extends Differentiator[(String, String)] {
+case object FieldDiffer extends SortingDifferentiator[(String, String)] {
   override def zero = ("", "")
   override def key(u: (String, String)) = u._1
 

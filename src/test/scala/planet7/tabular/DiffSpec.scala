@@ -9,20 +9,18 @@ import planet7.timing._
 class DiffSpec extends WordSpec with MustMatchers {
 
   "The result of diffing two CSV lists is a list of rows that are different" in {
-    val left = """
+    val left = Csv("""
                  |ID,Name,Value
                  |A,B,C
                  |D,E,F
-                 |G,H,I
-               """.stripMargin
+                 |G,H,I""".stripMargin)
 
-    val right = """
+    val right = Csv("""
                   |ID,Name,Value
                   |A,B,C
-                  |G,X,I
-                """.stripMargin
+                  |G,X,I""".stripMargin)
 
-    val result: Seq[(Row, Row)] = Diff(Csv(left).rows, Csv(right).rows, RowDiffer(0))
+    val result: Seq[(Row, Row)] = Diff(left.rows, right.rows, RowDiffer(left, "ID"))
 
     assert(result === List(
       (Row(Array("G", "H", "I")), Row(Array("G", "X", "I"))),
@@ -79,16 +77,11 @@ class DiffSpec extends WordSpec with MustMatchers {
 
     val timer = new Timer(3)
     import timer._
-    for (i <- 1 to 53) t"diff" { Diff(beforeCsv, afterCsv, RowDiffer(3)) }
+
+    for (i <- 1 to 53) t"diff" { Diff(beforeCsv, afterCsv, RowDiffer(beforeCsv, "Company ID")) }
 
     println(timer)
     timer.diff.average must be < 25.0
-  }
-
-  "Pre-sorted data does not have to be sorted by Diff" in {
-    import planet7.Diff
-
-    val diffs: Seq[(Row, Row)] = Diff(beforeCsv, afterCsv, RowDiffer(3))
   }
 
   // Ability to set tolerances for numerical field comparisons

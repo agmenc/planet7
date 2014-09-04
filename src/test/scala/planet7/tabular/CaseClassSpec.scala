@@ -10,7 +10,7 @@ class CaseClassSpec extends WordSpec {
 
     object Empty extends SomeCaseClass("", 0 , "")
 
-    case object SccDiffer extends Differentiator[SomeCaseClass] {
+    case object SccDiffer extends SortingDifferentiator[SomeCaseClass] {
       def zero = Empty
       def key(u: SomeCaseClass) = u.name
     }

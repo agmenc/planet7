@@ -2,6 +2,7 @@ package planet7
 
 object BeijingIterator {
   implicit def fromIterable[U](itb: Iterable[U]): BeijingIterator[U] = new BeijingIterator[U](itb.iterator)
+  implicit def fromIterator[U](it: Iterator[U]): BeijingIterator[U] = new BeijingIterator[U](it)
 }
 
 class BeijingIterator[U](it: Iterator[U]) extends Iterator[U] {

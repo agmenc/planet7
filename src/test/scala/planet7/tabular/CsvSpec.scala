@@ -293,7 +293,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     val after = Csv(asFile("after_with_diffs.csv"))
       .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(3))
+    val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(before, "Company ID"))
 
     // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows
     val summary = diffs.groupBy {
@@ -321,7 +321,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     println(s"""\nAdded:${summary("Added").map(_._2).mkString("\n  +", "\n  +", "")}""")
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
   }
-  
+
   "Extract a CSV, remodel it, and convert the data" in {
     import CompanyAccountsData._
 
@@ -353,8 +353,28 @@ class CsvSpec extends WordSpec with MustMatchers {
                  |D,E,F
                  |G,x,I""".stripMargin)
 
-    val results = Diff(left, right, RowDiffer(0))
+    val results = Diff(left, right, RowDiffer(left, "Some"))
 
     results must contain (Row(Array("G", "H", "I")) -> Row(Array("G", "x", "I")))
+  }
+
+  "We can sort a Csv by column names using a RowDiffer" in {
+    val input = Csv( """ID,Name,Value
+                     |J,K,L
+                     |D,E,F
+                     |A,B,C
+                     |M,N,O
+                     |G,H,I""".stripMargin)
+
+    val expectedOutput = Csv("""ID,Name,Value
+                  |A,B,C
+                  |D,E,F
+                  |G,H,I
+                  |J,K,L
+                  |M,N,O""".stripMargin)
+
+    val differ = RowDiffer(input, "ID", "Name")
+
+    export(sort(input, differ)) must equal (export(expectedOutput))
   }
 }
