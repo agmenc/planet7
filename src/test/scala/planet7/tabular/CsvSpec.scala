@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
 import TestData._
+import planet7.Diff
 
 import scala.io.Source
 
@@ -293,7 +294,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     val after = Csv(asFile("after_with_diffs.csv"))
       .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(before, "Company ID"))
+    val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(before.header  , "Company ID"))
 
     // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows
     val summary = diffs.groupBy {
@@ -353,7 +354,7 @@ class CsvSpec extends WordSpec with MustMatchers {
                  |D,E,F
                  |G,x,I""".stripMargin)
 
-    val results = Diff(left, right, RowDiffer(left, "Some"))
+    val results = Diff(left, right, RowDiffer(left.header, "Some"))
 
     results must contain (Row(Array("G", "H", "I")) -> Row(Array("G", "x", "I")))
   }
@@ -373,8 +374,44 @@ class CsvSpec extends WordSpec with MustMatchers {
                   |J,K,L
                   |M,N,O""".stripMargin)
 
-    val differ = RowDiffer(input, "ID", "Name")
+    val differ = RowDiffer(input.header, "ID", "Name")
 
     export(sort(input, differ)) must equal (export(expectedOutput))
   }
+
+//  "We can sort a bigger Csv" in {
+//    import LargeDataSet._
+//
+//    val unsorted = largeCsvUnsorted
+//    val sorted = largeCsv
+//
+////    sort() needs to allow a sorting function, so that we can sort by Integers, etc
+////    Start with a simple class extending Differentiator, and see what develops
+//
+//    val sortedHere = sort(unsorted, RowDiffer(unsorted.header, "id"))
+//
+//    val sortedHereRows = sortedHere.iterator.take(10).mkString("\n")
+//    val sortedRows = sorted.iterator.take(10).mkString("\n")
+//
+//    println(s"sortedHereRows: ${sortedHereRows}")
+//    println(s"sortedRows: ${sortedRows}")
+//
+//    val diffs = Diff(sortedHere, sorted, NonSortingRowDiffer(0))
+//
+//    diffs.size must equal (0)
+//  }
+
+//  "Temp test to sort Csvs" in {
+//    import LargeDataSet._
+//
+//    val original = Csv(asFile(largeDataFile))
+//    val beforeDiffer = RowDiffer(original.header, "ip_address")
+//    val desortedOriginal = sort(original, beforeDiffer)
+//    new FileOutputStream(asFile(largeDataFileUnsorted)).write(export(desortedOriginal).getBytes)
+//
+//    val withADiff = Csv(asFile(largeDataFileWithDiff))
+//    val afterDiffer = RowDiffer(withADiff.header, "ip_address")
+//    val desortedWithADiff = sort(withADiff, afterDiffer)
+//    new FileOutputStream(asFile(largeDataFileWithDiffUnsorted)).write(export(desortedWithADiff).getBytes)
+//  }
 }

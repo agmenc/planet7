@@ -20,7 +20,7 @@ class DiffSpec extends WordSpec with MustMatchers {
                   |A,B,C
                   |G,X,I""".stripMargin)
 
-    val result: Seq[(Row, Row)] = Diff(left.rows, right.rows, RowDiffer(left, "ID"))
+    val result: Seq[(Row, Row)] = Diff(left.rows, right.rows, RowDiffer(left.header, "ID"))
 
     assert(result === List(
       (Row(Array("G", "H", "I")), Row(Array("G", "X", "I"))),
@@ -62,26 +62,45 @@ class DiffSpec extends WordSpec with MustMatchers {
     ))
   }
 
-  private def afterCsv = Csv(asFile("after_with_diffs.csv"))
-    .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
-
-  private def beforeCsv = Csv(asFile("before.csv"))
-    .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
-    .withMappings(
-      "Postcode" -> postcodeLookupTable,
-      "Company" -> (_.toUpperCase)
-    )
 
   "Diff performs" in {
     import planet7.Diff
+    import planet7.tabular.BeforeAndAfterData._
 
     val timer = new Timer(3)
     import timer._
 
-    for (i <- 1 to 53) t"diff" { Diff(beforeCsv, afterCsv, RowDiffer(beforeCsv, "Company ID")) }
+    for (i <- 1 to 53) t"diff" { Diff(beforeCsv, afterCsv, RowDiffer(beforeCsv.header, "Company ID")) }
 
     println(timer)
     timer.diff.average must be < 25.0
+  }
+
+  "Pre-sorted data does not have to be sorted by Diff" in {
+    import planet7.tabular.BeforeAndAfterData._
+
+    val unsortedDiffs = Diff(beforeCsv, afterCsv, RowDiffer(3))
+    val presortedDiffs = Diff(beforeSortedCsv, afterSortedCsv, NonSortingRowDiffer(3))
+
+    presortedDiffs must equal(unsortedDiffs)
+  }
+
+  "Using non-sorting or sorting Differentiators provides the same result for a sorted dataset" in {
+    import LargeDataSet._
+
+    val timer = new Timer(3)
+    import timer._
+
+    for (i <- 1 to 13) {
+      val sortingDiffer = t"sortingDiffer" { Diff(largeCsv, largeCsvWithDiff, RowDiffer(0)) }
+      val nonSortingDiffer = t"nonSortingDiffer" { Diff(largeCsv, largeCsvWithDiff, NonSortingRowDiffer(0)) }
+
+      nonSortingDiffer must equal(sortingDiffer)
+    }
+
+    println(timer)
+
+    timer.nonSortingDiffer.average must be < timer.sortingDiffer.average
   }
 
   // Ability to set tolerances for numerical field comparisons

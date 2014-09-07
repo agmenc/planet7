@@ -6,10 +6,15 @@ case class RowDiffer(indicesOfKey: Int*) extends SortingDifferentiator[Row] {
 }
 
 object RowDiffer {
-  def apply(csv: Csv, columnNames: String*): RowDiffer = {
-    val indices = columnNames map (cn => csv.header.data.indexOf(cn))
+  def apply(header: Row, columnNames: String*): RowDiffer = {
+    val indices = columnNames map (cn => header.data.indexOf(cn))
     new RowDiffer(indices:_*)
   }
+}
+
+case class NonSortingRowDiffer(indicesOfKey: Int*) extends Differentiator[Row] {
+  override def zero = EmptyRow
+  override def key(row: Row) = indicesOfKey.map(row.data).mkString
 }
 
 object EmptyRow extends Row(Array.empty[String])
