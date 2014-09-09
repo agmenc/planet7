@@ -39,7 +39,7 @@ package object tabular {
 
   def export(csv: Csv): String = csv.header.toString + "\n" + csv.rows.mkString("\n")
 
-  def sort(csv: Csv, differ: Differentiator[Row]): Csv = Csv(csv.header, differ.sort(csv.rows))
+  def sort[K](csv: Csv, differ: Differentiator[Row,K])(implicit o: Ordering[K]): Csv = Csv(csv.header, differ.sort(csv.rows))
 
   /**
    * Allows us to specify a single String for a column name which is not changing, instead of a Tuple.

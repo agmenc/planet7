@@ -4,9 +4,11 @@ object LargeDataSet {
   import TestData._
 
   val largeDataFile = "large_dataset.csv"
+  val largeDataFileUnsorted = "large_dataset_unsorted.csv"
   val largeDataFileWithDiff = "large_dataset_with_diff.csv"
 
   def largeCsv = Csv(asFile(largeDataFile))
+  def largeCsvUnsorted = Csv(asFile(largeDataFileUnsorted))
   def largeCsvWithDiff = Csv(asFile(largeDataFileWithDiff))
 
   val expectedHeader = Row(Array("id", "first_name", "last_name", "dob", "email", "country", "ip_address", "comment", "fee paid"))

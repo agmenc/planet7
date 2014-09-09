@@ -1,12 +1,13 @@
 package planet7.tabular
 
-trait Differentiator[U] {
+trait Differentiator[U,K] {
   def zero: U
-  def key(u: U): String
-  def keyOrEmpty(maybeU: Option[U]): String = maybeU.fold("")(key)
-  def sort(it: Iterator[U]): Iterator[U] = it
+  def zeroKey: K
+  def key(u: U): K // (implicit o: Ordering[K]): K // Something for which there is an ordering
+  def keyOrEmpty(maybeU: Option[U]): K = maybeU.fold(zeroKey)(key)
+  def sort(it: Iterator[U])(implicit o: Ordering[K]): Iterator[U] = it
 }
 
-trait SortingDifferentiator[U] extends Differentiator[U] {
-  override def sort(it: Iterator[U]): Iterator[U] = it.toSeq.sortBy(key).toIterator
+trait SortingDifferentiator[U,K] extends Differentiator[U,K] {
+  override def sort(it: Iterator[U])(implicit o: Ordering[K]): Iterator[U] = it.toSeq.sortBy(key).toIterator
 }

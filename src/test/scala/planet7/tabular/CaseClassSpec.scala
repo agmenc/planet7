@@ -10,9 +10,10 @@ class CaseClassSpec extends WordSpec {
 
     object Empty extends SomeCaseClass("", 0 , "")
 
-    case object SccDiffer extends SortingDifferentiator[SomeCaseClass] {
-      def zero = Empty
-      def key(u: SomeCaseClass) = u.name
+    case object SccDiffer extends SortingDifferentiator[SomeCaseClass, String] {
+      override def zero = Empty
+      override def zeroKey = ""
+      override def key(u: SomeCaseClass) = u.name
     }
 
     val left: List[SomeCaseClass] = List(

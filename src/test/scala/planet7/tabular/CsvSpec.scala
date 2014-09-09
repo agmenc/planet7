@@ -379,27 +379,18 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(sort(input, differ)) must equal (export(expectedOutput))
   }
 
-//  "We can sort a bigger Csv" in {
-//    import LargeDataSet._
-//
-//    val unsorted = largeCsvUnsorted
-//    val sorted = largeCsv
-//
-////    sort() needs to allow a sorting function, so that we can sort by Integers, etc
-////    Start with a simple class extending Differentiator, and see what develops
-//
-//    val sortedHere = sort(unsorted, RowDiffer(unsorted.header, "id"))
-//
-//    val sortedHereRows = sortedHere.iterator.take(10).mkString("\n")
-//    val sortedRows = sorted.iterator.take(10).mkString("\n")
-//
-//    println(s"sortedHereRows: ${sortedHereRows}")
-//    println(s"sortedRows: ${sortedRows}")
-//
-//    val diffs = Diff(sortedHere, sorted, NonSortingRowDiffer(0))
-//
-//    diffs.size must equal (0)
-//  }
+  "We can sort a Csv with a non-alpha sort" in {
+    import LargeDataSet._
+
+    val randomisedCsv = largeCsvUnsorted
+    val preSortedCsv = largeCsv
+
+    val explicitlySortedCsv = sort(randomisedCsv, RowDiffer(randomisedCsv.header, "id")) // -> (_.toInteger)))
+
+    val diffs = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
+
+    diffs.size must equal (0) // "mustBe empty" gives useless failure messages
+  }
 
 //  "Temp test to sort Csvs" in {
 //    import LargeDataSet._
