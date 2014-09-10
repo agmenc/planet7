@@ -20,18 +20,15 @@ object Diff {
     @tailrec
     def eliminateIdenticalElements(left: BeijingIterator[U], right: BeijingIterator[U], key: Option[U] => K)(diffs: Seq[(U, U)]): Seq[(U, U)] =
 
-      // Need to split concerns: running out of values, vs comparing values
-      (left.headOption, right.headOption, key(left.headOption), key(right.headOption)) match {
-
-        // Running out - no sorting/Ordered[_] required
-        case (None, None, _, _) => diffs
-        case (None, Some(_), _, _) => right.map((elem: U) => differ.zero -> elem).toSeq ++ diffs
-        case (Some(_), None, _, _) => left.map((elem: U) => elem -> differ.zero).toSeq ++ diffs
-
-        // Comparing - needs comparability
-        case (_, _, l, r) if o.gt(l, r) => eliminateIdenticalElements(left, right.tail, key)((differ.zero, right.head) +: diffs)
-        case (_, _, l, r) if o.lt(l, r) => eliminateIdenticalElements(left.tail, right, key)((left.head, differ.zero) +: diffs)
-        case (_, _, l, r) => eliminateIdenticalElements(left.tail, right.tail, key)(if (left.head == right.head) diffs else (left.head, right.head) +: diffs)
+      (left.headOption, right.headOption) match {
+        case (None, None) => diffs
+        case (None, Some(_)) => right.map((elem: U) => differ.zero -> elem).toSeq ++ diffs
+        case (Some(_), None) => left.map((elem: U) => elem -> differ.zero).toSeq ++ diffs
+        case (sl, sr) => (key(sl), key(sr)) match {
+          case (l, r) if o.gt(l, r) => eliminateIdenticalElements(left, right.tail, key)((differ.zero, right.head) +: diffs)
+          case (l, r) if o.lt(l, r) => eliminateIdenticalElements(left.tail, right, key)((left.head, differ.zero) +: diffs)
+          case (l, r) => eliminateIdenticalElements(left.tail, right.tail, key)(if (left.head == right.head) diffs else (left.head, right.head) +: diffs)
+        }
       }
 
     eliminateIdenticalElements(differ.sort(lefts), differ.sort(rights), differ.keyOrEmpty)(Nil)
