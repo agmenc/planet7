@@ -22,10 +22,7 @@ object RowDiffer {
 case class NonSortingRowDiffer(indicesOfKey: Int*) extends Differentiator[Row, String] {
   override def zero = EmptyRow
   override def zeroKey = ""
-  override def key(row: Row) = {
-    if (row.data.isEmpty) "" else indicesOfKey.map(row.data).mkString
-  }
-
+  override def key(row: Row) = if (row.data.isEmpty) "" else indicesOfKey.map(row.data).mkString
 }
 
 object EmptyRow extends Row(Array.empty[String])
