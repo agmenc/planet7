@@ -39,10 +39,15 @@ package object tabular {
 
   def export(csv: Csv): String = csv.header.toString + "\n" + csv.rows.mkString("\n")
 
-  def sort[K](csv: Csv, differ: Differentiator[Row,K])(implicit o: Ordering[K]): Csv = Csv(csv.header, differ.sort(csv.rows))
+  def sort[K](csv: Csv, differ: SortingDifferentiator[Row,K])(implicit evidence: Ordering[K]): Csv = Csv(csv.header, differ.sort(csv.rows))
 
   /**
    * Allows us to specify a single String for a column name which is not changing, instead of a Tuple.
    */
   implicit def toColumnStructure(s: String): (String, String) = s -> s
+
+  /**
+   * Allows us to specify a single String for a column which is to be sorted alphanumerically, instead of a Tuple.
+   */
+  implicit def toOrderable(s: String): (String, String => Any) = s -> (str => str)
 }

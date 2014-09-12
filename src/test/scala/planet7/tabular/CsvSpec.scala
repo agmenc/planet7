@@ -294,7 +294,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     val after = Csv(asFile("after_with_diffs.csv"))
       .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(before.header  , "Company ID"))
+    val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(before.header, "Company ID"))
 
     // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows
     val summary = diffs.groupBy {
@@ -385,24 +385,24 @@ class CsvSpec extends WordSpec with MustMatchers {
     val randomisedCsv = largeCsvUnsorted
     val preSortedCsv = largeCsv
 
-    val explicitlySortedCsv = sort(randomisedCsv, RowDiffer(randomisedCsv.header, "id")) // -> (_.toInteger)))
+    val explicitlySortedCsv = sort(randomisedCsv, RowDiffer(randomisedCsv.header,
+//      "id" -> (_.toInteger)//,
+//      "dob" -> (_.toLocalDate),
+      "last_name"
+    ))
 
     val diffs = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
-
     diffs.size must equal (0) // "mustBe empty" gives useless failure messages
   }
 
-//  "Temp test to sort Csvs" in {
-//    import LargeDataSet._
-//
-//    val original = Csv(asFile(largeDataFile))
-//    val beforeDiffer = RowDiffer(original.header, "ip_address")
-//    val desortedOriginal = sort(original, beforeDiffer)
-//    new FileOutputStream(asFile(largeDataFileUnsorted)).write(export(desortedOriginal).getBytes)
-//
-//    val withADiff = Csv(asFile(largeDataFileWithDiff))
-//    val afterDiffer = RowDiffer(withADiff.header, "ip_address")
-//    val desortedWithADiff = sort(withADiff, afterDiffer)
-//    new FileOutputStream(asFile(largeDataFileWithDiffUnsorted)).write(export(desortedWithADiff).getBytes)
-//  }
+  "Ordered and Ordering" in {
+    def sort1[U : Ordering](it: Iterator[U]): Iterator[U] = it.toSeq.sorted.iterator
+    def sort2[U : Ordering](it: Iterator[U]): Iterator[U] = it.toSeq.sortBy(identity).iterator
+    def sort3[U, K : Ordering](it: Iterator[U], kf: (U) => K): Iterator[U] = it.toSeq.sortBy(kf).iterator
+
+    def ints = List(22, 1, 4, 2).iterator
+    println(sort1(ints).mkString(","))
+    println(sort2(ints).mkString(","))
+    println(sort3(ints, identity[Int]).mkString(","))
+  }
 }

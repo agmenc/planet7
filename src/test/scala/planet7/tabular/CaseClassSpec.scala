@@ -12,8 +12,7 @@ class CaseClassSpec extends WordSpec {
 
     case object SccDiffer extends SortingDifferentiator[SomeCaseClass, String] {
       override def zero = Empty
-      override def zeroKey = ""
-      override def key(u: SomeCaseClass) = u.name
+      override def key(u: SomeCaseClass)(implicit evidence: Ordering[String]) = u.name
     }
 
     val left: List[SomeCaseClass] = List(

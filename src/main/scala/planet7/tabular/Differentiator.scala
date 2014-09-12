@@ -2,11 +2,11 @@ package planet7.tabular
 
 trait Differentiator[U,K] {
   def zero: U
-  def zeroKey: K
-  def key(u: U): K
-  def sort(it: Iterator[U])(implicit o: Ordering[K]): Iterator[U] = it
+
+  /** Diff requires that there exists an Ordering for its keys */
+  def key(u: U)(implicit evidence: Ordering[K]): K
 }
 
 trait SortingDifferentiator[U,K] extends Differentiator[U,K] {
-  override def sort(it: Iterator[U])(implicit o: Ordering[K]): Iterator[U] = it.toSeq.sortBy(key).toIterator
+  def sort(it: Iterator[U])(implicit evidence: Ordering[K]): Iterator[U] = it.toSeq.sortBy(key).iterator
 }
