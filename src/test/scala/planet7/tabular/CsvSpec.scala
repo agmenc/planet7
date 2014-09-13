@@ -385,11 +385,16 @@ class CsvSpec extends WordSpec with MustMatchers {
     val randomisedCsv = largeCsvUnsorted
     val preSortedCsv = largeCsv
 
-    val explicitlySortedCsv = sort(randomisedCsv, RowDiffer(randomisedCsv.header,
-//      "id" -> (_.toInteger)//,
+    // TODO - CAS - 13/09/2014 - Extract and encapsulate sort-by-column-name in some beautiful way
+    // TODO - CAS - 13/09/2014 - Create a composite ordering, if necessary (sort by precedence)
+//    val explicitlySortedCsv = sort(randomisedCsv, RowDiffer(randomisedCsv.header, (
+//      "id" -> (_.toInt),
 //      "dob" -> (_.toLocalDate),
-      "last_name"
-    ))
+//      "last_name"
+//    )))
+
+    def rowToId(row: Row): Int = row.data(0).toInt
+    val explicitlySortedCsv = Csv(randomisedCsv.header, randomisedCsv.rows.toSeq.sortBy(rowToId).iterator)
 
     val diffs = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
     diffs.size must equal (0) // "mustBe empty" gives useless failure messages
