@@ -395,19 +395,15 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     def rowToId(a: Row, b: Row): Int = a.data(0).toInt compare b.data(0).toInt
     def rowToLastName(a: Row, b: Row): Int = a.data(2) compare b.data(2)
+    def rowToZero(a: Row, b: Row): Int = 0
 
     def combinerator(fs: ((Row, Row) => Int)*) = new Ordering[Row] {
-      override def compare(x: Row, y: Row): Int = {
-//        fs.find(f => (f(x) compare f(y)) != 0)
-        val result: Int = rowToId(x, y)
-        if (result == 0) rowToLastName(x, y)
-        else result
-      }
+      override def compare(x: Row, y: Row): Int = fs.find(f => f(x, y) != 0).getOrElse(rowToZero _)(x, y)
     }
 
-    def sortify(csv: Csv)(implicit o: Ordering[Row]): Iterator[Row] = csv.rows.toSeq.sorted.iterator
+    def sortify(csv: Csv, o: Ordering[Row]): Iterator[Row] = csv.rows.toSeq.sorted(o).iterator
 
-    val explicitlySortedCsv = Csv(randomisedCsv.header, sortify(randomisedCsv)(combinerator(rowToId, rowToLastName)))
+    val explicitlySortedCsv = Csv(randomisedCsv.header, sortify(randomisedCsv, combinerator(rowToId, rowToLastName)))
 
     val diffs = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
     diffs.size must equal (0) // "mustBe empty" gives useless failure messages
