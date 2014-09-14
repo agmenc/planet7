@@ -2,6 +2,7 @@ package planet7.tabular
 
 import java.io._
 import java.nio.charset.StandardCharsets
+import java.util.Comparator
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
@@ -397,13 +398,15 @@ class CsvSpec extends WordSpec with MustMatchers {
     def rowToLastName(a: Row, b: Row): Int = a.data(2) compare b.data(2)
     def rowToZero(a: Row, b: Row): Int = 0
 
-    def combinerator(fs: ((Row, Row) => Int)*) = new Ordering[Row] {
-      override def compare(x: Row, y: Row): Int = fs.find(f => f(x, y) != 0).getOrElse(rowToZero _)(x, y)
+    def sortify(csv: Csv, fis: ((Row, Row) => Int)*): Iterator[Row] = {
+      implicit def combinerator(fs: ((Row, Row) => Int)*) = new Ordering[Row] {
+        override def compare(x: Row, y: Row): Int = fs.find(f => f(x, y) != 0).getOrElse(rowToZero _)(x, y)
+      }
+
+      csv.rows.toSeq.sorted(combinerator(fis:_*)).iterator
     }
 
-    def sortify(csv: Csv, o: Ordering[Row]): Iterator[Row] = csv.rows.toSeq.sorted(o).iterator
-
-    val explicitlySortedCsv = Csv(randomisedCsv.header, sortify(randomisedCsv, combinerator(rowToId, rowToLastName)))
+    val explicitlySortedCsv = Csv(randomisedCsv.header, sortify(randomisedCsv, rowToId, rowToLastName))
 
     val diffs = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
     diffs.size must equal (0) // "mustBe empty" gives useless failure messages
