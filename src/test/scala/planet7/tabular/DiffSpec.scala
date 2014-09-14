@@ -20,7 +20,7 @@ class DiffSpec extends WordSpec with MustMatchers {
                   |A,B,C
                   |G,X,I""".stripMargin)
 
-    val result: Seq[(Row, Row)] = Diff(left.rows, right.rows, RowDiffer(left.header, "ID"))
+    val result: Seq[(Row, Row)] = Diff(left.rows, right.rows, SortingRowDiffer(left.header, "ID"))
 
     assert(result === List(
       (Row(Array("G", "H", "I")), Row(Array("G", "X", "I"))),
@@ -70,7 +70,7 @@ class DiffSpec extends WordSpec with MustMatchers {
     val timer = new Timer(3)
     import timer._
 
-    for (i <- 1 to 53) t"diff" { Diff(beforeCsv, afterCsv, RowDiffer(beforeCsv.header, "Company ID")) }
+    for (i <- 1 to 53) t"diff" { Diff(beforeCsv, afterCsv, SortingRowDiffer(beforeCsv.header, "Company ID")) }
 
     println(timer)
     timer.diff.average must be < 25.0
@@ -79,7 +79,7 @@ class DiffSpec extends WordSpec with MustMatchers {
   "Pre-sorted data does not have to be sorted by Diff" in {
     import planet7.tabular.BeforeAndAfterData._
 
-    val unsortedDiffs = Diff(beforeCsv, afterCsv, RowDiffer(3))
+    val unsortedDiffs = Diff(beforeCsv, afterCsv, SortingRowDiffer(3))
     val presortedDiffs = Diff(beforeSortedCsv, afterSortedCsv, NonSortingRowDiffer(3))
 
     presortedDiffs must equal(unsortedDiffs)
@@ -92,7 +92,7 @@ class DiffSpec extends WordSpec with MustMatchers {
     import timer._
 
     for (i <- 1 to 13) {
-      val sortingDiffer = t"sortingDiffer" { Diff(largeCsv, largeCsvWithDiff, RowDiffer(0)) }
+      val sortingDiffer = t"sortingDiffer" { Diff(largeCsv, largeCsvWithDiff, SortingRowDiffer(0)) }
       val nonSortingDiffer = t"nonSortingDiffer" { Diff(largeCsv, largeCsvWithDiff, NonSortingRowDiffer(0)) }
 
       nonSortingDiffer must equal(sortingDiffer)

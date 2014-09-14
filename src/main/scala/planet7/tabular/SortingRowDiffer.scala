@@ -1,15 +1,14 @@
 package planet7.tabular
 
-case class RowDiffer(indicesOfKey: Int*) extends SortingDifferentiator[Row,String] {
+case class SortingRowDiffer(indicesOfKey: Int*) extends SortingDifferentiator[Row,String] {
   override def zero = EmptyRow
-
   override def key(row: Row)(implicit evidence: Ordering[String]) = indicesOfKey.map(row.data).mkString
 }
 
-object RowDiffer {
-  def apply(header: Row, indexColumns: (String,String => Any)*): RowDiffer = {
+object SortingRowDiffer {
+  def apply(header: Row, indexColumns: (String,String => Any)*): SortingRowDiffer = {
     val indices = indexColumns map { case (colName, fn) => header.data.indexOf(colName)}
-    new RowDiffer(indices:_*)
+    new SortingRowDiffer(indices:_*)
   }
 }
 
