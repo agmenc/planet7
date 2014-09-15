@@ -394,22 +394,32 @@ class CsvSpec extends WordSpec with MustMatchers {
 //      "last_name"
 //    )))
 
-    def rowToId(a: Row, b: Row): Int = a.data(0).toInt compare b.data(0).toInt
-    def rowToLastName(a: Row, b: Row): Int = a.data(2) compare b.data(2)
-    def rowToZero(a: Row, b: Row): Int = 0
+    def equal = new Comparator[Row] { override def compare(o1: Row, o2: Row) = 0 }
 
-    def sortify(csv: Csv, fis: ((Row, Row) => Int)*): Iterator[Row] = {
-      implicit def combinerator(fs: ((Row, Row) => Int)*) = new Ordering[Row] {
-        override def compare(x: Row, y: Row): Int = fs.find(f => f(x, y) != 0).getOrElse(rowToZero _)(x, y)
-      }
-
-      csv.rows.toSeq.sorted(combinerator(fis:_*)).iterator
+    implicit def compareStrings[K: Ordering](f : (String => K)): Comparator[String] = new Comparator[String] {
+      override def compare(a: String, b: String) = implicitly[Ordering[K]].compare(f(a), f(b))
     }
 
-    val explicitlySortedCsv = Csv(randomisedCsv.header, sortify(randomisedCsv, rowToId, rowToLastName))
+    def sortify(csv: Csv, fieldComps: (String, Comparator[String])*): Iterator[Row] = {
+      def toRowComparator(col: Int, comp: Comparator[String]): Comparator[Row] = new Comparator[Row] {
+        override def compare(j: Row, k: Row) = comp.compare(j.data(col), k.data(col))
+      }
 
-    val diffs = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
-    diffs.size must equal (0) // "mustBe empty" gives useless failure messages
+      implicit def combinerator(comps: Seq[Comparator[Row]]) = new Ordering[Row] {
+        override def compare(x: Row, y: Row): Int = comps.find(_.compare(x, y) != 0).getOrElse(equal).compare(x, y)
+      }
+
+      val index = (name: String) => csv.header.data.indexOf(name)
+      val rowComps: Seq[Comparator[Row]] = fieldComps map { case (colName, fieldComp) => toRowComparator(index(colName), fieldComp) }
+      csv.rows.toSeq.sorted(combinerator(rowComps)).iterator
+    }
+
+    val explicitlySortedCsv = Csv(randomisedCsv.header, sortify(randomisedCsv, "id" -> ((s: String) => s.toInt)))
+
+    val diffs: Seq[(Row, Row)] = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
+    val x: Int = diffs.size
+    assert(x === 0)
+    // x must equal (0) // "mustBe empty" gives useless failure messages
   }
 
   "Ordered and Ordering" in {
