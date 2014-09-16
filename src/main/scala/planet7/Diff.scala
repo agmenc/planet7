@@ -1,27 +1,14 @@
 package planet7
 
-import planet7.tabular.{SortingDifferentiator, Differentiator}
+import planet7.tabular.Differentiator
 
 import scala.annotation.tailrec
 
-/**
- * Opinionated Diff:
- *  - We sort left and right inputs by a key, and so the results follow the same order
- *  - The result of a diff is a Seq of differences, each of which is also (potentially) diffable
- *
- *  // TODO - CAS - 12/08/2014 - Kev's suggestion: split out sorting from the primary concern of Diffing. After all, many datasets will be sorted correctly
- *  anyway. Mix in sorting if needed (it costs time on large datasets)
- */
+/** The result of a diff is a Seq of differences, each of which is also (potentially) diffable */
 object Diff {
   def apply[U,K: Ordering](lefts: Iterable[U], rights: Iterable[U], differ: Differentiator[U,K]): Seq[(U, U)] = apply(lefts.iterator, rights.iterator, differ)
 
   def apply[U,K: Ordering](lefts: Iterator[U], rights: Iterator[U], differ: Differentiator[U,K]): Seq[(U, U)] = {
-
-    def sort(it: Iterator[U]): Iterator[U] = differ match {
-      case s: SortingDifferentiator[U,K] => s.sort(it)
-      case ns: Differentiator[U,K] => it
-    }
-
     import scala.math.Ordered.orderingToOrdered
 
     @tailrec
@@ -37,6 +24,17 @@ object Diff {
         }
       }
 
-    eliminateIdenticalElements(sort(lefts), sort(rights), differ.key)(Nil)
+    eliminateIdenticalElements(lefts, rights, differ.key)(Nil)
+  }
+}
+
+/** We sort left and right inputs by a key, and so the results follow the same order */
+object PreSortingDiff {
+  def apply[U,K: Ordering](lefts: Iterable[U], rights: Iterable[U], differ: Differentiator[U,K]): Seq[(U, U)] = apply(lefts.iterator, rights.iterator, differ)
+
+  def apply[U,K: Ordering](lefts: Iterator[U], rights: Iterator[U], differ: Differentiator[U,K]): Seq[(U, U)] = {
+    def sort(it: Iterator[U]): Seq[U] = it.toSeq.sortBy(differ.key)
+
+    Diff(sort(lefts), sort(rights), differ)
   }
 }

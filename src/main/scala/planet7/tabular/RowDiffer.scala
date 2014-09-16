@@ -1,17 +1,18 @@
 package planet7.tabular
 
-case class SortingRowDiffer(indicesOfKey: Int*) extends SortingDifferentiator[Row,String] {
+case class RowDiffer(indicesOfKey: Int*) extends Differentiator[Row,String] {
   override def zero = EmptyRow
   override def key(row: Row)(implicit evidence: Ordering[String]) = indicesOfKey.map(row.data).mkString
 }
 
-object SortingRowDiffer {
-  def apply(header: Row, indexColumns: (String,String => Any)*): SortingRowDiffer = {
+object RowDiffer {
+  def apply(header: Row, indexColumns: (String,String => Any)*): RowDiffer = {
     val indices = indexColumns map { case (colName, fn) => header.data.indexOf(colName)}
-    new SortingRowDiffer(indices:_*)
+    new RowDiffer(indices:_*)
   }
 }
 
+// TODO - CAS - 16/09/2014 - remove - redundant
 case class NonSortingRowDiffer(indicesOfKey: Int*) extends Differentiator[Row,String] {
   override def zero = EmptyRow
   override def key(row: Row)(implicit evidence: Ordering[String]) = if (row.data.isEmpty) "" else indicesOfKey.map(row.data).mkString
@@ -19,7 +20,7 @@ case class NonSortingRowDiffer(indicesOfKey: Int*) extends Differentiator[Row,St
 
 object EmptyRow extends Row(Array.empty[String])
 
-case object FieldDiffer extends SortingDifferentiator[(String, String), String] {
+case object FieldDiffer extends Differentiator[(String, String), String] {
   override def zero = ("", "")
   override def key(u: (String, String))(implicit evidence: Ordering[String]) = u._1
 
