@@ -375,11 +375,10 @@ class CsvSpec extends WordSpec with MustMatchers {
                                 |Jim,Jones,36
                                 |Fred,Black,127""".stripMargin)
 
-    // TWIN SORT by first name!
     val result = sort(input,
-      "Age" -> ((s: String) => s.toInt),
-      "Surname" -> (identity[String] _),
-      "First Name" -> (identity[String] _)
+      "Age" -> by(_.toInt),
+      "Surname" -> by(identity),
+      "First Name" -> by(identity)
     )
 
     export(result) must equal (export(expectedOutput))
@@ -391,45 +390,11 @@ class CsvSpec extends WordSpec with MustMatchers {
     val randomisedCsv = largeCsvUnsorted
     val preSortedCsv = largeCsv
 
-    // TODO - CAS - 13/09/2014 - Extract and encapsulate sort-by-column-name in some beautiful way
-    // TODO - CAS - 13/09/2014 - Create a composite ordering, if necessary (sort by precedence)
-//    val explicitlySortedCsv = sort(randomisedCsv, RowDiffer(randomisedCsv.header, (
-//      "id" -> (_.toInt),
-//      "dob" -> (_.toLocalDate),
-//      "last_name"
-//    )))
-
-    val explicitlySortedCsv = sort(randomisedCsv, "id" -> ((s: String) => s.toInt))
+    val explicitlySortedCsv = sort(randomisedCsv, "id" -> by(_.toInt))
 
     val diffs: Seq[(Row, Row)] = Diff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
-    val x: Int = diffs.size
-    assert(x === 0)
+    assert(diffs.size === 0)
     // x must equal (0) // "mustBe empty" gives useless failure messages
-  }
-
-  // TODO - CAS - 15/09/2014 - Ideas:
-  // Switch to subclasses of Comparable (i.e. Ordered)
-  // Existential types
-  // HList of Comparator types
-
-  implicit def compareStrings[K: Ordering](f : (String => K)): Comparator[String] = new Comparator[String] {
-    override def compare(a: String, b: String) = implicitly[Ordering[K]].compare(f(a), f(b))
-  }
-
-  def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = {
-    def toRowComparator(col: Int, comp: Comparator[String]): Comparator[Row] = new Comparator[Row] {
-      override def compare(j: Row, k: Row) = comp.compare(j.data(col), k.data(col))
-    }
-
-    def equal = new Comparator[Row] { override def compare(o1: Row, o2: Row) = 0 }
-
-    implicit def combinerator(comps: Seq[Comparator[Row]]) = new Ordering[Row] {
-      override def compare(x: Row, y: Row): Int = comps.find(_.compare(x, y) != 0).getOrElse(equal).compare(x, y)
-    }
-
-    val index = (name: String) => csv.header.data.indexOf(name)
-    val rowComps: Seq[Comparator[Row]] = fieldComps map { case (colName, fieldComp) => toRowComparator(index(colName), fieldComp) }
-    Csv(csv.header, csv.rows.toSeq.sorted(combinerator(rowComps)).iterator)
   }
 
   "Ordered and Ordering" in {

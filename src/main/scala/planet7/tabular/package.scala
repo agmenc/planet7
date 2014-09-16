@@ -4,6 +4,7 @@ import java.io._
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.file.{Files, Paths}
+import java.util.Comparator
 
 package object tabular {
   implicit def fromString(s: String): TabularDataSource = new BufferedDataSource(new StringReader(s))
@@ -39,7 +40,11 @@ package object tabular {
 
   def export(csv: Csv): String = csv.header.toString + "\n" + csv.rows.mkString("\n")
 
-  def sort[K](csv: Csv, differ: SortingDifferentiator[Row,K])(implicit evidence: Ordering[K]): Csv = Csv(csv.header, differ.sort(csv.rows))
+  def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = SortAggregator.sort(csv, fieldComps:_*)
+
+  def by[K: Ordering](f: String => K): Ordering[String] = new Ordering[String] {
+    override def compare(x: String, y: String) = implicitly[Ordering[K]].compare(f(x), f(y))
+  }
 
   /**
    * Allows us to specify a single String for a column name which is not changing, instead of a Tuple.
