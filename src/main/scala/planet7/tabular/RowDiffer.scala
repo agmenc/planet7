@@ -6,8 +6,8 @@ case class RowDiffer(indicesOfKey: Int*) extends Differentiator[Row,String] {
 }
 
 object RowDiffer {
-  def apply(header: Row, indexColumns: (String,String => Any)*): RowDiffer = {
-    val indices = indexColumns map { case (colName, fn) => header.data.indexOf(colName)}
+  def apply(header: Row, indexColumns: String*): RowDiffer = {
+    val indices = indexColumns map { case (colName) => header.data.indexOf(colName)}
     new RowDiffer(indices:_*)
   }
 }

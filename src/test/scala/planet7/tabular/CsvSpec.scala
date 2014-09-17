@@ -5,8 +5,8 @@ import java.nio.charset.StandardCharsets
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
-import TestData._
-import planet7.PreSortingDiff
+import planet7.Diff
+import planet7.tabular.TestData._
 
 import scala.io.Source
 
@@ -67,7 +67,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
 
   "All methods of accessing data produce the same Csv structure" in {
-    import LargeDataSet._
+    import planet7.tabular.LargeDataSet._
 
     for ((label, loadMethod) <- possibleLoadMethods(largeDataFile)) {
       val csv = Csv(loadMethod())
@@ -115,7 +115,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
    */
   "Performance test for different file-access methods" in {
-    import LargeDataSet._
+    import planet7.tabular.LargeDataSet._
     import planet7.timing._
 
     def processLargeDataset(datasource: TabularDataSource) = export(
@@ -141,7 +141,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
   // 143 seconds to load 25000 rows, i.e. 1,000 times slower than just reading the file into Csv Rows. Hells bells.
   "We can use external parsers such as (the incredibly slow) CsvReader" in {
-    import LargeDataSet._
+    import planet7.tabular.LargeDataSet._
 
     val csv = Csv(CSVReader.open(asFile(largeDataFile)))
 
@@ -282,7 +282,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
   "We can Diff Csv instances and generate readable output" in {
     import planet7.PreSortingDiff
-    import CompanyAccountsData._
+    import planet7.tabular.CompanyAccountsData._
 
     val before = Csv(asFile("before.csv"))
       .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
@@ -324,7 +324,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
 
   "Extract a CSV, remodel it, and convert the data" in {
-    import CompanyAccountsData._
+    import planet7.tabular.CompanyAccountsData._
 
     // CSV file with header: First name,Surname,Company,Company account,Postcode,Pet names
     val someFile = asFile("before.csv")
@@ -376,22 +376,22 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     val result = sort(input,
       "Age" -> by(_.toInt),
-      "Surname" -> by(identity),
-      "First Name" -> by(identity)
+      "Surname",
+      "First Name" -> by(_.substring(0, 3))
     )
 
     export(result) must equal (export(expectedOutput))
   }
 
   "We can sort a Csv with a non-alpha sort" in {
-    import LargeDataSet._
+    import planet7.tabular.LargeDataSet._
 
     val randomisedCsv = largeCsvUnsorted
     val preSortedCsv = largeCsv
 
     val explicitlySortedCsv = sort(randomisedCsv, "id" -> by(_.toInt))
 
-    val diffs: Seq[(Row, Row)] = PreSortingDiff(explicitlySortedCsv, preSortedCsv, NonSortingRowDiffer(0))
+    val diffs: Seq[(Row, Row)] = Diff(explicitlySortedCsv, preSortedCsv, RowDiffer(0))
     assert(diffs.size === 0)
     // x must equal (0) // "mustBe empty" gives useless failure messages
   }

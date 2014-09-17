@@ -1,10 +1,8 @@
 package planet7.tabular
 
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.PreSortingDiff
-import TestData._
-import CompanyAccountsData._
 import planet7.timing._
+import planet7.{Diff, PreSortingDiff}
 
 class DiffSpec extends WordSpec with MustMatchers {
 
@@ -86,14 +84,14 @@ class DiffSpec extends WordSpec with MustMatchers {
   }
 
   "Using non-sorting or sorting Differentiators provides the same result for a sorted dataset" in {
-    import LargeDataSet._
+    import planet7.tabular.LargeDataSet._
 
     val timer = new Timer(3)
     import timer._
 
     for (i <- 1 to 13) {
       val sortingDiffer = t"sortingDiffer" { PreSortingDiff(largeCsv, largeCsvWithDiff, RowDiffer(0)) }
-      val nonSortingDiffer = t"nonSortingDiffer" { PreSortingDiff(largeCsv, largeCsvWithDiff, NonSortingRowDiffer(0)) }
+      val nonSortingDiffer = t"nonSortingDiffer" { Diff(largeCsv, largeCsvWithDiff, RowDiffer(0)) }
 
       nonSortingDiffer must equal(sortingDiffer)
     }

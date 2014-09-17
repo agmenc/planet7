@@ -46,13 +46,11 @@ package object tabular {
     override def compare(x: String, y: String) = implicitly[Ordering[K]].compare(f(x), f(y))
   }
 
-  /**
-   * Allows us to specify a single String for a column name which is not changing, instead of a Tuple.
-   */
+  /** Used in Csv.columnStructure(). Puts a single columnName String into a before/after Tuple. */
   implicit def toColumnStructure(s: String): (String, String) = s -> s
 
-  /**
-   * Allows us to specify a single String for a column which is to be sorted alphanumerically, instead of a Tuple.
-   */
-  implicit def toOrderable(s: String): (String, String => Any) = s -> (str => str)
+  /** Used in sort(). Converts a single String into a Tuple with a basic Comparator[String]. */
+  implicit def toStringCompare(s: String): (String, Comparator[String]) = s -> new Comparator[String] {
+    override def compare(o1: String, o2: String) = o1.compareTo(o2)
+  }
 }

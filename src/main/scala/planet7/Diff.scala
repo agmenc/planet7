@@ -4,6 +4,10 @@ import planet7.tabular.Differentiator
 
 import scala.annotation.tailrec
 
+// TODO - CAS - 17/09/2014 - Csv should also define its sort order
+// TODO - CAS - 17/09/2014 - Have a test case for Diff with a list of tuples, or something, to prove that sort/unsorted works there, too.
+// TODO - CAS - 17/09/2014 - Unify the specification of Orderings for explicit sorting with the sort keys encoded in the Differentiator
+
 /** The result of a diff is a Seq of differences, each of which is also (potentially) diffable */
 object Diff {
   def apply[U,K: Ordering](lefts: Iterable[U], rights: Iterable[U], differ: Differentiator[U,K]): Seq[(U, U)] = apply(lefts.iterator, rights.iterator, differ)
