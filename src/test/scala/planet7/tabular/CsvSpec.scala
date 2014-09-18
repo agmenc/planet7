@@ -294,7 +294,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     val after = Csv(asFile("after_with_diffs.csv"))
       .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    val diffs: Seq[(Row, Row)] = PreSortingDiff(before.rows, after.rows, RowDiffer(before.header, "Company ID"))
+    val diffs: Seq[(Row, Row)] = PreSortingDiff(before, after, RowDiffer(before.header, "Company ID"))
 
     // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows
     val summary = diffs.groupBy {
@@ -305,7 +305,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     // We can Diff rows which have changed. We zip the header information with each row, so that we know the names of the fields which changed.
     val fieldDifferences = summary("Diffs") map {
-      case (leftRow, rightRow) => PreSortingDiff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
+      case (leftRow, rightRow) => Diff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
     }
 
     // Let's print the name of the field which changed, and the before and after values
@@ -391,7 +391,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     val explicitlySortedCsv = sort(randomisedCsv, "id" -> by(_.toInt))
 
-    val diffs: Seq[(Row, Row)] = Diff(explicitlySortedCsv, preSortedCsv, RowDiffer(0))
+    val diffs: Seq[(Row, Row)] = Diff(explicitlySortedCsv, preSortedCsv, RowDiffer(preSortedCsv.header, "id" -> by(_.toInt)))
     assert(diffs.size === 0)
     // x must equal (0) // "mustBe empty" gives useless failure messages
   }

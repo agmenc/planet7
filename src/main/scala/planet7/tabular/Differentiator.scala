@@ -1,6 +1,6 @@
 package planet7.tabular
 
-trait Differentiator[U,K] {
+trait Differentiator[U] {
   def zero: U
-  def key(u: U)(implicit requiredForDiff: Ordering[K]): K
+  def ordering: Ordering[U]
 }

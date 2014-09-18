@@ -1,7 +1,7 @@
 package planet7.tabular
 
 /**
- * Csv encapsulate a tabular data structure, as found in a CSV file or spreadsheet. This class is a thin wrapper around an
+ * Csv encapsulates a tabular data structure, as found in a CSV file or spreadsheet. This class is a thin wrapper around an
  * Iterator[Row] and a header Row. It allows client code to:
  *  - read CSV data from a tabular data-source (String, File, InputStream, or anything else)
  *  - Change the column structure (add, remove, rename and reorder columns)
