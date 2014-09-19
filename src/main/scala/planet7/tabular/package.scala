@@ -40,7 +40,9 @@ package object tabular {
 
   def export(csv: Csv): String = csv.header.toString + "\n" + csv.rows.mkString("\n")
 
-  def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = SortAggregator.sort(csv, fieldComps:_*)
+  def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = sort(csv, new RowDiffer(csv.header, fieldComps:_*))
+
+  def sort(csv: Csv, differ: RowDiffer): Csv = Csv(csv.header, csv.rows.toSeq.sorted(differ.ordering).iterator)
 
   def by[K: Ordering](f: String => K): Ordering[String] = new Ordering[String] {
     override def compare(x: String, y: String) = implicitly[Ordering[K]].compare(f(x), f(y))
