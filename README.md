@@ -86,7 +86,7 @@ These examples are taken from [CsvSpec.scala](https://github.com/agmenc/planet7/
 
 ```scala
 "Extract a CSV, remodel it, and convert the data" in {
-  import planet7.relational.CompanyAccountsData._
+  import planet7.tabular.CompanyAccountsData._
 
   // CSV file with header: First name,Surname,Company,Company account,Postcode,Pet names
   val someFile = asFile("before.csv")
@@ -126,9 +126,9 @@ implicit def fromCsvReader(reader: CSVReader): TabularDataSource = new TabularDa
     case Some(items) => Row(items.toArray)
     case None => throw new NoDataInSourceException(reader.toString)
   }
-  
+
   override def rows = reader.iterator.map(items => Row(items.toArray))
-  
+
   override def close() = reader.close()
 }
 ```
@@ -154,7 +154,7 @@ Convert two CSVs to a canonical format and Diff them, aggregating and formatting
 ```scala
 "We can Diff Csv instances and generate readable output" in {
   import planet7.Diff
-  import planet7.relational.CompanyAccountsData._
+  import planet7.tabular.CompanyAccountsData._
 
   val before = Csv(asFile("before.csv"))
     .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
@@ -166,9 +166,9 @@ Convert two CSVs to a canonical format and Diff them, aggregating and formatting
   val after = Csv(asFile("after_with_diffs.csv"))
     .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-  val diffs: Seq[(Row, Row)] = Diff(before.rows, after.rows, RowDiffer(3))
+  val diffs: Seq[(Row, Row)] = Diff(before, after, RowDiffer(before.header, "Company ID"))
 
-  // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows
+  // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows.
   val summary = diffs.groupBy {
     case (row, EmptyRow) => "Missing"
     case (EmptyRow, row) => "Added"
@@ -177,7 +177,7 @@ Convert two CSVs to a canonical format and Diff them, aggregating and formatting
 
   // We can Diff rows which have changed. We zip the header information with each row, so that we know the names of the fields which changed.
   val fieldDifferences = summary("Diffs") map {
-    case (leftRow, rightRow) => Diff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
+    case (leftRow, rightRow) => NonSortingDiff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
   }
 
   // Let's print the name of the field which changed, and the before and after values
@@ -193,7 +193,7 @@ Convert two CSVs to a canonical format and Diff them, aggregating and formatting
 
 **Laziness:**
 
-All structure and filtering operations are lazy. Aside from the header, the datasource is only read when the Csv is exported, or you iterate through the Csv.rows iterator. 
+All structure and filtering operations are lazy. Aside from the header row, the datasource is only read when the Csv is exported, or you iterate through the Csv.rows iterator. 
 
 
 **Timers:**

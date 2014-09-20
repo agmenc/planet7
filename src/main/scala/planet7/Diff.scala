@@ -5,6 +5,8 @@ import planet7.tabular.Differentiator
 import scala.annotation.tailrec
 
 // TODO - CAS - 19/09/2014 - Better CSV parsing, respecting quotes
+// TODO - CAS - 20/09/2014 - Reduce duplication between Diff and NonSortingDiff
+// TODO - CAS - 20/09/2014 - Tart up the API, e.g. compare (left -> right) on myIdDiffer
 // TODO - CAS - 20/09/2014 - Ability to set tolerances for numerical field comparisons
 // TODO - CAS - 20/09/2014 - Identify duplicates in both lists
 
