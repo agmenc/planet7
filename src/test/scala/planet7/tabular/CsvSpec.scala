@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.Diff
+import planet7.NonSortingDiff
 import planet7.tabular.TestData._
 
 import scala.io.Source
@@ -281,7 +281,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
 
   "We can Diff Csv instances and generate readable output" in {
-    import planet7.PreSortingDiff
+    import planet7.Diff
     import planet7.tabular.CompanyAccountsData._
 
     val before = Csv(asFile("before.csv"))
@@ -294,9 +294,9 @@ class CsvSpec extends WordSpec with MustMatchers {
     val after = Csv(asFile("after_with_diffs.csv"))
       .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
-    val diffs: Seq[(Row, Row)] = PreSortingDiff(before, after, RowDiffer(before.header, "Company ID"))
+    val diffs: Seq[(Row, Row)] = Diff(before, after, RowDiffer(before.header, "Company ID"))
 
-    // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows
+    // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows.
     val summary = diffs.groupBy {
       case (row, EmptyRow) => "Missing"
       case (EmptyRow, row) => "Added"
@@ -305,7 +305,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     // We can Diff rows which have changed. We zip the header information with each row, so that we know the names of the fields which changed.
     val fieldDifferences = summary("Diffs") map {
-      case (leftRow, rightRow) => Diff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
+      case (leftRow, rightRow) => NonSortingDiff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
     }
 
     // Let's print the name of the field which changed, and the before and after values
@@ -344,7 +344,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
 
   "We can Diff Csvs directly" in {
-    import planet7.PreSortingDiff
+    import planet7.Diff
 
     val left = Csv("""Some,Header,Columns
                  |D,E,F
@@ -354,7 +354,7 @@ class CsvSpec extends WordSpec with MustMatchers {
                  |D,E,F
                  |G,x,I""".stripMargin)
 
-    val results = PreSortingDiff(left, right, RowDiffer(left.header, "Some"))
+    val results = Diff(left, right, RowDiffer(left.header, "Some"))
 
     results must contain (Row(Array("G", "H", "I")) -> Row(Array("G", "x", "I")))
   }
@@ -391,7 +391,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     val explicitlySortedCsv = sort(randomisedCsv, "id" -> by(_.toInt))
 
-    val diffs: Seq[(Row, Row)] = Diff(explicitlySortedCsv, preSortedCsv, RowDiffer(preSortedCsv.header, "id" -> by(_.toInt)))
+    val diffs: Seq[(Row, Row)] = NonSortingDiff(explicitlySortedCsv, preSortedCsv, RowDiffer(preSortedCsv.header, "id" -> by(_.toInt)))
     assert(diffs.size === 0)
     // x must equal (0) // "mustBe empty" gives useless failure messages
   }

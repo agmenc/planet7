@@ -4,11 +4,12 @@ import planet7.tabular.Differentiator
 
 import scala.annotation.tailrec
 
-// TODO - CAS - 17/09/2014 - Have a test case for Diff with a list of tuples, or something, to prove that sort/unsorted works there, too.
-// TODO - CAS - 17/09/2014 - Unify the specification of Orderings for explicit sorting with the sort keys encoded in the Differentiator
+// TODO - CAS - 19/09/2014 - Better CSV parsing, respecting quotes
+// TODO - CAS - 20/09/2014 - Ability to set tolerances for numerical field comparisons
+// TODO - CAS - 20/09/2014 - Identify duplicates in both lists
 
 /** The result of a diff is a Seq of differences, each of which is also (potentially) diffable */
-object Diff {
+object NonSortingDiff {
   def apply[U](lefts: Iterable[U], rights: Iterable[U], differ: Differentiator[U]): Seq[(U, U)] = apply(lefts.iterator, rights.iterator, differ)
 
   def apply[U](lefts: Iterator[U], rights: Iterator[U], differ: Differentiator[U]): Seq[(U, U)] = {
@@ -33,13 +34,13 @@ object Diff {
   }
 }
 
-/** We sort left and right inputs by a key, and so the results follow the same order */
-object PreSortingDiff {
+/** We sort left and right inputs by a key, so they can be diffed */
+object Diff {
   def apply[U](lefts: Iterable[U], rights: Iterable[U], differ: Differentiator[U]): Seq[(U, U)] = apply(lefts.iterator, rights.iterator, differ)
 
   def apply[U](lefts: Iterator[U], rights: Iterator[U], differ: Differentiator[U]): Seq[(U, U)] = {
     def sort(it: Iterator[U]): Seq[U] = it.toSeq.sorted(differ.ordering)
 
-    Diff(sort(lefts), sort(rights), differ)
+    NonSortingDiff(sort(lefts), sort(rights), differ)
   }
 }

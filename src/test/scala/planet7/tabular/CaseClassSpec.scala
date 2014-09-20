@@ -1,7 +1,7 @@
 package planet7.tabular
 
 import org.scalatest.WordSpec
-import planet7.PreSortingDiff
+import planet7.Diff
 
 class CaseClassSpec extends WordSpec {
 
@@ -29,7 +29,7 @@ class CaseClassSpec extends WordSpec {
       SomeCaseClass("d", 5, "s")
     )
 
-    val result: Seq[(SomeCaseClass, SomeCaseClass)] = PreSortingDiff(left, right, SccDiffer)
+    val result: Seq[(SomeCaseClass, SomeCaseClass)] = Diff(left, right, SccDiffer)
 
     assert(result === List(
       SccDiffer.zero -> SomeCaseClass("d", 5, "s"),
@@ -48,7 +48,7 @@ class CaseClassSpec extends WordSpec {
     val left = SomeOtherCaseClass("bob", 1, "abc")
     val right = SomeOtherCaseClass("bob", 1, "def")
     
-    val result: Seq[((String, String), (String, String))] = PreSortingDiff(left.fields, right.fields, FieldDiffer)
+    val result: Seq[((String, String), (String, String))] = Diff(left.fields, right.fields, FieldDiffer)
     
     assert(result === List(("address", "abc") ->("address", "def")))
   }
