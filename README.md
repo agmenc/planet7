@@ -18,7 +18,7 @@ Fast, functional ETL and rec tool for Scala users:
 **build.sbt:**
 
 ```scala
-libraryDependencies += "com.github.agmenc" %% "planet7" % 0.0.9
+libraryDependencies += "com.github.agmenc" %% "planet7" % 0.1.1
 ```
 
 
