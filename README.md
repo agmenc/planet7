@@ -1,10 +1,10 @@
 planet7
 =======
 
-Fast, functional ETL and rec tool for Scala users:
+Fast ETL and reconciliation tool for Scala users:
 * Load and merge CSVs.
 * Rename, re-order and filter columns.
-* Diff two CSVs
+* Diff two CSVs, or any lists of comparable elements
 * Use external CSV parsing libraries such as CSVReader and 
 * Wrap timers around your data processing, alerting you to slow-downs
 
@@ -18,7 +18,7 @@ Fast, functional ETL and rec tool for Scala users:
 **build.sbt:**
 
 ```scala
-libraryDependencies += "com.github.agmenc" %% "planet7" % 0.1.1
+libraryDependencies += "com.github.agmenc" %% "planet7" % "0.1.2"
 ```
 
 
