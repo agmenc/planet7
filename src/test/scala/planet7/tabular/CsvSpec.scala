@@ -47,7 +47,20 @@ class CsvSpec extends WordSpec with MustMatchers {
       "Value" -> "Amount", "Name"
     )
 
-    csv.header mustEqual Row(Array("Amount", "Name"))
+    export(csv) mustEqual result
+  }
+
+  "We can ignore columns in a Csv" in {
+    val data = """Index,Name,Value
+                 |D,E,F
+                 |G,H,I""".stripMargin
+
+    val result = """Value
+                 |F
+                 |I""".stripMargin
+
+    val csv = Csv(data).columnStructure(ignore("Name", "Index"))
+
     export(csv) mustEqual result
   }
 

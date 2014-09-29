@@ -29,6 +29,8 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
     Csv(headerRenamer(columnXformer(header)), rows.map(columnXformer))
   }
 
+  def columnStructure(restructurer: Array[String] => Array[String]): Csv = columnStructure(restructurer(header.data) map (s => s -> s) :_*)
+
   private[tabular] def columnXformerFor(columns: (String, String)*): (Row) => Row = {
     val desiredColumnIndices: Array[Int] = columns.map { case (sourceCol, targetCol) => header.data.indexOf(sourceCol) }(collection.breakOut)
 

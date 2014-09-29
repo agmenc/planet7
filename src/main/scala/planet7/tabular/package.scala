@@ -15,6 +15,8 @@ package object tabular extends DataSourceLoaders {
     override def compare(x: String, y: String) = implicitly[Ordering[K]].compare(f(x), f(y))
   }
 
+  def ignore(columnNames: String*) = (headerColumns: Array[String]) => headerColumns filter (col => !columnNames.contains(col))
+
   /** Used in Csv.columnStructure(). Puts a single columnName String into a before/after Tuple. */
   implicit def toColumnStructure(s: String): (String, String) = s -> s
 
