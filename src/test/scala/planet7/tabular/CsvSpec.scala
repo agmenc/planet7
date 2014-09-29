@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.NonSortingDiff
+import planet7.{Diff, NonSortingDiff}
 import planet7.tabular.TestData._
 
 import scala.io.Source
@@ -396,14 +396,29 @@ class CsvSpec extends WordSpec with MustMatchers {
     // x must equal (0) // "mustBe empty" gives useless failure messages
   }
 
-  "Ordered and Ordering" in {
-    def sort1[U : Ordering](it: Iterator[U]): Iterator[U] = it.toSeq.sorted.iterator
-    def sort2[U : Ordering](it: Iterator[U]): Iterator[U] = it.toSeq.sortBy(identity).iterator
-    def sort3[U, K : Ordering](it: Iterator[U], kf: (U) => K): Iterator[U] = it.toSeq.sortBy(kf).iterator
+  "Empty fields should be marked by commas when exported" in {
+    val input = """
+                  |val2,val3,val4
+                  |0,,
+                  | """.stripMargin
 
-    def ints = List(22, 1, 4, 2).iterator
-    println(sort1(ints).mkString(","))
-    println(sort2(ints).mkString(","))
-    println(sort3(ints, identity[Int]).mkString(","))
+    val expected = """
+                     |val2,val3,val4
+                     |0,,
+                     | """.stripMargin.trim
+
+    val twoColumns = Csv(input)
+
+    export(twoColumns) must equal (expected)
+  }
+
+  "Handles empty cells gracefully" in {
+    val input = """
+                  |val2,val3,val4
+                  |0,,""".stripMargin
+
+    val csv = Csv(input).columnStructure("val2", "val3", "val4")
+
+    noException should be thrownBy export(csv)
   }
 }

@@ -3,7 +3,7 @@ package planet7
 import java.util.Comparator
 
 package object tabular extends DataSourceLoaders {
-  def toRow(line: String) = Row(line.split(","))
+  def toRow(line: String) = Row(line.split(",", -1))
 
   def export(csv: Csv): String = csv.header.toString + "\n" + csv.rows.mkString("\n")
 

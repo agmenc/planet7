@@ -37,3 +37,12 @@ case object FieldDiffer extends Differentiator[(String, String)] {
     case (left, right) => s"${left._1}: ${left._2} -> ${right._2}"
   }
 }
+
+object NaiveRowDiffer extends Differentiator[Row] {
+  override def zero = EmptyRow
+  override def ordering = NaiveRowOrdering
+}
+
+object NaiveRowOrdering extends Ordering[Row] {
+  override def compare(x: Row, y: Row) = x.data.mkString compare y.data.mkString
+}
