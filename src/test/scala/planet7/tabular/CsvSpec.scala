@@ -5,8 +5,7 @@ import java.nio.charset.StandardCharsets
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.{Diff, NonSortingDiff}
-import planet7.tabular.TestData._
+import planet7.NonSortingDiff
 
 import scala.io.Source
 
@@ -65,7 +64,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
 
   def possibleLoadMethods(filename: String) = {
-    def file = asFile(filename)
+    def file = TestDataFile(filename)
     def string = Source.fromFile(file).mkString
 
     Map[String, () => TabularDataSource](
@@ -156,7 +155,7 @@ class CsvSpec extends WordSpec with MustMatchers {
   "We can use external parsers such as (the incredibly slow) CsvReader" in {
     import planet7.tabular.LargeDataSet._
 
-    val csv = Csv(CSVReader.open(asFile(largeDataFile)))
+    val csv = Csv(CSVReader.open(TestDataFile(largeDataFile)))
 
     csv.header must equal(expectedHeader)
     csv.rows.next() must be (expectedFirstRow)
@@ -181,7 +180,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     for (i <- 1 to 5) {
       t"overallTime" {
-        val csvReader = t"shouldBeQuick" { CSVReader.open(asFile("before.csv")) }
+        val csvReader = t"shouldBeQuick" { CSVReader.open(TestDataFile("before.csv")) }
         val csv = t"shouldAlsoBeQuick" { Csv(csvReader) }
         t"veryExpensive" { export(csv) }
       }
@@ -297,14 +296,14 @@ class CsvSpec extends WordSpec with MustMatchers {
     import planet7.Diff
     import planet7.tabular.CompanyAccountsData._
 
-    val before = Csv(asFile("before.csv"))
+    val before = Csv(Before.asFile("before.csv"))
       .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
       .withMappings(
         "Postcode" -> postcodeLookupTable,
         "Company" -> (_.toUpperCase)
       )
 
-    val after = Csv(asFile("after_with_diffs.csv"))
+    val after = Csv(After.asFile("after_with_diffs_sorted.csv"))
       .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
 
     val diffs: Seq[(Row, Row)] = Diff(before, after, RowDiffer(before.header, "Company ID"))
@@ -340,7 +339,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     import planet7.tabular.CompanyAccountsData._
 
     // CSV file with header: First name,Surname,Company,Company account,Postcode,Pet names
-    val someFile = asFile("before.csv")
+    val someFile = TestDataFile("before.csv")
 
     // Retain only three of the original columns, in a different order, renaming
     // "Postcode" to "Zip code", and adding "Fee owing"

@@ -1,15 +1,14 @@
 package planet7.tabular
 
 object LargeDataSet {
-  import TestData._
 
   val largeDataFile = "large_dataset.csv"
   val largeDataFileUnsorted = "large_dataset_unsorted.csv"
   val largeDataFileWithDiff = "large_dataset_with_diff.csv"
 
-  def largeCsv = Csv(asFile(largeDataFile))
-  def largeCsvUnsorted = Csv(asFile(largeDataFileUnsorted))
-  def largeCsvWithDiff = Csv(asFile(largeDataFileWithDiff))
+  def largeCsv = Csv(Before.asFile(largeDataFile))
+  def largeCsvUnsorted = Csv(Before.asFile(largeDataFileUnsorted))
+  def largeCsvWithDiff = Csv(Before.asFile(largeDataFileWithDiff))
 
   val expectedHeader = Row(Array("id", "first_name", "last_name", "dob", "email", "country", "ip_address", "comment", "fee paid"))
   val expectedFirstRow = Row(Array("1", "Louise", "Fernandez", "10/6/2009", "lfernandez@jaxspan.name", "Sudan", "2.165.175.158", "orci vehicula condimentum curabitur in libero ut massa volutpat convallis", "£825877.71"))

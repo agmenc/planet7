@@ -4,6 +4,7 @@ TODO
 
 Update Scala version
 Better CSV parsing, respecting quotes
+Given two locations (directories), diff the files there
 Reduce duplication between Diff and NonSortingDiff
 Illustrated diff, to help during creation of rec scripts. Show each item side-by-side.
 NaiveRowDiffer -> document usage
