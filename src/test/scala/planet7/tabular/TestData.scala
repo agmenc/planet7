@@ -11,7 +11,7 @@ object TestDataFile extends TestData {
 }
 
 object Before extends TestData {
-  def asFile(fileName: String) = new File(s"$base/relational/csv/$fileName")
+  def asFile(fileName: String) = new File(s"$base/tabular/before/$fileName")
 }
 
 object After extends TestData {
