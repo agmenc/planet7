@@ -101,4 +101,47 @@ class DiffSpec extends WordSpec with MustMatchers {
 
     timer.nonSortingDiffer.average must be < timer.sortingDiffer.average
   }
+
+  "We can Diff Csv instances and generate readable output" in {
+    import planet7.Diff
+    import planet7.tabular.CompanyAccountsData._
+
+    val before = Csv(Before.asFile("before.csv"))
+      .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
+      .withMappings(
+        "Postcode" -> postcodeLookupTable,
+        "Company" -> (_.toUpperCase)
+      )
+
+    val after = Csv(After.asFile("after_with_diffs_sorted.csv"))
+      .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
+
+    val diffs: Seq[(Row, Row)] = Diff(before, after, RowDiffer(before.header, "Company ID"))
+
+    // The resulting diffs are yours to play with. Let's group them: missing rows, added rows, or just plain different rows.
+    val summary = diffs.groupBy {
+      case (row, EmptyRow) => "Missing"
+      case (EmptyRow, row) => "Added"
+      case (row1, row2) => "Diffs"
+    }
+
+    // We can Diff rows which have changed. We zip the header information with each row, so that we know the names of the fields which changed.
+    val fieldDifferences = summary("Diffs") map {
+      case (leftRow, rightRow) => NonSortingDiff(before.header.data zip leftRow.data, after.header.data zip rightRow.data, FieldDiffer)
+    }
+
+    // Let's print the name of the field which changed, and the before and after values
+    val readableDiffs = fieldDifferences map (FieldDiffer.prettyPrint(_).mkString(", "))
+    printSummary(summary, readableDiffs)
+    assert(readableDiffs === List(
+      "Postcode: 43205 -> 432666, Company: ENIM SIT AMET INCORPORATED -> ENIM SIT AMET LIMITED",
+      "Postcode: 22656 -> 22756"
+    ))
+  }
+
+  private def printSummary(summary: Map[String, Seq[(Row, Row)]], readableDiffs: Seq[String]) = {
+    println(s"""\nMissing:${summary("Missing").map(_._1).mkString("\n  -", "\n  -", "")}""")
+    println(s"""\nAdded:${summary("Added").map(_._2).mkString("\n  +", "\n  +", "")}""")
+    println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
+  }
 }

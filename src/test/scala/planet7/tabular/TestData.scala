@@ -1,21 +1,23 @@
 package planet7.tabular
 
 import java.io.File
+import scala.language.dynamics
 
-trait TestData {
-  val base = "src/test/resources/planet7"
+object TestData {
+  val base = "src/test/resources/planet7/tabular"
+  def apply(filename: String): File = new File(s"$base/$filename")
 }
 
-object TestDataFile extends TestData {
-  def apply(fileName: String) = Before.asFile(fileName)
+object TestDataFile {
+  def apply(filename: String) = TestData(s"before/$filename")
 }
 
-object Before extends TestData {
-  def asFile(fileName: String) = new File(s"$base/tabular/before/$fileName")
+object Before {
+  def asFile(filename: String) = TestData(s"before/$filename")
 }
 
-object After extends TestData {
-  def asFile(fileName: String) = new File(s"$base/tabular/after/$fileName")
+object After {
+  def asFile(filename: String) = TestData(s"after/$filename")
 }
 
 object CompanyAccountsData {

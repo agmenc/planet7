@@ -2,6 +2,7 @@
 TODO
 ----
 
+Update docs to match new code
 Update Scala version
 Better CSV parsing, respecting quotes
 Given two locations (directories), diff the files there
