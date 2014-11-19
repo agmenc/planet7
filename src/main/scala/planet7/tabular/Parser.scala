@@ -1,8 +1,9 @@
 package planet7.tabular
 
 case class LineParser(delimiter: Char) {
-  private[tabular] def read(aLine: String): Row = ???
-  private[tabular] def write(row: Row): String = ???
+  private val delim = s"$delimiter"
+  private[tabular] def read(line: String): Row = Row(line.split(delim, -1))
+  private[tabular] def write(row: Row): String = row.data.head + row.data.tail.map(_ + delim)
 }
 
 object Parser {

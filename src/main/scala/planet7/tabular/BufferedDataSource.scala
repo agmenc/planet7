@@ -19,7 +19,7 @@ class LineReader(lines: BufferedReader, parser: LineParser) extends Iterator[Row
     val oldLine = line
     line = nextNonEmptyLine
     if (line == null) lines.close()
-    toRow(oldLine)
+    parser.read(oldLine)
   }
 
   private def nextNonEmptyLine = {

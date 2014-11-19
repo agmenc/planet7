@@ -17,8 +17,8 @@ trait DataSourceLoaders {
 
   implicit def fromIterable(it: Iterable[String], parser: LineParser): TabularDataSource = new TabularDataSource {
     private val lines = it.iterator
-    override val header = toRow(lines.next())
-    override def rows = lines map toRow
+    override val header = parser.read(lines.next())
+    override def rows = lines map parser.read
     override def close() = Unit
   }
 
@@ -38,5 +38,5 @@ trait DataSourceLoaders {
   def experimentalFromWholeFile(f: File): TabularDataSource = fromInputStream(new ByteArrayInputStream(Files.readAllBytes(Paths.get(f.toURI))))
 
   // 384 ms. Should only be used on small files, whatever that means
-  def experimentalFromScanner(f: File): TabularDataSource = new ScannerDataSource(f)
+  def experimentalFromScanner(f: File): TabularDataSource = new ScannerDataSource(f, Parser.default)
 }

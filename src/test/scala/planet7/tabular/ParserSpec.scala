@@ -4,9 +4,7 @@ import org.scalatest.{MustMatchers, WordSpec}
 
 class ParserSpec extends  WordSpec with MustMatchers {
   "We can change the delimiter when reading and writing a CSV" in {
-    val data = """Index\tName\tValue
-                 |D\tE\tF
-                 |G\tH\tI""".stripMargin
+    val data = "Index\tName\tValue\nD\tE\tF\nG\tH\tI"
 
 
     val result = """Index-Name-Value

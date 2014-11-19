@@ -25,13 +25,13 @@ trait TabularDataSource extends Closeable {
 
 class NoDataInSourceException(sourceDescription: String) extends RuntimeException(sourceDescription)
 
-class ScannerDataSource(file: File) extends TabularDataSource {
+class ScannerDataSource(file: File, parser: LineParser) extends TabularDataSource {
   private val scanner = new Scanner(Paths.get(file.toURI))
-  override val header = if (scanner.hasNext) toRow(scanner.nextLine()) else throw new NoDataInSourceException(file.getCanonicalPath)
+  override val header = if (scanner.hasNext) parser.read(scanner.nextLine()) else throw new NoDataInSourceException(file.getCanonicalPath)
 
   override def rows = new Iterator[Row] {
     override def hasNext = scanner.hasNext
-    override def next() = if (scanner.hasNext) toRow(scanner.nextLine()) else null
+    override def next() = if (scanner.hasNext) parser.read(scanner.nextLine()) else null
   }
 
   override def close() = scanner.close()
