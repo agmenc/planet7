@@ -6,11 +6,16 @@ import java.nio.charset.Charset
 import java.nio.file.{Paths, Files}
 
 trait DataSourceLoaders {
-  implicit def fromString(s: String): TabularDataSource = new BufferedDataSource(new StringReader(s))
-  implicit def fromFile(f: File): TabularDataSource = new BufferedDataSource(new FileReader(f))
-  implicit def fromInputStream(is: InputStream): TabularDataSource = new BufferedDataSource(new InputStreamReader(is))
+  implicit def fromString(s: String): TabularDataSource = fromString(s, Parser.default)
+  implicit def fromFile(f: File): TabularDataSource = fromFile(f, Parser.default)
+  implicit def fromInputStream(is: InputStream): TabularDataSource = fromInputStream(is, Parser.default)
+  implicit def fromIterable(it: Iterable[String]): TabularDataSource = fromIterable(it, Parser.default)
 
-  implicit def fromIterable(it: Iterable[String]): TabularDataSource = new TabularDataSource {
+  def fromString(s: String, parser: LineParser): TabularDataSource = new BufferedDataSource(new StringReader(s), parser)
+  def fromFile(f: File, parser: LineParser): TabularDataSource = new BufferedDataSource(new FileReader(f), parser)
+  def fromInputStream(is: InputStream, parser: LineParser): TabularDataSource = new BufferedDataSource(new InputStreamReader(is), parser)
+
+  implicit def fromIterable(it: Iterable[String], parser: LineParser): TabularDataSource = new TabularDataSource {
     private val lines = it.iterator
     override val header = toRow(lines.next())
     override def rows = lines map toRow
@@ -26,7 +31,7 @@ trait DataSourceLoaders {
     ch.read(buffer)
     buffer.flip()
     val cb = decoder.decode(buffer)
-    new BufferedDataSource(new CharArrayReader(cb.array()))
+    new BufferedDataSource(new CharArrayReader(cb.array()), Parser.default)
   }
 
   // 255 ms. Should only be used on small files, whatever that means

@@ -22,7 +22,7 @@ class LineReaderSpec extends WordSpec with MustMatchers with MockitoSugar {
     """.stripMargin
 
   "hasNext is false if there are no more non-empty lines to read" in {
-    val lr = new LineReader(lines)
+    val lr = new LineReader(lines, Parser.default)
 
     lr.hasNext must be (true)
     lr.next().toString must be ("one")
@@ -32,7 +32,7 @@ class LineReaderSpec extends WordSpec with MustMatchers with MockitoSugar {
   }
 
   "When the last line is empty, it is ignored by the iterator" in {
-    val lr = new LineReader(lines)
+    val lr = new LineReader(lines, Parser.default)
 
     lr.next().toString must be ("one")
     lr.next().toString must be ("two")
@@ -45,7 +45,7 @@ class LineReaderSpec extends WordSpec with MustMatchers with MockitoSugar {
     val reader = mock[BufferedReader]
     when(reader.readLine()) thenReturn "One line only" thenReturn null
 
-    val lr = new LineReader(reader)
+    val lr = new LineReader(reader, Parser.default)
     lr.next().toString must be ("One line only")
 
     verify(reader).close()

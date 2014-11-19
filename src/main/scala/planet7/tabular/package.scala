@@ -5,7 +5,7 @@ import java.util.Comparator
 package object tabular extends DataSourceLoaders {
   def toRow(line: String) = Row(line.split(",", -1))
 
-  def export(csv: Csv): String = csv.header.toString + "\n" + csv.rows.mkString("\n")
+  def export(csv: Csv, parser: LineParser = Parser.default): String = csv.header.toString + "\n" + csv.rows.mkString("\n")
 
   def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = sort(csv, new RowDiffer(csv.header, fieldComps:_*))
 

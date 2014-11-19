@@ -20,7 +20,7 @@ package planet7.tabular
  * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
  * TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
  */
-case class Csv(header: Row, rows: Iterator[Row], parser: Parser) extends Iterable[Row] {
+case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
 
   def columnStructure(columns: (String, String)*): Csv = {
     val columnXformer = columnXformerFor(columns: _*)
@@ -70,6 +70,4 @@ object Csv {
   }
 
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.rows))
-
-  def apply(header: Row, rows: Iterator[Row]): Csv = Csv(header, rows, Parser.default)
 }

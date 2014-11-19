@@ -6,6 +6,8 @@ import planet7.NonSortingDiff
 
 class CsvSpec extends WordSpec with MustMatchers {
   "We can construct a Csv from a RelationalInputSource, including blank rows" in {
+    import planet7.tabular._
+
     val data = """
                  |
                  |
@@ -24,6 +26,7 @@ class CsvSpec extends WordSpec with MustMatchers {
                           |G,H,I""".stripMargin
 
     val csv = Csv(data)
+
     csv.header.toString mustEqual "Some,Header,Columns"
     export(csv) mustEqual unblankedData
   }
@@ -60,7 +63,7 @@ class CsvSpec extends WordSpec with MustMatchers {
 
   "We can use external parsers such as (the incredibly slow) CsvReader" in {
     import planet7.tabular.LargeDataSet._
-    import planet7.tabular.DataSourceAdapters._
+    import planet7.tabular.CsvReaderDataSource._
 
     val csv = Csv(CSVReader.open(TestDataFile(largeDataFile)))
 

@@ -48,7 +48,7 @@ class CsvPerformanceSpec extends WordSpec with MustMatchers {
 
   // 143 seconds to load 25000 rows, i.e. 1,000 times slower than just reading the file into Csv Rows. Hells bells.
   "Users of the planet7 library can gauge the performance impact of external parsers such as CsvReader" in {
-    import planet7.tabular.DataSourceAdapters._
+    import planet7.tabular.CsvReaderDataSource._
     import planet7.timing._
 
     val timer = new Timer(2)
