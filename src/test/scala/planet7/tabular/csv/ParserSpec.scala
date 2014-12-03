@@ -70,9 +70,11 @@ class ParserSpec extends WordSpec with MustMatchers {
     timer.RegexTwoPassParser.average must be < 40.0
   }
 
-//  "We keep spaces inside quotes, and trim them outside" in {
-//    new RegexTwoPassParser('-').read(""""Index "- " Name " -  "Value-of-thing  " """) mustEqual Row(Array("Index "," Name ","Value-of-thing  "))
-//  }
+  "We keep spaces inside quotes, and trim them outside" in {
+    val input: String = """"Index "- " Name " -some-values-  "Value-of-thing  "-normal-again"""
+    println(input)
+    new RegexTwoPassParser('-').read(input) mustEqual Row(Array("Index "," Name ","some", "values", "Value-of-thing  ", "normal", "again"))
+  }
 
   "Empty quotes become empty elements" in {
     new RegexTwoPassParser('-').read("""foo- ""  -baa""") mustEqual Row(Array("foo","","baa"))

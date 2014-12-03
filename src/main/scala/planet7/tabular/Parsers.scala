@@ -21,17 +21,21 @@ case class DefaultParser(delimiter: Char) extends Parser {
 case class RegexTwoPassParser(delimiter: Char) extends Parser {
   override val delim = s"$delimiter"
 
-  private def wideDelim = s""" *$delimiter *"""
-  private val quotes = s"""$wideDelim{1}\"|\"$wideDelim{1}|^\"|\"$$"""
+  private val quotes = s"""\""""
+  private val wideDelim = s""" *$delimiter *"""
 
   override def read(line: String): Row = {
     def splitEvenItems(y: (String, Int)): Array[String] =
-      if (y._2 % 2 == 0)
-        if (y._1.isEmpty) Array[String]()
-        else y._1.split(wideDelim, -1)
+      if (y._2 % 2 == 0) splitDelimitedString(y._1)
       else Array(y._1)
 
-    Row((line split(quotes, -1) zipWithIndex).flatMap(splitEvenItems))
+    def splitDelimitedString(string: String): Array[String] = {
+      val replaced: String = string.replaceAll(s"^$wideDelim|$wideDelim$$|§", "")
+      if (replaced.isEmpty) Array[String]()
+      else replaced.split(wideDelim, -1)
+    }
+
+    Row((s"§$line§" split(quotes, -1) zipWithIndex) flatMap splitEvenItems)
   }
 
   override def write(row: Row) = row.data map quoteDelims mkString delim
