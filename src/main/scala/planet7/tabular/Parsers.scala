@@ -1,9 +1,5 @@
 package planet7.tabular
 
-import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.util.matching.Regex.{MatchIterator, Match}
-
 trait Parser {
   def delim: String
   def read(line: String): Row = Row(line.split(delim, -1))
