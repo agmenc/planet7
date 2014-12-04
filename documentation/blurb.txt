@@ -1,0 +1,13 @@
+Fun and Profit within the Evil Empire: Scala in Finance
+———————————————————————————
+
+You don’t take a job in finance to explore the boundaries of type theory. But perhaps you should. Brush the boilerplate and bureaucracy away, and banking offers plenty of fun challenges.
+
+Herein lies the problem: how can you focus more on the good stuff? We will present some tools written in Scala that help you get dull tasks out of the way quicker. We use this arsenal to support live production systems, to manage byzantine release bureaucracy, and to test inter-process workflows.
+
+To keep things interesting and concise, we’ll present this as a series of very short talks, with a break for questions after each one. We hope you will begin to see a common ethos linking the talks, as well as seeing some useful tools, written in Scala, aimed at Scala developers.
+
+—————
+Bio:
+
+Chris has served the last ten years of his programming career in finance, as an agile developer and occasional team lead. He started learning Scala at the previous bank, and hopes to continue learning it at the next two or three. Then he wants to retire.

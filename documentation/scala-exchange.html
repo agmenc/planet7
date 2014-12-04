@@ -1,0 +1,209 @@
+<!-- Ghetto Slides. A basic slide deck for the lazy (like me).
+     Feel free to copy, modify, rip-off, etc, but please credit me in the source somewhere.
+     Joe Walnes, http://joewalnes.com -->
+
+<!-- Added backwards navigation and not running off the end support.
+     Paul Allton, paulallton@gmail.com -->
+
+<!-- TODO:
+   add key support back
+-->
+
+<!-- TIP
+    http://htmlpreview.github.io/?https://raw.githubusercontent.com/alltonp/talk/master/se.html
+-->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script src="jquery-2.1.1.min.js"></script>
+  <style>
+    body { color: #000000; background-color: #ffffff; font-family: arial; font-size: 50px; -webkit-user-select: none; }
+    section { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; text-align: center; padding-top: 25px; }
+    t1 { display: block; color: #428bca; font-size: 125%; padding-bottom: 20px;}
+    t2 { color: #999; }
+    pre { margin: 40px; text-align: left; font-family: Andale Mono, Lucida Console, Monaco, fixed, monospace; color: #000000; background-color: #eee;font-size: 30px;border: 1px dashed #999999;padding: 5px 5px 5px 5px; overflow: auto; width: 90%; }
+    img { float:centre; }
+    li { margin: 25px; text-align: left;}
+    li { margin-left: 100px; }
+  </style>
+  <script>
+    $(function(event) {
+      previous = function() {
+        if (currentSection.prev().size() != 0) {
+          currentSection = currentSection.fadeOut().prev().fadeIn();
+        } else {
+          currentSection.fadeOut();
+          currentSection = $('sections').find('section').last().fadeIn();
+        }
+        return false;
+      };
+
+      next = function() {
+        if (currentSection.next().size() != 0) {
+          currentSection = currentSection.fadeOut().next().fadeIn();
+        } else {
+          currentSection.fadeOut();
+          currentSection = $('sections').find('section').first().fadeIn();
+        }
+      };
+
+      //hack right might mouse
+      document.oncontextmenu = previous;
+
+      var startAt = 0 //TODO: read from url?
+      var currentSection = $('sections').find('section').eq(startAt).fadeIn();
+      $('body').bind('click keypress', function(event) {
+        if (event.which == '44' || event.which == '3') { // < or right mouse for previous
+          previous();
+        } else {
+          next();
+        }
+      });
+    });
+
+  </script>
+  <title>??? - ???</title>
+</head>
+<body oncontextmenu="return false;">
+  <img style="float:right; margin: 30px 30px;" src="img/logo.png"/>
+  <sections>
+
+  <section>
+    <!--
+      Hello. Thanks for staying for the end of the conference. Especially if you are just doing it to be polite.
+      We are: Me (Chris), Paul and Franck
+      We're going to talk about hacking your banking gig to make it bearable, or even fun.
+      We've got three short talks, with time for questions, or refreshments, or a pit stop, after each one.
+
+      Now, why? Why would you want to do Scala in a bank?
+
+    -->
+    <img src="programmers_in_banks.jpeg"/>
+    <t1>$cala in Finance</t1>
+    <t2>Chris Agmen-Smith - Paul Allton - Franck Rasolo</t2>
+  </section>
+
+  <section>
+    <!--
+      The reality is more like this:
+        Antiquated hardware
+        Silly clothes
+    -->
+    <img src="programmers_in_real_banks.jpeg" width="600" height="600"/>
+    <br/>
+    "It's been compiling for three days"
+  </section>
+
+  <section>
+    <!--
+      Most of the problems you come across in your working life are people problems - not our forte, so we'll note it, ignore it, and move on.
+      We'll focus on the sort of problems you can solve with technology, Scala technology
+    -->
+    (image of programmer stats)
+  </section>
+
+  <section>
+    <!--
+    Words I hate/Banks have some silly ideas:
+      "Segregation of duties" - developers can't access production - apps, servers or data. What about "you build it, you ship it"?
+                              - the guys who can access it are in China or Brazil, and they are scared of the command line
+      "Raise a ticket" - "Do you have approval to request this approval?"
+      "Test evidence" - the opposite of data mining -> burying data where no-one will ever look at it again
+      "Enterprise solutions" -
+          Enterprise leads to "strategic", leads to "best practice", is the path to "bank standard".
+          The word Enterprise only means something good when it is prefixed with the word "Starship"
+  -->
+    <t1>Banking terminology</t1>
+    <t2>Some special gems</t2>
+    <li>"Segregation of duties"</li>
+    <li>"Raise a ticket"</li>
+    <li>"Test evidence"</li>
+    <li>"Enterprise solutions"</li>
+  </section>
+
+  <section>
+    <!--
+      Against that dark background, we'd like to show you some tools that can make life easier
+      Buzzwords: we've got microservices, we've got Akka, we've even got CSV
+    -->
+    (Some tools and approaches to make things easier)
+  </section>
+
+  <section>
+    <!--
+      We'll try and answer the questions
+    -->
+    <t1>Three important questions:</t1>
+  </section>
+
+  <section>
+    <t1>Three important questions:</t1>
+    <li>Is production working?</li>
+  </section>
+
+  <section>
+    <t1>Three important questions:</t1>
+    <li>Is production working?</li>
+    <li>Is it safe to release my code?</li>
+  </section>
+
+  <section>
+    <t1>Three important questions:</t1>
+    <li>Is production working?</li>
+    <li>Is it safe to release my code?</li>
+    <li>Where's my $#!*ing trade?</li>
+  </section>
+
+  <section>
+    <t1>Introducing Paul Allton ...</t1>
+  </section>
+
+  <section>
+    <t1>Introducing Franck Rasolo ...</t1>
+  </section>
+
+  <section>
+    <t1>Planet7</t1>
+    Reports and reconciliations
+    <br/>
+    How do I know it's safe to release?
+    <br/>
+    <t2>Chris Agmen-Smith</t2>
+  </section>
+
+  <section>
+    <img src="willpower-judges.jpg"/>
+  </section>
+
+  <section>
+    <t1>What type of rec do I want?</t1>
+    <br/>
+    <li>App vs golden source</li>
+    <li>Yesterday vs today</li>
+    <li>Prod code vs next release code</li>
+  </section>
+
+  <section>
+    <t1>Heckle time</t1>
+    <br/>
+    <t2>chris.agmen-smith@email.com</t2>
+    <br/>
+    <t2>paulallton@gmail.com</t2>
+    <br/>
+    <t2>franck.rasolo@gmail.com</t2>
+  </section>
+
+  <section>
+    <t1>Any further questions? Buy us a beer ...</t1>
+    <br/>
+    <t2>chris.agmen-smith@email.com</t2>
+    <br/>
+    <t2>paulallton@gmail.com</t2>
+    <br/>
+    <t2>franck.rasolo@gmail.com</t2>
+  </section>
+
+  </sections>
+</body>
+</html>
