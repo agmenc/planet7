@@ -177,11 +177,43 @@
   </section>
 
   <section>
-    <t1>What type of rec do I want?</t1>
+    <t1>4:00pm on Friday afternoon</t1>
     <br/>
-    <li>App vs golden source</li>
-    <li>Yesterday vs today</li>
-    <li>Prod code vs next release code</li>
+    <t2>Is it safe to release?</t2>
+    <br/>
+    We need an automated proof - a reconciliation
+  </section>
+
+  <section>
+    <li>App data vs golden source - in Prod</li>
+    <li>Yesterday vs today - in Prod</li>
+    <li>Prod code vs next release code - pre-release</li>
+  </section>
+
+  <section>
+    <!--
+      I don't expect you to absorb this diagram, so late in the day ....
+      Instead, just remember the lego blocks and play with them as you like
+      -->
+    <t1>Planet7 - lego for reconciliations and reports</t1>
+    (diagram of a rec)
+  </section>
+
+  <section>
+    <t1>Reading a CSV into a data structure</t1>
+    <pre>
+"Loading CSV Data into a more useful data structure" in {
+  import planet7.tabular._
+
+  val postcodeData = new File("src/test/resources/planet7/tabular/before/postcodes.csv")
+
+  val lookup = Csv(postcodeData).rows.map {
+    case Row(Array(oldCode, newCode)) => oldCode -> newCode.toInt
+  }.toMap
+
+  lookup("A1H 9A4") mustEqual 31951
+}
+    </pre>
   </section>
 
   <section>
