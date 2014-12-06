@@ -44,10 +44,14 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
   def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, rows.map(valuesXformerFor(mappings: _*)))
 
   private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
-    val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => header.data.indexOf(column) -> mapper }(collection.breakOut)
+    def indexOf(column: String): Int = header.data.indexOf(column) match {
+      case notFound if notFound < 0 => throw new MappingException(s"Cannot apply mapping. Column '$column' does not exist")
+      case ok => ok
+    }
 
-    // TODO - CAS - 21/08/2014 - Mutates the row.data Array. Find another way.
-    desiredMappings.foreach{
+    val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => indexOf(column) -> mapper }(collection.breakOut)
+
+    desiredMappings foreach {
       case (index, mapper) => row.data(index) = mapper(row.data(index))
     }
 
@@ -71,3 +75,5 @@ object Csv {
 
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.rows))
 }
+
+class MappingException(description: String) extends RuntimeException(description)

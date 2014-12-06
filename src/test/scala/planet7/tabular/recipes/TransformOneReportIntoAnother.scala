@@ -7,7 +7,6 @@ import org.scalatest.{MustMatchers, WordSpec}
 class TransformOneReportIntoAnother extends WordSpec with MustMatchers {
 
   import planet7.tabular._
-  import planet7.Diff
 
   val postcodeLookupTable = Csv(new File("src/test/resources/planet7/tabular/before/postcodes.csv")).rows.map {
     case Row(Array(oldCode, newCode)) => oldCode -> newCode
@@ -24,12 +23,10 @@ class TransformOneReportIntoAnother extends WordSpec with MustMatchers {
         "Postcode" -> "Zip code")           // Rename
       .withMappings(
         "Zip code" -> postcodeLookupTable,  // Map postcodes to zip codes
-        "Surname" -> (_.toUpperCase),       // Make all surnames upper case
+        "Company" -> (_.toUpperCase),       // Make all company names upper case
         "Fee owing" -> (_ => "0.00")        // Add a default value for "Fee owing" of 0.00
       )
 
-    export(output).lines.find(_.contains("Gravida")) mustEqual Some("Monkeys")
-    output.rows.find{ case Row(Array(company, _, _, _)) if company == "Gravida Foundation" => true } mustEqual Row(Array())
-//    Diff(left.rows, right.rows, RowDiffer(left.header, "ID"))
+    export(output).lines.find(_.contains("GRAVIDA")) mustEqual Some("GRAVIDA FOUNDATION,TR729188509373842450961594,0.00,39376")
   }
 }
