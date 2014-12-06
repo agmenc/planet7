@@ -20,17 +20,11 @@ object After {
   def asFile(filename: String) = TestData(s"after/$filename")
 }
 
-
-
 object CompanyAccountsData {
-  def postcodeLookupTable = Map((Csv(Before.asFile("postcodes.csv")).rows map toTuple).to[Seq]:_*)
-  private def toTuple(row: Row): (String, String) = row.data.to[List] match {
-    case beforeValue :: afterValue :: Nil => beforeValue -> afterValue
-    case _ => ???
-  }
+  val postcodeLookupTable = Csv(new File("src/test/resources/planet7/tabular/before/postcodes.csv")).rows.map {
+    case Row(Array(oldCode, newCode)) => oldCode -> newCode
+  }.toMap
 }
-
-
 
 object BeforeAndAfterData {
   import CompanyAccountsData._
