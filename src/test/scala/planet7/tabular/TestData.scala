@@ -20,6 +20,8 @@ object After {
   def asFile(filename: String) = TestData(s"after/$filename")
 }
 
+
+
 object CompanyAccountsData {
   def postcodeLookupTable = Map((Csv(Before.asFile("postcodes.csv")).rows map toTuple).to[Seq]:_*)
   private def toTuple(row: Row): (String, String) = row.data.to[List] match {
@@ -27,6 +29,8 @@ object CompanyAccountsData {
     case _ => ???
   }
 }
+
+
 
 object BeforeAndAfterData {
   import CompanyAccountsData._

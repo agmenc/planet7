@@ -5,8 +5,7 @@ import java.io.File
 import org.scalatest.{MustMatchers, WordSpec}
 
 class ReadDataFromACsv extends WordSpec with MustMatchers {
-
-  "Loading CSV Data into a more useful data structure" in {
+  "How to load CSV Data into a more useful data structure" in {
     import planet7.tabular._
 
     val postcodeData = new File("src/test/resources/planet7/tabular/before/postcodes.csv")

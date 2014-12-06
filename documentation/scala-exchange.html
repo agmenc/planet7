@@ -101,61 +101,6 @@
   </section>
 
   <section>
-    <!--
-
-    Not going to ask you to understand CMTransformers
-      - Philosophy
-      - simple Scala tools that you can deploy right now, inside or outside of banking
-
-    -->
-    <!--
-      Most of the problems you come across in your working life are people problems - not our forte, so we'll note it, ignore it, and move on.
-      We'll focus on the sort of problems you can solve with technology, Scala technology
-    -->
-    (image of programmer stats)
-  </section>
-
-  <section>
-    <!--
-    Words I hate/Banks have some silly ideas:
-      "Segregation of duties" - developers can't access production - apps, servers or data. What about "you build it, you ship it"?
-                              - the guys who can access it are in China or Brazil, and they are scared of the command line
-      "Raise a ticket" - "Do you have approval to request this approval?"
-      "Test evidence" - the opposite of data mining -> burying data where no-one will ever look at it again
-      "Enterprise solutions" -
-          Enterprise leads to "strategic", leads to "best practice", is the path to "bank standard".
-          The word Enterprise only means something good when it is prefixed with the word "Starship"
-  -->
-    <t1>Banking terminology</t1>
-    <t2>Some special gems</t2>
-    <li>"Segregation of duties"</li>
-    <li>"Test evidence"</li>
-    <li>"Enterprise"</li>
-  </section>
-
-  <section>
-    <!--
-    That's the sort of env we work in - and we've been there for quite some time.
-    We're not nuts, yet. We've developed some coping mechanisms we'd like to share.
-    We work on a Scala project that has been in production for over two years
-    We release every week
-    We don't branch
-    We split to microservices, but for a while didn't have integration tests
-    -->
-  </section>
-
-  <section>
-    <!--
-      Against that dark background, we'd like to show you some tools that can make life easier
-      Buzzwords: we've got microservices, we've got Akka, we've even got CSV
-    -->
-    (Some tools and approaches to make things easier)
-  </section>
-
-  <section>
-    <!--
-      We'll try and answer the questions
-    -->
     <t1>Three important questions:</t1>
   </section>
 
@@ -178,11 +123,85 @@
   </section>
 
   <section>
-    <t1>Introducing Paul Allton ...</t1>
+    <!--
+    Words I hate/Banks have some silly ideas:
+      "Segregation of duties" - developers can't access production - apps, servers or data. What about "you build it, you ship it"?
+                              - the guys who can access it are in China or Brazil, and they are scared of the command line
+      "Raise a ticket" - "Do you have approval to request this approval?" - if you are into systems thinking, then you are thinking that this system: it's a bad one
+      "Test evidence" - the opposite of data mining -> burying data where no-one will ever look at it again
+      "Enterprise solutions" -
+          Enterprise leads to "strategic", leads to "best practice", is the path to "bank standard".
+          The word Enterprise only means something good when it is prefixed with the word "Starship"
+  -->
+    <t1>Banking terminology</t1>
+    <t2>Some special gems</t2>
+    <li>"Segregation of duties"</li>
+    <li>"Test evidence"</li>
+    <li>"Enterprise"</li>
   </section>
 
   <section>
-    <t1>Introducing Franck Rasolo ...</t1>
+    <img src="enterprise.jpg" width="800px" height="600px"/>
+  </section>
+
+  <section>
+    <t1>The Bank</t1>
+    Hit points          &infin;
+    Strength          100
+    Dexterity           1
+    Intelligence      -12
+    Malice        endless
+    Loyalty             0
+  </section>
+
+  <section>
+    <!--
+      Up against that banking madness, what do we have?
+
+      Most of the problems you come across in your working life are people problems - often not our forte, so I'll say this once, then move on:
+        Not every problem is best solved by technology.
+      We'll focus on the sort of problems you can solve with technology, Scala technology
+    -->
+    <t1>The Programmer</t1>
+    Hit points            7
+    Strength              5
+    Dexterity            18
+    Intelligence         24
+    <span style="color: yellow">People skills         1</span>
+    Loyalty       misplaced
+  </section>
+
+  <section>
+    <!--
+    Not going to ask you to understand the finer points of the type system, or
+      - Philosophy
+      - simple Scala tools that you can deploy right now, inside or outside of banking
+
+    That's the sort of env we work in - and we've been there for quite some time.
+    We're not nuts, yet. We've developed some coping mechanisms we'd like to share.
+    We work on a Scala project that has been in production for over two years
+    We release every week
+    We don't branch
+    We split to microservices, but for a while didn't have integration tests
+    -->
+  </section>
+
+  <section>
+    <!--
+      Against that dark background, we'd like to show you some tools that can make life easier
+      Buzzwords: we've got microservices, we've got Akka, we've even got CSV
+    -->
+    <li>Paul Allton - Shoreditch - more than a microservices integration testing tool and production monitor</li>
+    <li>Franck Rasolo - Silky - an approach to instrumenting Akka that can help you visualise workflows - and doesn't-workflows</li>
+    <li>Chris Agmen-Smith - Planet7 - a reporting and reconciliation tool that makes mundane tasks quicker (but still mundane)</li>
+  </section>
+
+  <section>
+    <t1>Paul - Shoreditch</t1>
+  </section>
+
+  <section>
+    <t1>Franck - Silky</t1>
   </section>
 
   <section>
@@ -232,12 +251,34 @@
 
   <section>
     <t1>Reading a CSV into a data structure</t1>
+    <br/>
+    <table width="70%">
+      <tr>
+        <td>(input)</td>
+        <td>(output)</td>
+      </tr>
+    </table>
+  </section>
+
+  <section>
+    <t1>Reading a CSV into a data structure</t1>
     <iframe src="planet7/tabular/recipes/ReadDataFromACsv.scala.html" width="95%" height="95%"></iframe>
   </section>
 
   <section>
     <t1>Convert one report format into another</t1>
     <br/>(pretty diagram)
+  </section>
+
+  <section>
+    <t1>Transform one report format into another</t1>
+    <br/>
+    <table width="70%">
+      <tr>
+        <td>(input)</td>
+        <td>(output)</td>
+      </tr>
+    </table>
   </section>
 
   <section>
@@ -250,6 +291,17 @@ Some code
   <section>
     <t1>Merge two reports</t1>
     <br/>(pretty diagram)
+  </section>
+
+  <section>
+    <t1>Merge two reports</t1>
+    <br/>
+    <table width="70%">
+      <tr>
+        <td>(input)</td>
+        <td>(output)</td>
+      </tr>
+    </table>
   </section>
 
   <section>
@@ -262,6 +314,17 @@ Some code
   <section>
     <t1>Diff two datasets</t1>
     <br/>(pretty diagram)
+  </section>
+
+  <section>
+    <t1>Diff two datasets</t1>
+    <br/>
+    <table width="70%">
+      <tr>
+        <td>(input)</td>
+        <td>(output)</td>
+      </tr>
+    </table>
   </section>
 
   <section>
@@ -274,6 +337,17 @@ Some code
   <section>
     <t1>Diff two report formats</t1>
     <br/>(pretty diagram)
+  </section>
+
+  <section>
+    <t1>Diff two report formats</t1>
+    <br/>
+    <table width="70%">
+      <tr>
+        <td>(input)</td>
+        <td>(output)</td>
+      </tr>
+    </table>
   </section>
 
   <section>

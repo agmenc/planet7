@@ -61,7 +61,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     export(csv) mustEqual result
   }
 
-  "We can use external parsers such as (the incredibly slow) CsvReader" in {
+  "We can use external readers as DataSources, such as (the incredibly slow) CsvReader" in {
     import planet7.tabular.LargeDataSet._
     import planet7.tabular.CsvReaderDataSource._
 
