@@ -3,60 +3,35 @@
 <title>TransformOneReportIntoAnother.scala</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style type="text/css">
+body { font-size: 25px; }
 .ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
 .s0 { color: rgb(255,119,61); }
 .s1 { color: rgb(169,183,198); }
 .s2 { color: rgb(204,120,50); }
 .s3 { color: rgb(0,154,0); }
-.s4 { color: rgb(62,74,227); }
-.s5 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(128,128,128); font-style: italic; }
 </style>
 </head>
 <BODY BGCOLOR="#1e1e1e">
-<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
-<TR><TD><CENTER>
-<FONT FACE="Arial, Helvetica" COLOR="#000000">
-TransformOneReportIntoAnother.scala</FONT>
-</center></TD></TR></TABLE>
 <pre>
 
-<span class="s0">package </span><span class="s1">planet7.tabular.recipes 
+<span class="s3">&quot;How to transform an input format into the desired output format&quot; </span><span class="s1">in {
+    </span><span class="s0">val </span><span class="s1">input = </span><span class="s0">new </span><span class="s1">File(</span><span class="s3">&quot;src/test/resources/planet7/tabular/before/before.csv&quot;</span><span class="s1">) 
  
-</span><span class="s0">import </span><span class="s1">java.io.File 
- 
-</span><span class="s0">import </span><span class="s1">org.scalatest.{MustMatchers</span><span class="s2">, </span><span class="s1">WordSpec} 
- 
-</span><span class="s0">class </span><span class="s1">TransformOneReportIntoAnother </span><span class="s0">extends </span><span class="s1">WordSpec </span><span class="s0">with </span><span class="s1">MustMatchers { 
- 
-  </span><span class="s3">&quot;How to transform an input format into the desired output format&quot; </span><span class="s1">in { 
-    </span><span class="s0">import </span><span class="s1">planet7.tabular._ 
- 
-    </span><span class="s0">val </span><span class="s1">postcodeData = </span><span class="s0">new </span><span class="s1">File(</span><span class="s3">&quot;src/test/resources/planet7/tabular/before/postcodes.csv&quot;</span><span class="s1">) 
- 
-    </span><span class="s0">val </span><span class="s1">lookup = Csv(postcodeData).rows.map { 
-      </span><span class="s0">case </span><span class="s1">Row(Array(oldCode</span><span class="s2">, </span><span class="s1">newCode)) =&gt; oldCode -&gt; newCode.toInt 
-    }.toMap 
- 
-    lookup(</span><span class="s3">&quot;A1H 9A4&quot;</span><span class="s1">) mustEqual </span><span class="s4">31951</span><span class="s1"> 
- 
-    </span><span class="s0">import </span><span class="s1">planet7.tabular.CompanyAccountsData._ 
- 
-    </span><span class="s5">// CSV file with header: First name,Surname,Company,Company account,Postcode,Pet names</span><span class="s1"> 
-    </span><span class="s0">val </span><span class="s1">someFile = TestDataFile(</span><span class="s3">&quot;before.csv&quot;</span><span class="s1">) 
- 
-    </span><span class="s5">// Retain only three of the original columns, in a different order, renaming</span><span class="s1"> 
-    </span><span class="s5">// &quot;Postcode&quot; to &quot;Zip code&quot;, and adding &quot;Fee owing&quot;</span><span class="s1"> 
-    </span><span class="s0">val </span><span class="s1">reshapedCsv = Csv(someFile) 
-      .columnStructure(</span><span class="s3">&quot;Surname&quot;</span><span class="s2">, </span><span class="s3">&quot;First name&quot;</span><span class="s2">, </span><span class="s3">&quot;Postcode&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Zip code&quot;</span><span class="s2">, </span><span class="s3">&quot;Fee owing&quot;</span><span class="s1">) 
+    </span><span class="s0">val </span><span class="s1">output = Csv(input) 
+      .columnStructure( 
+        </span><span class="s3">&quot;Company&quot;</span><span class="s2">,                          </span><span class="s4">// Retain</span><span class="s1"> 
+        </span><span class="s3">&quot;Company account&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Company ID&quot;</span><span class="s2">,  </span><span class="s4">// Rename</span><span class="s1"> 
+        </span><span class="s3">&quot;Fee owing&quot;</span><span class="s2">,                        </span><span class="s4">// Add new column</span><span class="s1"> 
+        </span><span class="s3">&quot;Postcode&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Zip code&quot;</span><span class="s1">)           </span><span class="s4">// Rename</span><span class="s1"> 
       .withMappings( 
-        </span><span class="s3">&quot;Zip code&quot; </span><span class="s1">-&gt; postcodeLookupTable</span><span class="s2">,  </span><span class="s5">// Map the old postcodes to zip codes, using a Map</span><span class="s1"> 
-        </span><span class="s3">&quot;Surname&quot; </span><span class="s1">-&gt; (_.toUpperCase)</span><span class="s2">,       </span><span class="s5">// Make all surnames upper case</span><span class="s1"> 
-        </span><span class="s3">&quot;Fee owing&quot; </span><span class="s1">-&gt; (_ =&gt; </span><span class="s3">&quot;0.00&quot;</span><span class="s1">)        </span><span class="s5">// Add a default value for &quot;Fee owing&quot; of 0.00</span><span class="s1"> 
+        </span><span class="s3">&quot;Zip code&quot; </span><span class="s1">-&gt; postcodeLookupTable</span><span class="s2">,  </span><span class="s4">// Map postcodes to zip codes</span><span class="s1"> 
+        </span><span class="s3">&quot;Company&quot; </span><span class="s1">-&gt; (_.toUpperCase)</span><span class="s2">,       </span><span class="s4">// Make all company names upper case</span><span class="s1"> 
+        </span><span class="s3">&quot;Fee owing&quot; </span><span class="s1">-&gt; (_ =&gt; </span><span class="s3">&quot;0.00&quot;</span><span class="s1">)        </span><span class="s4">// Add a default value for &quot;Fee owing&quot; of 0.00</span><span class="s1"> 
       ) 
  
-    </span><span class="s5">// Now convert the data to your data model, or export to a feed, or reconcile against another source, etc.</span><span class="s1"> 
-    </span><span class="s5">// reshapedCsv.rows map ( ... )</span><span class="s1"> 
+    export(output).lines.find(_.contains(</span><span class="s3">&quot;GRAVIDA&quot;</span><span class="s1">)) mustEqual Some(</span><span class="s3">&quot;GRAVIDA FOUNDATION,TR729188509373842450961594,0.00,39376&quot;</span><span class="s1">) 
   } 
-}</span></pre>
+</span></pre>
 </body>
 </html>

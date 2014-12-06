@@ -18,6 +18,7 @@
 <head>
   <script src="jquery-2.1.1.min.js"></script>
   <style>
+    iframe { border: none }
     body { color: #ffffff; background-color: #000000; font-family: arial; font-size: 50px; -webkit-user-select: none; }
     section { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; text-align: center; padding-top: 25px; }
     t1 { display: block; color: #428bca; font-size: 125%; padding-bottom: 20px;}
@@ -192,7 +193,7 @@
       Buzzwords: we've got microservices, we've got Akka, we've even got CSV
     -->
     <li>Paul Allton - Shoreditch - more than a microservices integration testing tool and production monitor</li>
-    <li>Franck Rasolo - Silky - an approach to instrumenting Akka that can help you visualise workflows - and doesn't-workflows</li>
+    <li>Franck Rasolo - Silky - an approach to instrumenting Akka that can help you visualise workflows - and it-doesn't-workflows</li>
     <li>Chris Agmen-Smith - Planet7 - a reporting and reconciliation tool that makes mundane tasks quicker (but still mundane)</li>
   </section>
 
@@ -224,9 +225,14 @@
     -->
     <t1>4:00pm on Friday afternoon</t1>
     <br/>
+    <br/>
     <t2>Is it safe to release this week's code?</t2>
     <br/>
+    <br/>
     We need an automated proof - a reconciliation
+    <br/>
+    <br/>
+    Run the new code and production code against the same inputs and diff the results
   </section>
 
   <section>
@@ -266,7 +272,7 @@
   </section>
 
   <section>
-    <t1>Convert one report format into another</t1>
+    <t1>Transform one report format into another</t1>
     <br/>(pretty diagram)
   </section>
 
@@ -282,10 +288,8 @@
   </section>
 
   <section>
-    <t1>Convert one report format into another</t1>
-    <pre>
-Some code
-    </pre>
+    <t1>Transform one report format into another</t1>
+    <iframe src="planet7/tabular/recipes/TransformOneReportIntoAnother.scala.html" width="95%" height="95%"></iframe>
   </section>
 
   <section>
