@@ -9,8 +9,10 @@
    add key support back
 -->
 
-<!-- TIP
-    http://htmlpreview.github.io/?https://raw.githubusercontent.com/alltonp/talk/master/se.html
+<!--
+    View on Github - http://htmlpreview.github.io/?https://raw.githubusercontent.com/agmenc/planet7/master/documentation/scala-exchange.html
+    Draw diagrams online - https://www.draw.io/
+    Invert colours in PNG diagrams - http://www.converthub.com/invert-colors/
 -->
 
 <!DOCTYPE HTML>
@@ -19,6 +21,7 @@
   <script src="jquery-2.1.1.min.js"></script>
   <style>
     iframe { border: none }
+    pre.csv { font-size: 20px }
     td.l { text-align: left }
     td.r { text-align: right }
     table { margin-left:auto; margin-right:auto; }
@@ -210,6 +213,9 @@
 
   <section>
     <!--
+    Against that dark background, we'd like to show you some tools that can make life easier
+    Buzzwords: we've got microservices, we've got Akka, we've even got CSV
+
     Not going to ask you to understand the finer points of the type system, or
       - Philosophy
       - simple Scala tools that you can deploy right now, inside or outside of banking
@@ -224,10 +230,6 @@
   </section>
 
   <section>
-    <!--
-      Against that dark background, we'd like to show you some tools that can make life easier
-      Buzzwords: we've got microservices, we've got Akka, we've even got CSV
-    -->
     <li>Paul Allton - Shoreditch - more than a microservices integration testing tool and production monitor</li>
     <li>Franck Rasolo - Silky - an approach to instrumenting Akka that can help you visualise workflows - and it-doesn't-workflows</li>
     <li>Chris Agmen-Smith - Planet7 - a reporting and reconciliation tool that makes mundane tasks quicker (but still mundane)</li>
@@ -235,22 +237,58 @@
 
   <section>
     <t1>Paul - Shoreditch</t1>
-  </section>
-
-  <section>
+    <br/>
+    <br/>
+    <br/>
     <t1>Franck - Silky</t1>
   </section>
 
   <section>
+    <!--
+      CSV - a well-known abstraction - doesn't need to be modelled any further!
+      Planet7 - lego for reports and reconciliations
+      -->
     <t1>Planet7</t1>
     <br/>
     Reports and reconciliations
     <br/>
     <br/>
-    How do I know it's safe to release?
+    Banking bread and butter
     <br/>
     <br/>
     <t2>Chris Agmen-Smith</t2>
+  </section>
+
+  <section>
+    <t1>Transform one report format into another</t1>
+    <br/>
+    <img src="Planet7_Transform.png"/>
+  </section>
+
+  <section>
+    <t1>Transform one report format into another</t1>
+    <pre class="csv">
+First name,Surname,Company,Company account,Postcode,Pet names
+Chastity,Hayes,Auctor Non Feugiat Corporation,NL83ZWAJ4204089617,A5T 3G1,"Paula, Imelda, Rooney, Bruno"
+Lois,Ayers,Sit Industries,BE14688500072856,W8F 0J1,"Joseph, Irma, Ursula, Jordan"
+Acton,Campbell,Rutrum Non PC,AL47992650115975242309412187,U0G 0H2,"Tatyana, Linda, Leo, Cole"
+Emma,Hogan,Nunc Sit Amet Foundation,NO6641790931190,U8E 4I3,"Moses, Wanda, Naomi, Jamalia"
+Denton,Klein,Ante Ltd,GB77DWXH12303574957231,D4N 2K1,"Holly, Carissa, Sheila, Sylvia"
+</pre>
+    <img src="down_arrow.png">
+    <pre class="csv">
+Company,Company ID,Fee owing,Zip code
+AUCTOR NON FEUGIAT CORPORATION,NL83ZWAJ4204089617,0.00,67608
+SIT INDUSTRIES,BE14688500072856,0.00,15840
+RUTRUM NON PC,AL47992650115975242309412187,0.00,74464
+NUNC SIT AMET FOUNDATION,NO6641790931190,0.00,70835
+ANTE LTD,GB77DWXH12303574957231,0.00,78121
+</pre>
+  </section>
+
+  <section>
+    <t1>Transform one report format into another</t1>
+    <iframe src="planet7/tabular/recipes/TransformOneReportIntoAnother.scala.html" width="95%" height="95%"></iframe>
   </section>
 
   <section>
@@ -272,32 +310,6 @@
     <br/>
     <br/>
     Run the new code and production code against the same inputs and diff the results
-  </section>
-
-  <section>
-    <!--
-      CSV - a well-known abstraction - doesn't need to be modelled any further!
-      Planet7 - lego for reports and reconciliations
-      -->
-    <t1>Transform one report format into another</t1>
-    <br/>
-    <img src="Planet7_Transform.png"/>
-  </section>
-
-  <section>
-    <t1>Transform one report format into another</t1>
-    <br/>
-    <table>
-      <tr>
-        <td>(input)</td>
-        <td>(output)</td>
-      </tr>
-    </table>
-  </section>
-
-  <section>
-    <t1>Transform one report format into another</t1>
-    <iframe src="planet7/tabular/recipes/TransformOneReportIntoAnother.scala.html" width="95%" height="95%"></iframe>
   </section>
 
   <section>
@@ -350,28 +362,22 @@
   </section>
 
   <section>
-    <t1>Heckle time</t1>
     <br/>
-    <t2>chris.agmen-smith@email.com</t2>
-    <br/>
-    <br/>
+    <t1>Shoreditch</t1>
     <t2>paulallton@gmail.com</t2>
     <br/>
     <br/>
+    <t1>Silky</t1>
     <t2>franck.rasolo@gmail.com</t2>
+    <br/>
+    <br/>
+    <t1>Planet7</t1>
+    <t2>chris.agmen-smith@email.com</t2>
+    https://github.com/agmenc/planet7
   </section>
 
   <section>
     <t1>Any further questions? Buy us a beer ...</t1>
-    <br/>
-    <t2>chris.agmen-smith@email.com</t2>
-    <br/>
-    <br/>
-    <t2>paulallton@gmail.com</t2>
-    <br/>
-    <br/>
-    <t2>franck.rasolo@gmail.com</t2>
-    <br/>
     <br/>
 
     <!-- TODO -->

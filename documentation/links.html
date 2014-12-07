@@ -1,0 +1,97 @@
+<!-- Ghetto Slides. A basic slide deck for the lazy (like me).
+     Feel free to copy, modify, rip-off, etc, but please credit me in the source somewhere.
+     Joe Walnes, http://joewalnes.com -->
+
+<!-- Added backwards navigation and not running off the end support.
+     Paul Allton, paulallton@gmail.com -->
+
+<!-- TODO:
+   add key support back
+-->
+
+<!--
+    View on Github - http://htmlpreview.github.io/?https://raw.githubusercontent.com/agmenc/planet7/master/documentation/links.html
+    Draw diagrams online - https://www.draw.io/
+    Invert colours in PNG diagrams - http://www.converthub.com/invert-colors/
+-->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script src="jquery-2.1.1.min.js"></script>
+  <style>
+    iframe { border: none }
+    pre.csv { font-size: 20px }
+    td.l { text-align: left }
+    td.r { text-align: right }
+    table { margin-left:auto; margin-right:auto; }
+    body { color: #ffffff; background-color: #000000; font-family: arial; font-size: 50px; -webkit-user-select: none; }
+
+    section { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; text-align: center; padding-top: 25px; }
+    t1 { display: block; color: #428bca; font-size: 125%; padding-bottom: 20px;}
+    t2 { color: #999; }
+    pre { margin: 40px; text-align: left; font-family: Andale Mono, Lucida Console, Monaco, fixed, monospace; color: #000000; background-color: #eee;font-size: 30px;border: 1px dashed #999999;padding: 5px 5px 5px 5px; overflow: auto; width: 90%; }
+    img { float:centre; }
+    li { margin: 25px; text-align: left;}
+    li { margin-left: 100px; }
+  </style>
+  <script>
+    $(function(event) {
+      previous = function() {
+        if (currentSection.prev().size() != 0) {
+          currentSection = currentSection.fadeOut().prev().fadeIn();
+        } else {
+          currentSection.fadeOut();
+          currentSection = $('sections').find('section').last().fadeIn();
+        }
+        return false;
+      };
+
+      next = function() {
+        if (currentSection.next().size() != 0) {
+          currentSection = currentSection.fadeOut().next().fadeIn();
+        } else {
+          currentSection.fadeOut();
+          currentSection = $('sections').find('section').first().fadeIn();
+        }
+      };
+
+      //hack right might mouse
+      document.oncontextmenu = previous;
+
+      var startAt = 0 //TODO: read from url?
+      var currentSection = $('sections').find('section').eq(startAt).fadeIn();
+      $('body').bind('click keypress', function(event) {
+        if (event.which == '44' || event.which == '3') { // < or right mouse for previous
+          previous();
+        } else {
+          next();
+        }
+      });
+    });
+
+  </script>
+  <title>Scala in Finance</title>
+</head>
+<body oncontextmenu="return false;">
+  <!--<img style="float:right; margin: 30px 30px;" src="img/logo.png"/>-->
+  <sections>
+
+  <section>
+    <br/>
+    <t1>Shoreditch</t1>
+    <t2>paulallton@gmail.com</t2>
+    <br/>
+    <br/>
+    <t1>Silky</t1>
+    <t2>franck.rasolo@gmail.com</t2>
+    <br/>
+    <br/>
+    <t1>Planet7</t1>
+    <t2>chris.agmen-smith@email.com</t2>
+    https://github.com/agmenc/planet7
+  </section>
+
+  </sections>
+</body>
+</html>
