@@ -13,6 +13,7 @@
     View on Github - http://htmlpreview.github.io/?https://raw.githubusercontent.com/agmenc/planet7/master/documentation/scala-exchange.html
     Draw diagrams online - https://www.draw.io/
     Invert colours in PNG diagrams - http://www.converthub.com/invert-colors/
+    QR codes - http://www.qrstuff.com/
 -->
 
 <!DOCTYPE HTML>
@@ -227,20 +228,22 @@
     We don't branch
     We split to microservices, but for a while didn't have integration tests
     -->
+    <br/>
+    <t1>Shoreditch - Paul Allton</t1>
+    <t2>Is prod working? Is it safe to release?</t2>
+    <br/>
+    <br/>
+    <t1>Silky - Franck Rasolo</t1>
+    <t2>Where's my trade?</t2>
+    <br/>
+    <br/>
+    <t1>Planet7 - Chris Agmen-Smith</t1>
+    <t2>Is it safe to release?</t2>
+    &nbsp;
   </section>
 
   <section>
-    <li>Paul Allton - Shoreditch - more than a microservices integration testing tool and production monitor</li>
-    <li>Franck Rasolo - Silky - an approach to instrumenting Akka that can help you visualise workflows - and it-doesn't-workflows</li>
-    <li>Chris Agmen-Smith - Planet7 - a reporting and reconciliation tool that makes mundane tasks quicker (but still mundane)</li>
-  </section>
-
-  <section>
-    <t1>Paul - Shoreditch</t1>
-    <br/>
-    <br/>
-    <br/>
-    <t1>Franck - Silky</t1>
+    <t1>(Paul and Franck's talks)</t1>
   </section>
 
   <section>
@@ -309,7 +312,7 @@ ANTE LTD,GB77DWXH12303574957231,0.00,78121
     We need an automated proof - a reconciliation
     <br/>
     <br/>
-    Run the new code and production code against the same inputs and diff the results
+    Run the new code over input data, and compare with a snapshot from prod code
   </section>
 
   <section>
@@ -331,34 +334,25 @@ ANTE LTD,GB77DWXH12303574957231,0.00,78121
   <section>
     <t1>Diff two report formats</t1>
     <br/>
-    <table width="70%">
-      <tr>
-        <td>(input)</td>
-        <td>(output)</td>
-      </tr>
-    </table>
+<pre>
+Missing:
+  -DIAM AT CONSULTING,SK8301832755700851961326,Quincy,Wiley,18490
+  -DUIS LLP,RO60UNOE2543431673005273,Ursa,Rosales,50786
+  -VULPUTATE POSUERE VULPUTATE FOUNDATION,BE04833865689818,Mechelle,Rush,74710
+  -A COMPANY,BA456552538671750511,Kameko,Todd,23865
+
+Added:
+  +VULPUTATE POSUERE VULPUTATE FOUNDATION,BE04833815689818,Mechelle,Rush,74710
+
+Diffs:
+  ~Postcode: 43205 -> 432666, Company: ENIM SIT AMET INCORPORATED -> ENIM SIT AMET LIMITED
+  ~Postcode: 22656 -> 22756
+</pre>
   </section>
 
   <section>
     <t1>Other featurelets</t1>
     <iframe src="planet7/tabular/recipes/OtherFeaturelets.scala.html" width="95%" height="95%"></iframe>
-  </section>
-
-  <section>
-    <t1>https://github.com/agmenc/planet7</t1>
-    <br/>
-    <br/>
-    <t1>http://www.mockaroo.com/</t1>
-    <t2>Generate random test data in CSV, JSON, SQL, and Excel</t2>
-  </section>
-
-  <section>
-    (diagram - three overlapping problems, three overlapping tools)
-    <!--
-    Shoreditch - does it work
-    Silky - where's my trade
-    Planet7 - can I release
-    -->
   </section>
 
   <section>
@@ -378,10 +372,7 @@ ANTE LTD,GB77DWXH12303574957231,0.00,78121
 
   <section>
     <t1>Any further questions? Buy us a beer ...</t1>
-    <br/>
-
-    <!-- TODO -->
-    (QR code to project links and email addresses)
+    <img src="qrcode.26465536.png"/>
   </section>
 
   </sections>

@@ -73,6 +73,7 @@ object Csv {
     Csv(dataSource.header, dataSource.rows)
   }
 
+  // TODO - CAS - 07/12/14 - Check all CSVs have the same header
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.rows))
 }
 
