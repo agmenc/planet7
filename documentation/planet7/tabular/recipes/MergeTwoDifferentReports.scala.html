@@ -15,23 +15,11 @@ body { font-size: 25px; }
 <BODY BGCOLOR="#1e1e1e">
 
 <pre>
-<span class="s3">&quot;Convert different formats into a canonical format, and merge&quot; </span><span class="s1">in {
-    </span><span class="s0">import </span><span class="s1">planet7.tabular._ 
- 
-    </span><span class="s0">val </span><span class="s1">oldFormat = </span><span class="s0">new </span><span class="s1">File(</span><span class="s3">&quot;src/test/resources/planet7/tabular/before/old_company_format.csv&quot;</span><span class="s1">) 
-    </span><span class="s0">val </span><span class="s1">newFormat = </span><span class="s0">new </span><span class="s1">File(</span><span class="s3">&quot;src/test/resources/planet7/tabular/after/new_company_format.csv&quot;</span><span class="s1">) 
- 
-    </span><span class="s0">val </span><span class="s1">oldFormatRemastered = Csv(oldFormat) 
-      .columnStructure(</span><span class="s3">&quot;Company&quot;</span><span class="s2">, </span><span class="s3">&quot;Company account&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Company ID&quot;</span><span class="s2">, </span><span class="s3">&quot;First name&quot;</span><span class="s2">, </span><span class="s3">&quot;Surname&quot;</span><span class="s2">, </span><span class="s3">&quot;Postcode&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Zip code&quot;</span><span class="s1">) 
-      .withMappings(</span><span class="s3">&quot;Zip code&quot; </span><span class="s1">-&gt; postcodeLookupTable) 
- 
-    </span><span class="s0">val </span><span class="s1">newFormatClipped = Csv(newFormat) 
+    <span class="s0">val </span><span class="s1">newFormatClipped = Csv(newFormat)
       .columnStructure(ignore(</span><span class="s3">&quot;Email&quot;</span><span class="s1">))                         </span><span class="s4">// Ignore columns, retaining all others</span><span class="s1"> 
  
     </span><span class="s0">val </span><span class="s1">combined = Csv(oldFormatRemastered</span><span class="s2">, </span><span class="s1">newFormatClipped)   </span><span class="s4">// Merge CSVs</span><span class="s1"> 
  
-    Diff(combined</span><span class="s2">, </span><span class="s1">modelAnswer</span><span class="s2">, </span><span class="s1">differ) mustEqual Nil           </span><span class="s4">// Diff for assertions</span><span class="s1"> 
-  } 
-</span></pre>
+    Diff(combined</span><span class="s2">, </span><span class="s1">modelAnswer</span><span class="s2">, </span><span class="s1">differ) mustEqual Nil           </span><span class="s4">// Diff for assertions</span></pre>
 </body>
 </html>

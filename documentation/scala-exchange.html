@@ -19,7 +19,11 @@
   <script src="jquery-2.1.1.min.js"></script>
   <style>
     iframe { border: none }
+    td.l { text-align: left }
+    td.r { text-align: right }
+    table { margin-left:auto; margin-right:auto; }
     body { color: #ffffff; background-color: #000000; font-family: arial; font-size: 50px; -webkit-user-select: none; }
+
     section { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; text-align: center; padding-top: 25px; }
     t1 { display: block; color: #428bca; font-size: 125%; padding-bottom: 20px;}
     t2 { color: #999; }
@@ -146,16 +150,6 @@
   </section>
 
   <section>
-    <t1>The Bank</t1>
-    Hit points          &infin;
-    Strength          100
-    Dexterity           1
-    Intelligence      -12
-    Malice        endless
-    Loyalty             0
-  </section>
-
-  <section>
     <!--
       Up against that banking madness, what do we have?
 
@@ -163,13 +157,55 @@
         Not every problem is best solved by technology.
       We'll focus on the sort of problems you can solve with technology, Scala technology
     -->
-    <t1>The Programmer</t1>
-    Hit points            7
-    Strength              5
-    Dexterity            18
-    Intelligence         24
-    <span style="color: yellow">People skills         1</span>
-    Loyalty       misplaced
+    <table>
+      <tr>
+        <th colspan="2">Mega Bank</th>
+        <th width="100px">&nbsp;</th>
+        <th colspan="2">Programmer</th>
+      </tr>
+      <tr>
+        <td class="l">Hit points</td>
+        <td class="r">&infin;</td>
+        <td></td>
+        <td class="l">Hit points</td>
+        <td class="r">7</td>
+      </tr>
+      <tr>
+        <td class="l">Strength</td>
+        <td class="r">100</td>
+        <td></td>
+        <td class="l">Strength</td>
+        <td class="r">5</td>
+      </tr>
+      <tr>
+        <td class="l">Dexterity</td>
+        <td class="r">1</td>
+        <td></td>
+        <td class="l">Dexterity</td>
+        <td class="r">18</td>
+      </tr>
+      <tr>
+        <td class="l">Intelligence</td>
+        <td class="r">-12</td>
+        <td></td>
+        <td class="l">Intelligence</td>
+        <td class="r">24</td>
+      </tr>
+      <tr>
+        <td class="l">Malice</td>
+        <td class="r">endless</td>
+        <td></td>
+        <td class="l"><span style="color: yellow">Political skills</span></td>
+        <td class="r"><span style="color: yellow">1</span></td>
+      </tr>
+      <tr>
+        <td class="l">Loyalty</td>
+        <td class="r">0</td>
+        <td></td>
+        <td class="l">Loyalty</td>
+        <td class="r">misplaced</td>
+      </tr>
+    </table>
   </section>
 
   <section>
@@ -248,27 +284,6 @@
   </section>
 
   <section>
-    <t1>Reading a CSV into a data structure</t1>
-    <br/>(pretty diagram)
-  </section>
-
-  <section>
-    <t1>Reading a CSV into a data structure</t1>
-    <br/>
-    <table width="70%">
-      <tr>
-        <td>(input)</td>
-        <td>(output)</td>
-      </tr>
-    </table>
-  </section>
-
-  <section>
-    <t1>Reading a CSV into a data structure</t1>
-    <iframe src="planet7/tabular/recipes/ReadDataFromACsv.scala.html" width="95%" height="95%"></iframe>
-  </section>
-
-  <section>
     <t1>Transform one report format into another</t1>
     <br/>(pretty diagram)
   </section>
@@ -276,7 +291,7 @@
   <section>
     <t1>Transform one report format into another</t1>
     <br/>
-    <table width="70%">
+    <table>
       <tr>
         <td>(input)</td>
         <td>(output)</td>
@@ -290,63 +305,8 @@
   </section>
 
   <section>
-    <t1>Merge two reports</t1>
-    <br/>(pretty diagram)
-  </section>
-
-  <section>
-    <t1>Merge two reports</t1>
-    <br/>
-    <table width="70%">
-      <tr>
-        <td>(input)</td>
-        <td>(output)</td>
-      </tr>
-    </table>
-  </section>
-
-  <section>
-    <t1>Merge two reports</t1>
-    <iframe src="planet7/tabular/recipes/MergeTwoDifferentReports.scala.html" width="95%" height="95%"></iframe>
-  </section>
-
-  <section>
-    <t1>Diff two datasets</t1>
-    <br/>(pretty diagram)
-  </section>
-
-  <section>
-    <t1>Diff two datasets</t1>
-    <br/>
-    <table width="70%">
-      <tr>
-        <td>(input)</td>
-        <td>(output)</td>
-      </tr>
-    </table>
-  </section>
-
-  <section>
-    <t1>Diff two datasets</t1>
-    <pre>
-Some code
-    </pre>
-  </section>
-
-  <section>
     <t1>Diff two report formats</t1>
     <br/>(pretty diagram)
-  </section>
-
-  <section>
-    <t1>Diff two report formats</t1>
-    <br/>
-    <table width="70%">
-      <tr>
-        <td>(input)</td>
-        <td>(output)</td>
-      </tr>
-    </table>
   </section>
 
   <section>
@@ -361,7 +321,26 @@ Some code
 
   <section>
     <t1>Diff two report formats</t1>
-    <iframe src="planet7/tabular/recipes/DiffTwoDifferentReportFormats_c.scala.html" width="95%" height="95%"></iframe>
+    <br/>
+    <table width="70%">
+      <tr>
+        <td>(input)</td>
+        <td>(output)</td>
+      </tr>
+    </table>
+  </section>
+
+  <section>
+    <t1>Other featurelets</t1>
+    <iframe src="planet7/tabular/recipes/MergeTwoDifferentReports.scala.html" width="95%" height="95%"></iframe>
+  </section>
+
+  <section>
+    <t1>https://github.com/agmenc/planet7</t1>
+    <br/>
+    <br/>
+    <t1>http://www.mockaroo.com/</t1>
+    <t2>Generate random test data in CSV, JSON, SQL, and Excel</t2>
   </section>
 
   <section>

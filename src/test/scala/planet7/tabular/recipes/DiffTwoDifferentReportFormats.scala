@@ -14,14 +14,13 @@ class DiffTwoDifferentReportFormats extends WordSpec with MustMatchers {
 
   "Diff two reports and analyse the results" in {
     val before = Csv(beforeChanges)
-      .columnStructure("First name", "Surname", "Company", "Company account" -> "Company ID", "Postcode")
+      .columnStructure("Company", "Company account" -> "Company ID", "First name", "Surname", "Postcode")
       .withMappings(
         "Postcode" -> postcodeLookupTable,
         "Company" -> (_.toUpperCase)
       )
 
-    val after = Csv(afterChanges)
-      .columnStructure("First name", "Surname", "Company", "Company ID", "Postcode")
+    val after = Csv(afterChanges).columnStructure(ignore("Email"))
 
     val diffs: Seq[(Row, Row)] = Diff(before, after, RowDiffer(before.header, "Company ID"))
 

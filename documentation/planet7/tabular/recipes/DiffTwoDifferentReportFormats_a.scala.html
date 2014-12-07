@@ -5,28 +5,28 @@
 <style type="text/css">
 body { font-size: 25px; }
 .ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
-.s0 { color: rgb(255,119,61); }
-.s1 { color: rgb(169,183,198); }
-.s2 { color: rgb(204,120,50); }
-.s3 { color: rgb(0,154,0); }
+.s0 { color: rgb(169,183,198); }
+.s1 { color: rgb(255,119,61); }
+.s2 { color: rgb(0,154,0); }
+.s3 { color: rgb(204,120,50); }
 .s4 { color: rgb(128,128,128); font-style: italic; }
 .s5 { color: rgb(62,74,227); }
 </style>
 </head>
 <BODY BGCOLOR="#1e1e1e">
-
 <pre>
-<span class="s0">val </span><span class="s1">before = Csv(beforeChanges)
-  .columnStructure(</span><span class="s3">&quot;First name&quot;</span><span class="s2">, </span><span class="s3">&quot;Surname&quot;</span><span class="s2">, </span><span class="s3">&quot;Company&quot;</span><span class="s2">, </span><span class="s3">&quot;Company account&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Company ID&quot;</span><span class="s2">, </span><span class="s3">&quot;Postcode&quot;</span><span class="s1">)
-  .withMappings(
-    </span><span class="s3">&quot;Postcode&quot; </span><span class="s1">-&gt; postcodeLookupTable</span><span class="s2">,</span><span class="s1">
-    </span><span class="s3">&quot;Company&quot; </span><span class="s1">-&gt; (_.toUpperCase)
-  )
-
-</span><span class="s0">val </span><span class="s1">after = Csv(afterChanges)
-  .columnStructure(</span><span class="s3">&quot;First name&quot;</span><span class="s2">, </span><span class="s3">&quot;Surname&quot;</span><span class="s2">, </span><span class="s3">&quot;Company&quot;</span><span class="s2">, </span><span class="s3">&quot;Company ID&quot;</span><span class="s2">, </span><span class="s3">&quot;Postcode&quot;</span><span class="s1">)
-
-</span><span class="s0">val </span><span class="s1">diffs: Seq[(Row</span><span class="s2">, </span><span class="s1">Row)] = Diff(before</span><span class="s2">, </span><span class="s1">after</span><span class="s2">, </span><span class="s1">RowDiffer(before.header</span><span class="s2">, </span><span class="s3">&quot;Company ID&quot;</span><span class="s1">))</span>
-</pre>
+<span class="s0"> 
+    </span><span class="s1">val </span><span class="s0">before = Csv(beforeChanges) 
+      .columnStructure(</span><span class="s2">&quot;Company&quot;</span><span class="s3">, </span><span class="s2">&quot;Company account&quot; </span><span class="s0">-&gt; </span><span class="s2">&quot;Company ID&quot;</span><span class="s3">, </span><span class="s2">&quot;First name&quot;</span><span class="s3">, </span><span class="s2">&quot;Surname&quot;</span><span class="s3">, </span><span class="s2">&quot;Postcode&quot;</span><span class="s0">) 
+      .withMappings( 
+        </span><span class="s2">&quot;Postcode&quot; </span><span class="s0">-&gt; postcodeLookupTable</span><span class="s3">,</span><span class="s0"> 
+        </span><span class="s2">&quot;Company&quot; </span><span class="s0">-&gt; (_.toUpperCase) 
+      ) 
+ 
+    </span><span class="s1">val </span><span class="s0">after = Csv(afterChanges).columnStructure(ignore(</span><span class="s2">&quot;Email&quot;</span><span class="s0">)) 
+ 
+    </span><span class="s1">val </span><span class="s0">diffs: Seq[(Row</span><span class="s3">, </span><span class="s0">Row)] = Diff(before</span><span class="s3">, </span><span class="s0">after</span><span class="s3">, </span><span class="s0">RowDiffer(before.header</span><span class="s3">, </span><span class="s2">&quot;Company ID&quot;</span><span class="s0">)) 
+ 
+    </span><span class="s1">val </span><span class="s0">(summary</span><span class="s3">, </span><span class="s0">readableDiffs) = analyse(diffs</span><span class="s3">, </span><span class="s0">before.header</span><span class="s3">, </span><span class="s0">after.header)</span></pre>
 </body>
 </html>
