@@ -28,7 +28,7 @@ class MergeTwoDifferentReports extends WordSpec with MustMatchers {
       .withMappings("Zip code" -> postcodeLookupTable)
 
     val newFormatClipped = Csv(newFormat)
-      .columnStructure(ignore("Email"))                         // Ignore columns, retaining all others
+      .columnStructure(ignore("Email"))                         // Ignore columns
 
     val combined = Csv(oldFormatRemastered, newFormatClipped)   // Merge CSVs
 

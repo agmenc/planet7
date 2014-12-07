@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>MergeTwoDifferentReports.scala</title>
+<title>OtherFeaturelets.scala</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style type="text/css">
 body { font-size: 25px; }
@@ -12,11 +12,11 @@ body { font-size: 25px; }
 .s4 { color: rgb(128,128,128); font-style: italic; }
 </style>
 </head>
-<BODY BGCOLOR="#1e1e1e">
+<BODY BGCOLOR="#000000">
 
 <pre>
     <span class="s0">val </span><span class="s1">newFormatClipped = Csv(newFormat)
-      .columnStructure(ignore(</span><span class="s3">&quot;Email&quot;</span><span class="s1">))                         </span><span class="s4">// Ignore columns, retaining all others</span><span class="s1"> 
+      .columnStructure(ignore(</span><span class="s3">&quot;Email&quot;</span><span class="s1">))                         </span><span class="s4">// Ignore columns</span><span class="s1">
  
     </span><span class="s0">val </span><span class="s1">combined = Csv(oldFormatRemastered</span><span class="s2">, </span><span class="s1">newFormatClipped)   </span><span class="s4">// Merge CSVs</span><span class="s1"> 
  
