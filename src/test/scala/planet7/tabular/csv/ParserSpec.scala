@@ -67,7 +67,8 @@ class ParserSpec extends WordSpec with MustMatchers {
 
     println(timer)
 
-    timer.RegexTwoPassParser.average must be < 40.0
+    timer.DefaultParser.average must be < 8.0
+    timer.RegexTwoPassParser.average must be < 60.0
   }
 
   "We keep spaces inside quotes, and trim them outside" in {

@@ -10,8 +10,8 @@ Fast ETL and reconciliation tool for Scala users:
 
 ### Supported Scala versions
 
-* [scala 2.10.4](http://www.scala-lang.org)
-* [scala 2.11.1](http://www.scala-lang.org)
+* [scala 2.10](http://www.scala-lang.org)
+* [scala 2.11](http://www.scala-lang.org)
 
 ### Usage
 
