@@ -1,0 +1,411 @@
+<!-- Ghetto Slides. A basic slide deck for the lazy (like me).
+     Feel free to copy, modify, rip-off, etc, but please credit me in the source somewhere.
+     Joe Walnes, http://joewalnes.com -->
+
+<!-- Added backwards navigation and not running off the end support.
+     Paul Allton, paulallton@gmail.com -->
+
+<!-- TODO:
+   add key support back
+-->
+
+<!-- TIP:
+    http://htmlpreview.github.io/?https://raw.githubusercontent.com/alltonp/talk/master/se.html
+-->
+
+<!-- D1
+@startuml
+skinparam sequence {
+	ArrowColor #428bca
+        ArrowFontSize 30
+	LifeLineBorderColor #999999
+
+	ParticipantFontColor #428bca
+        ParticipantFontStyle bold
+        ParticipantFontSize 35
+	ParticipantBorderColor #000000
+	ParticipantBackgroundColor #FFFFFF
+}
+
+participant booking
+participant trading
+participant pricing
+participant clearing
+participant reporting
+
+booking<->booking: acceptance
+|||
+trading<->pricing: integration
+|||
+trading<->clearing: wide integration
+|||
+booking<->reporting: full end-to-end, T+1
+
+
+hide footbox
+@enduml-->
+
+<!-- probate
+http://localhost:8473,/demo/failure,PROD,Unable To Price Trade,,Email Support,3
+http://localhost:8473,/demo/success,PROD,There Are Rejected Trades,,Email Support,3
+http://localhost:8473,/demo/success,PROD,Not All Trades Cleared,,Email Support,3
+http://localhost:8473,/demo/success,PROD,Today's Trade Report Invalid,,Email Support,3
+-->
+
+<!-- shoreditch test
+TP1
+a new trade must be booked, priced, accepted and cleared
+@id <= create trade in:booking => notional:100m currency:USD
+check trade booked in:booking => @id
+check trade priced in:pricing => @id
+check trade accepted in:trading => @id
+check trade cleared in:clearing => @id
+-->
+
+<!-- shoreditch systems
+-----Systems-----
+---USAGE:
+---{- to ignore}name,alias,env,url
+
+--uat--
+BOS,booking,uat,http://localhost:4253/booking
+BOS,pricing,uat,http://localhost:4253/pricing
+BOS,trading,uat,http://localhost:4253/trading
+BOS,clearing,uat,http://localhost:4253/clearing
+-->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script src="jquery-2.1.1.min.js"></script>
+  <style>
+    iframe { border: none }
+    pre.csv { font-size: 20px }
+    td.l { text-align: left }
+    td.r { text-align: right }
+    table { margin-left:auto; margin-right:auto; }
+    body { color: #ffffff; background-color: #000000; font-family: arial; font-size: 50px; -webkit-user-select: none; }
+    pre { margin: 40px; text-align: left; font-family: Andale Mono, Lucida Console, Monaco, fixed, monospace; color: #000000; background-color: #c6c6c6;font-size: 30px;border: 1px dashed #999999;padding: 5px 5px 5px 5px; overflow: auto; width: 90%; }
+
+    section { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; text-align: center; padding-top: 25px; }
+    t1 { display: block; color: #428bca; font-size: 125%; padding-bottom: 20px;}
+    t2 { color: #999; }
+    img { float:centre; }
+    li { margin: 25px; text-align: left;}
+  </style>
+  <script>
+    $(function(event) {
+      previous = function() {
+        if (currentSection.prev().size() != 0) {
+          currentSection = currentSection.fadeOut().prev().fadeIn();
+        } else {
+          currentSection.fadeOut();
+          currentSection = $('sections').find('section').last().fadeIn();
+        }
+        return false;
+      };
+
+      next = function() {
+        if (currentSection.next().size() != 0) {
+          currentSection = currentSection.fadeOut().next().fadeIn();
+        } else {
+          currentSection.fadeOut();
+          currentSection = $('sections').find('section').first().fadeIn();
+        }
+      };
+
+//hack right might mouse
+      document.oncontextmenu = previous;
+
+      var startAt = 0 //TODO: read from url?
+      var currentSection = $('sections').find('section').eq(startAt).fadeIn();
+      $('body').bind('click keypress', function(event) {
+        if (event.which == '44' || event.which == '3') { // < or right mouse for previous
+          previous();
+        } else {
+          next();
+        }
+      });
+    });
+
+  </script>
+  <title>??? - ???</title>
+</head>
+<body oncontextmenu="return false;">
+<!--<img style="float:right; margin: 30px 30px;" src="img/logo.png"/>-->
+<sections>
+
+  <section>
+    <t1>is prod working?</t1>
+    <ul>
+      <li>write-only security clearance</li> <!-- as CAS alluded - in the dark, write only access -->
+      <li>keeping it up, without touching it</li> <!-- as CAS alluded - in the dark, write only access -->
+      <li>business vs technical</li> <!-- to protect against classes of problem-->
+      <!-- business not technical -->
+      <!-- not disk, memory etc - that's already monitored -->
+      <!-- so what are we interested in? business problems .... -->
+    </ul>
+  </section>
+
+  <section>
+    <t1>a trading system</t1>
+    <br/>
+    <p><t2>can price trade</t2></p>
+    <p><t2>no trades rejected</t2></p>
+    <p><t2>all trades cleared</t2></p>
+    <p><t2>reports valid today</t2></p>
+    <p><br/></p>
+  </section>
+
+  <section>
+    <t1>a trading system</t1>
+    <br/>
+    <p><t2>can price trade</t2></p>
+    <p><t2>no trades rejected</t2></p>
+    <p><t2>all trades cleared</t2></p>
+    <p><t2>reports valid today</t2></p>
+    <p><br/></p>
+
+    <ul>
+      <li>already tested???</li>
+      <!-- invariants of the system -->
+      <!-- obviously every project has extensive suite of acceptance tests -->
+      <!-- what does it mean 'all trades processed' -->
+      <!-- logic is in the codebase for asserting that -->
+      <!-- checking would mean repeating that logic -->
+      <!-- we would be repeating ourselves -->
+    </ul>
+  </section>
+
+  <section>
+    <!--
+        we've got a test for that, but tests only run as part of building/deploying the app
+    -->
+    <t1>assertions suck</t1>
+    <!-- okay, thats strong, they don't suck but they haven't fulfilled their potential
+        we go to all the effort to write tests, documenting the system invariants and then throw them away
+        invariants, first class citizens, why not expose them
+    -->
+    <ul>
+      <li>why only in tests?
+      <li>why only run during dev and CI?
+      <li>why hidden? <!-- are we ashamed of them? -->
+      <li>why not all the time?
+    </ul>
+    <!--
+        I want them running all the time, 1000's times per day
+        we have already written them in our unit/acceptance tests
+        why only executed at testing time?
+
+        why not make an api?
+        why not expose it via a restlike interface?
+    -->
+  </section>
+
+  <section>
+    <t1>a trading system</t1>
+    <br/>
+    <p>assert <t2>can price trade</t2></p>
+    <p>assert <t2>no trades rejected</t2></p>
+    <p>assert <t2>all trades cleared</t2></p>
+    <p>assert <t2>reports valid today</t2></p>
+    <p><br/></p>
+    <ul>
+      <li>why not expose them ...</li> <!-- make them 1st class citizens, in the production code -->
+    </ul>
+  </section>
+
+  <section>
+    <t1>a trading system</t1>
+    <br/>
+    <p><t2>assert/can/price/trade</t2></p>
+    <p><t2>assert/no/trades/rejected</t2></p>
+    <p><t2>assert/all/trades/cleared</t2></p>
+    <p><t2>assert/reports/valid/today</t2></p>
+    <p><br/></p>
+    <ul>
+      <li>... in a REST-like (tm) interface</li>
+    </ul>
+
+  </section>
+
+  <section>
+    <t1>check</t1> <!-- note that assert has changed to check, whatever -->
+        <pre>   GET /check/trades/rejected/@count
+   GET /check/trades/rejected/0</pre>
+
+    <br/>
+    <t2>Success</t2>
+    <pre>   =>   {"failures":[]}</pre> <!-- the empty list -->
+
+    <br/>
+    <t2>Failure</t2>
+    <!-- need to add a better failure message -->
+        <pre>   =>   {"failures":[
+           "2 trades rejected",
+           "trade 1234 is rejected",
+           "trade 5678 is rejected"
+        ]}</pre>
+  </section>
+
+  <section>
+    <t1>a trading system</t1>
+    <br/>
+    <p>http://pricing/<t2>check/can/price/trade</t2></p>
+    <p>http://trading/<t2>check/no/trades/rejected</t2></p>
+    <p>http://clearing/<t2>check/all/trades/cleared</t2></p>
+    <p>http://reporting/<t2>check/reports/valid/today</t2></p>
+    <p><br/></p>
+
+    <ul>
+      <li>... now we just need to run them ...</li>
+    </ul>
+  </section>
+
+  <section>
+    <t1>continuous checking</t1>
+    <!-- thousands of times per day -->
+    <br/>
+    <iframe width="90%" height="80%" frameborder="0" src="http://localhost:8473/"></iframe>
+
+    <ul>
+      <!-- job done -->
+      <li>... useful building block ...</li> <!-- useful in its own right, but we can do more -->
+    </ul>
+  </section>
+
+  <section>
+    <t1>where's my $#!*ing trade?</t1>
+    <br/>
+    <p>@id = 12345</t2></p>
+    <p><t2>http://booking/check/trade/booked/</t2>@id</p>
+    <p><t2>http://pricing/check/trade/priced/</t2>@id</p>
+    <p><t2>http://trading/check/trade/accepted/</t2>@id</p>
+    <p><t2>http://clearing/check/trade/cleared/</t2>@id</p>
+    <p><t2>http://reporting/check/reports/include/</t2>@id</t2></p>
+    <p><br/></p>
+  </section>
+
+  <section>
+    <t1>microservices</t1>
+    <br/>
+    <ul>
+      <li>i don't want a faster scala compiler</li> <!-- it keeps you honest, it's a good alarm bell -->
+      <li>clean compile > 1 min rule</li> <!-- codebase is too big -->
+    </ul>
+  </section>
+
+  <section>
+    <!--
+        here the scala compile helps us in some many ways
+        integration testing a suite of applications/services
+    -->
+
+    <t1>is it safe to release?</t1>
+    <!-- every app/service was well tested, but the more services we added, more we realised there was a gap,
+     because not tested the whole thing -->
+    <br/>
+    <br/>
+    <img src="http://www.plantuml.com:80/plantuml/png/TL3BJiCm43ndls8bZX2fl2I84591wga7fF83Zhq9LbslsJegZ_3lk96XIYXpyUxix8orsxNrGOdQu9PUE_AQy1EAkGZl7jcnuCdLnKsj5M36C5gmZolxGNWvWs9f6rfQJmyiXYHltGu0A9wKHAjjK3xkjuwRJaIh-Eu8QtRcNyKGVZso7-NF1epdIgzRuSwRh5aCW2-0S52bM4utQKTS56McN91KJJZjICcK50gSkiH2zhuhxtDLeTAQGbJfyD3tFUIafCZ-5LeVgHKLBVk9v2Ukmfqrz4TuIFlzGeLDvnoIDsNaCZrd-7nw3W0lUuE6ETRyzWq0"/>
+
+    <ul>
+      <li>... what if we could also change the system state ...</li> <!-- using similar style -->
+    </ul>
+  </section>
+
+  <section>
+    <t1>action</t1>
+        <pre>   POST /action/create/trade
+
+        {"in":[
+          {"name":"notional", "value:":"100m"}
+        ]}</pre>
+    <br/>
+    <t2>Success</t2>
+    <pre>   =>   {"failures":[], "returnValue": "12345"}  //optional</pre>
+
+    <br/>
+    <t2>Failure</t2>
+    <!-- need to add a better failure message -->
+    <pre>   =>   {"failures":["trade creation failed"]}</pre>
+  </section>
+
+  <section>
+    <t1>bring it all together</t1>
+
+    <t2><p>checks + actions</p><p>+ runner </p>= test anything</t2>
+    <!--
+        bring it altogether
+        its just a case of assembling tests out of endpoints in a script
+        and running it against an environment
+
+        we call this .... shoreditch
+    -->
+
+  </section>
+
+  <section>
+    <t1>shoreditch</t1> <!-- this is more than just an approach, there is a reference implementation -->
+
+    <ul>
+      <li>implementation in scala, using json and akka</li>
+      <li>'hipster' scripting language</li> <!-- describes actions and checks -->
+      <li>multiple runners</li> <!-- gui, command line, api -->
+      <li>open source</li>
+      <li>doesnt have any documentation right now</li> <!-- and the code is hideous -->
+      <li>future: UI for test creation/refactoring</li>
+    </ul>
+  </section>
+
+  <!-- TODO: colourise the id -->
+
+  <section>
+    <t1>hipster - a new trade must be</t1>
+    <br/>
+    <t2>booked, priced, accepted and cleared</t2>
+    <br/>
+    <br/>
+        <pre>   <b>@id</b> <= create trade in:booking => notional:100m currency:USD
+   check trade <b>booked</b> in:booking => <b>@id</b>
+   check trade <b>priced</b> in:pricing => <b>@id</b>
+   check trade <b>accepted</b> in:trading => <b>@id</b>
+   check trade <b>cleared</b> in:clearing => <b>@id</b></pre>
+  </section>
+
+  <!-- need to explain what this maps to ... -->
+
+  <section>
+    <t1>shoreditch gui runner</t1>
+    <!-- need to make the text on this bigger -->
+    <iframe width="90%" height="80%" frameborder="0" src="http://localhost:4253/"></iframe>
+  </section>
+
+  <section>
+    <t1>a few more things ...</t1>
+    <ul>
+      <li>how do you know it's quick enough?
+      <li>how do you know what your capacity is?
+      <li>how do you test long running workflows (i.e. days to execute, events T+x)?
+      <li>how do you break up a monolithic app into microservices?
+      <li>how do you test services you don't own/have the source for?
+      <li>how do you generate test evidence for everything?
+    </ul>
+    <!-- with just two primitives, check and action you can answer all of the above -->
+  </section>
+
+  <!-- its all the same, with checks and actions, it's just a case of assembling tests out of endpooints -->
+
+  <!-- guff -->
+
+  <!--
+  what makes banks unique? - no access to production box, no logins to the app
+  even though everything is fully TDD'd with rafts of acceptance tests, things still
+  allowed to write the code, arent allowed to use it!
+  -->
+
+
+  <!-- /guff -->
+
+</sections>
+</body>
+</html>
