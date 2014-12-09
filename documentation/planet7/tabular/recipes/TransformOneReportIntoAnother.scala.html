@@ -5,33 +5,31 @@
 <style type="text/css">
 body { font-size: 25px; }
 .ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
-.s0 { color: rgb(255,119,61); }
+.s0 { color: rgb(0,154,0); }
 .s1 { color: rgb(169,183,198); }
-.s2 { color: rgb(204,120,50); }
-.s3 { color: rgb(0,154,0); }
+.s2 { color: rgb(255,119,61); }
+.s3 { color: rgb(204,120,50); }
 .s4 { color: rgb(128,128,128); font-style: italic; }
 </style>
 </head>
-<BODY BGCOLOR="#000000">
+<BODY BGCOLOR="#1e1e1e">
 <pre>
-
-<span class="s3">&quot;How to transform an input format into the desired output format&quot; </span><span class="s1">in {
-    </span><span class="s0">val </span><span class="s1">input = </span><span class="s0">new </span><span class="s1">File(</span><span class="s3">&quot;src/test/resources/planet7/tabular/before/before.csv&quot;</span><span class="s1">) 
+<span class="s0">&quot;How to transform an input format into the desired output format&quot; </span><span class="s1">in { 
+  </span><span class="s2">val </span><span class="s1">input = </span><span class="s2">new </span><span class="s1">File(</span><span class="s0">&quot;src/test/resources/planet7/tabular/before/before.csv&quot;</span><span class="s1">) 
  
-    </span><span class="s0">val </span><span class="s1">output = Csv(input) 
-      .columnStructure( 
-        </span><span class="s3">&quot;Company&quot;</span><span class="s2">,                          </span><span class="s4">// Retain</span><span class="s1"> 
-        </span><span class="s3">&quot;Company account&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Company ID&quot;</span><span class="s2">,  </span><span class="s4">// Rename</span><span class="s1"> 
-        </span><span class="s3">&quot;Fee owing&quot;</span><span class="s2">,                        </span><span class="s4">// Add new column</span><span class="s1"> 
-        </span><span class="s3">&quot;Postcode&quot; </span><span class="s1">-&gt; </span><span class="s3">&quot;Zip code&quot;</span><span class="s1">)           </span><span class="s4">// Rename</span><span class="s1"> 
-      .withMappings( 
-        </span><span class="s3">&quot;Zip code&quot; </span><span class="s1">-&gt; postcodeLookupTable</span><span class="s2">,  </span><span class="s4">// Map postcodes to zip codes</span><span class="s1"> 
-        </span><span class="s3">&quot;Company&quot; </span><span class="s1">-&gt; (_.toUpperCase)</span><span class="s2">,       </span><span class="s4">// Make all company names upper case</span><span class="s1"> 
-        </span><span class="s3">&quot;Fee owing&quot; </span><span class="s1">-&gt; (_ =&gt; </span><span class="s3">&quot;0.00&quot;</span><span class="s1">)        </span><span class="s4">// Add a default value for &quot;Fee owing&quot; of 0.00</span><span class="s1"> 
-      ) 
+  </span><span class="s2">val </span><span class="s1">output = Csv(input) 
+    .columnStructure( 
+      </span><span class="s0">&quot;Company&quot;</span><span class="s3">,                          </span><span class="s4">// Retain</span><span class="s1"> 
+      </span><span class="s0">&quot;Company account&quot; </span><span class="s1">-&gt; </span><span class="s0">&quot;Company ID&quot;</span><span class="s3">,  </span><span class="s4">// Rename</span><span class="s1"> 
+      </span><span class="s0">&quot;Fee owing&quot;</span><span class="s3">,                        </span><span class="s4">// Add new column</span><span class="s1"> 
+      </span><span class="s0">&quot;Postcode&quot; </span><span class="s1">-&gt; </span><span class="s0">&quot;Zip code&quot;</span><span class="s1">)           </span><span class="s4">// Rename</span><span class="s1"> 
+    .withMappings( 
+      </span><span class="s0">&quot;Zip code&quot; </span><span class="s1">-&gt; postcodeLookupTable</span><span class="s3">,  </span><span class="s4">// Map postcodes to zip codes</span><span class="s1"> 
+      </span><span class="s0">&quot;Company&quot; </span><span class="s1">-&gt; (_.toUpperCase)</span><span class="s3">,       </span><span class="s4">// Make all company names upper case</span><span class="s1"> 
+      </span><span class="s0">&quot;Fee owing&quot; </span><span class="s1">-&gt; (_ =&gt; </span><span class="s0">&quot;0.00&quot;</span><span class="s1">)        </span><span class="s4">// Add a default value for &quot;Fee owing&quot; of 0.00</span><span class="s1"> 
+    ) 
  
-    export(output).lines.find(_.contains(</span><span class="s3">&quot;GRAVIDA&quot;</span><span class="s1">)) mustEqual Some(</span><span class="s3">&quot;GRAVIDA FOUNDATION,TR729188509373842450961594,0.00,39376&quot;</span><span class="s1">) 
-  } 
-</span></pre>
+  export(output).lines.find(_.contains(</span><span class="s0">&quot;GRAVIDA&quot;</span><span class="s1">)) mustEqual Some(gravidaExpectedOutput) 
+}</span></pre>
 </body>
 </html>

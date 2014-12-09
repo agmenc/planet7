@@ -5,34 +5,35 @@
 <style type="text/css">
 body { font-size: 25px; }
 .ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
-.s0 { color: rgb(169,183,198); }
-.s1 { color: rgb(255,119,61); }
+.s0 { color: rgb(255,119,61); }
+.s1 { color: rgb(169,183,198); }
 .s2 { color: rgb(204,120,50); }
 .s3 { color: rgb(0,154,0); }
 .s4 { color: rgb(128,128,128); font-style: italic; }
 .s5 { color: rgb(62,74,227); }
 </style>
 </head>
-<BODY BGCOLOR="#000000">
+<BODY BGCOLOR="#1e1e1e">
 <pre>
-<span class="s0"> 
+<span class="s0">private def </span><span class="s1">analyse(diffs: Seq[(Row</span><span class="s2">,</span><span class="s1">Row)]</span><span class="s2">, </span><span class="s1">leftHeader: Row</span><span class="s2">, </span><span class="s1">rightHeader: Row) = { 
+  </span><span class="s0">val </span><span class="s1">summary = diffs.groupBy { 
+    </span><span class="s0">case </span><span class="s1">(row</span><span class="s2">, </span><span class="s1">EmptyRow) =&gt; </span><span class="s3">&quot;Missing&quot;</span><span class="s1"> 
+    </span><span class="s0">case </span><span class="s1">(EmptyRow</span><span class="s2">, </span><span class="s1">row) =&gt; </span><span class="s3">&quot;Added&quot;</span><span class="s1"> 
+    </span><span class="s0">case </span><span class="s1">(row1</span><span class="s2">, </span><span class="s1">row2) =&gt; </span><span class="s3">&quot;Diffs&quot;</span><span class="s1"> 
+  } 
  
-  </span><span class="s1">private def </span><span class="s0">analyse(diffs: Seq[(Row</span><span class="s2">,</span><span class="s0">Row)]</span><span class="s2">, </span><span class="s0">leftHeader: Row</span><span class="s2">, </span><span class="s0">rightHeader: Row) = { 
-    </span><span class="s1">val </span><span class="s0">summary = diffs.groupBy { 
-      </span><span class="s1">case </span><span class="s0">(row</span><span class="s2">, </span><span class="s0">EmptyRow) =&gt; </span><span class="s3">&quot;Missing&quot;</span><span class="s0"> 
-      </span><span class="s1">case </span><span class="s0">(EmptyRow</span><span class="s2">, </span><span class="s0">row) =&gt; </span><span class="s3">&quot;Added&quot;</span><span class="s0"> 
-      </span><span class="s1">case </span><span class="s0">(row1</span><span class="s2">, </span><span class="s0">row2) =&gt; </span><span class="s3">&quot;Diffs&quot;</span><span class="s0"> 
-    } 
+  </span><span class="s4">// Diff each row which has changed, zipping in the header information, to show field names</span><span class="s1"> 
+  </span><span class="s0">val </span><span class="s1">fieldDifferences = summary(</span><span class="s3">&quot;Diffs&quot;</span><span class="s1">) map { 
+    </span><span class="s0">case </span><span class="s1">(leftRow</span><span class="s2">, </span><span class="s1">rightRow) =&gt; NonSortingDiff( 
+      leftHeader.data zip leftRow.data</span><span class="s2">,</span><span class="s1"> 
+      rightHeader.data zip rightRow.data</span><span class="s2">,</span><span class="s1"> 
+      FieldDiffer) 
+  } 
  
-    </span><span class="s4">// Diff each row which has changed, zipping in the header information, so we know the field names</span><span class="s0"> 
-    </span><span class="s1">val </span><span class="s0">fieldDifferences = summary(</span><span class="s3">&quot;Diffs&quot;</span><span class="s0">) map { 
-      </span><span class="s1">case </span><span class="s0">(leftRow</span><span class="s2">, </span><span class="s0">rightRow) =&gt; NonSortingDiff(leftHeader.data zip leftRow.data</span><span class="s2">, </span><span class="s0">rightHeader.data zip rightRow.data</span><span class="s2">, </span><span class="s0">FieldDiffer) 
-    } 
+  </span><span class="s4">// Print the name of the field which changed, and the before and after values</span><span class="s1"> 
+  </span><span class="s0">val </span><span class="s1">readableDiffs = fieldDifferences map (FieldDiffer.prettyPrint(_).mkString(</span><span class="s3">&quot;, &quot;</span><span class="s1">)) 
  
-    </span><span class="s4">// Print the name of the field which changed, and the before and after values</span><span class="s0"> 
-    </span><span class="s1">val </span><span class="s0">readableDiffs = fieldDifferences map (FieldDiffer.prettyPrint(_).mkString(</span><span class="s3">&quot;, &quot;</span><span class="s0">)) 
- 
-    (summary</span><span class="s2">, </span><span class="s0">readableDiffs) 
-  }</span></pre>
+  (summary</span><span class="s2">, </span><span class="s1">readableDiffs) 
+}</span></pre>
 </body>
 </html>
