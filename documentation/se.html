@@ -28,22 +28,23 @@ skinparam sequence {
 }
 
 participant booking
-participant trading
 participant pricing
+participant trading
+participant risk
 participant clearing
 participant reporting
 
-booking<->booking: acceptance
+booking<->pricing: integration
 |||
-trading<->pricing: integration
+trading<->risk: integration
 |||
-trading<->clearing: wide integration
+booking<->risk: wide integration
 |||
 booking<->reporting: full end-to-end, T+1
 
-
 hide footbox
-@enduml-->
+@enduml
+-->
 
 <!-- probate
 http://localhost:8473,/demo/failure,PROD,Unable To Price Trade,,Email Support,3
@@ -114,7 +115,7 @@ BOS,clearing,uat,http://localhost:4253/clearing
         }
       };
 
-//hack right might mouse
+      //hack right might mouse
       document.oncontextmenu = previous;
 
       var startAt = 0 //TODO: read from url?
@@ -129,44 +130,62 @@ BOS,clearing,uat,http://localhost:4253/clearing
     });
 
   </script>
-  <title>??? - ???</title>
+  <title>Shoreditch - Paul Allton</title>
 </head>
 <body oncontextmenu="return false;">
 <!--<img style="float:right; margin: 30px 30px;" src="img/logo.png"/>-->
 <sections>
 
   <section>
-    <t1>is prod working?</t1>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <t1>Shoreditch</t1>
+    <t2>Paul Allton</t2>
+    <br/>
+    <br/>
+    <br/>
+    <p>solving three problems<p>
+    <p>using two simple concepts and a little scala/json<p>
+  </section>
+
+  <section>
+    <t1>Is prod working?</t1>
     <ul>
-      <li>write-only security clearance</li> <!-- as CAS alluded - in the dark, write only access -->
-      <li>keeping it up, without touching it</li> <!-- as CAS alluded - in the dark, write only access -->
-      <li>business vs technical</li> <!-- to protect against classes of problem-->
-      <!-- business not technical -->
+      <li>aka keeping it up, without touching it</li>
+      <!-- <li>write-only security clearance</li> --> <!-- as CAS alluded - in the dark, write only access -->
+      <!-- to protect against classes of problem-->
+      <li>proactively find and fix issues</li>
+      <li>before users/1st line support find out</li>
+      <li>business vs technical</li>
       <!-- not disk, memory etc - that's already monitored -->
       <!-- so what are we interested in? business problems .... -->
     </ul>
   </section>
 
   <section>
-    <t1>a trading system</t1>
+    <t1>A trading system</t1>
+    <t2>invariants</t2>
     <br/>
-    <p><t2>can price trade</t2></p>
-    <p><t2>no trades rejected</t2></p>
-    <p><t2>all trades cleared</t2></p>
-    <p><t2>reports valid today</t2></p>
-    <p><br/></p>
+    <p>can price trade</p>
+    <p>no trades rejected</p>
+    <p>all trades cleared</p>
+    <p>reports valid today</p>
   </section>
 
   <section>
-    <t1>a trading system</t1>
+    <t1>A trading system</t1>
+    <t2>invariants</t2>
     <br/>
     <p><t2>can price trade</t2></p>
     <p><t2>no trades rejected</t2></p>
     <p><t2>all trades cleared</t2></p>
     <p><t2>reports valid today</t2></p>
-    <p><br/></p>
+    <p></p>
 
     <ul>
+      <li>alarm bell</li>
       <li>already tested???</li>
       <!-- invariants of the system -->
       <!-- obviously every project has extensive suite of acceptance tests -->
@@ -181,16 +200,16 @@ BOS,clearing,uat,http://localhost:4253/clearing
     <!--
         we've got a test for that, but tests only run as part of building/deploying the app
     -->
-    <t1>assertions suck</t1>
+    <t1>Assertions are second class citizens</t1>
     <!-- okay, thats strong, they don't suck but they haven't fulfilled their potential
         we go to all the effort to write tests, documenting the system invariants and then throw them away
         invariants, first class citizens, why not expose them
     -->
     <ul>
-      <li>why only in tests?
-      <li>why only run during dev and CI?
-      <li>why hidden? <!-- are we ashamed of them? -->
-      <li>why not all the time?
+      <li>why only in used tests?
+      <li>why only executed during dev and CI?
+      <li>why not run them all the time?
+      <li>why not put them in production code? <!-- are we ashamed of them? -->
     </ul>
     <!--
         I want them running all the time, 1000's times per day
@@ -203,7 +222,8 @@ BOS,clearing,uat,http://localhost:4253/clearing
   </section>
 
   <section>
-    <t1>a trading system</t1>
+    <t1>A trading system</t1>
+    <t2>invariants</t2>
     <br/>
     <p>assert <t2>can price trade</t2></p>
     <p>assert <t2>no trades rejected</t2></p>
@@ -216,82 +236,109 @@ BOS,clearing,uat,http://localhost:4253/clearing
   </section>
 
   <section>
-    <t1>a trading system</t1>
+    <t1>A trading system</t1>
+    <t2>invariants</t2>
     <br/>
-    <p><t2>assert/can/price/trade</t2></p>
-    <p><t2>assert/no/trades/rejected</t2></p>
-    <p><t2>assert/all/trades/cleared</t2></p>
-    <p><t2>assert/reports/valid/today</t2></p>
+    <p><t2>assert</t2>/<t2>can</t2>/<t2>price</t2>/<t2>trade</t2></p>
+    <p><t2>assert</t2>/<t2>no</t2>/<t2>trades</t2>/<t2>rejected</t2></p>
+    <p><t2>assert</t2>/<t2>all</t2>/<t2>trades</t2>/<t2>cleared</t2></p>
+    <p><t2>assert</t2>/<t2>reports</t2>/<t2>valid</t2>/<t2>today</t2></p>
     <p><br/></p>
     <ul>
-      <li>... in a REST-like (tm) interface</li>
+      <li>... using REST-like (tm) endpoints</li>
     </ul>
+  </section>
+
+  <section>
+    <t1>concept #1 - the check</t1> <!-- note that assert has changed to check, whatever -->
+    <div style="width: 50%; float: left;">
+        <pre>
+GET /check/trades/rejected/@count
+GET /check/trades/rejected/0</pre>
+
+      <br/>
+      <t2>Success</t2>
+    <pre>
+=>  {"failures":[]}</pre> <!-- the empty list -->
+
+      <br/>
+      <t2>Failure</t2>
+      <!-- need to add a better failure message -->
+        <pre>
+=>  {"failures":[
+      "2 trades rejected",
+      "trade 1234 is rejected",
+      "trade 5678 is rejected"
+    ]}</pre>
+    </div>
+    <div style="width: 50%; float: right;">
+    <pre>
+trait Check {
+  def run: CheckResponse
+  def success = CheckResponse(Nil)
+  def failure(failures: List[String]) =
+     CheckResponse(failures)
+}
+
+case class CheckResponse(
+  failures: List[String])</pre>
+    </div>
 
   </section>
 
   <section>
-    <t1>check</t1> <!-- note that assert has changed to check, whatever -->
-        <pre>   GET /check/trades/rejected/@count
-   GET /check/trades/rejected/0</pre>
-
-    <br/>
-    <t2>Success</t2>
-    <pre>   =>   {"failures":[]}</pre> <!-- the empty list -->
-
-    <br/>
-    <t2>Failure</t2>
-    <!-- need to add a better failure message -->
-        <pre>   =>   {"failures":[
-           "2 trades rejected",
-           "trade 1234 is rejected",
-           "trade 5678 is rejected"
-        ]}</pre>
-  </section>
-
-  <section>
-    <t1>a trading system</t1>
+    <t1>A trading system</t1>
+    <t2>invariants</t2>
     <br/>
     <p>http://pricing/<t2>check/can/price/trade</t2></p>
     <p>http://trading/<t2>check/no/trades/rejected</t2></p>
     <p>http://clearing/<t2>check/all/trades/cleared</t2></p>
     <p>http://reporting/<t2>check/reports/valid/today</t2></p>
-    <p><br/></p>
+    <br/>
 
     <ul>
-      <li>... now we just need to run them ...</li>
+      <li>each component exposes its endpoints</li>
+      <li>now we just need to run them ...</li>
     </ul>
   </section>
 
   <section>
-    <t1>continuous checking</t1>
+    <t1>Continuous checking - reprobate</t1>
+    <t2>team rule - stop the line on a red box</t2>
     <!-- thousands of times per day -->
-    <br/>
-    <iframe width="90%" height="80%" frameborder="0" src="http://localhost:8473/"></iframe>
+    <p></p>
+    <iframe width="90%" height="60%" frameborder="0" src="http://localhost:8473/"></iframe>
 
     <ul>
       <!-- job done -->
-      <li>... useful building block ...</li> <!-- useful in its own right, but we can do more -->
+      <li>first problem solved and we have a useful building block ...</li> <!-- useful in its own right, but we can do more -->
     </ul>
   </section>
 
   <section>
-    <t1>where's my $#!*ing trade?</t1>
-    <br/>
+    <t1>Where's my $#!*ing trade?</t1> <!-- flipping -->
     <p>@id = 12345</t2></p>
     <p><t2>http://booking/check/trade/booked/</t2>@id</p>
     <p><t2>http://pricing/check/trade/priced/</t2>@id</p>
     <p><t2>http://trading/check/trade/accepted/</t2>@id</p>
     <p><t2>http://clearing/check/trade/cleared/</t2>@id</p>
     <p><t2>http://reporting/check/reports/include/</t2>@id</t2></p>
-    <p><br/></p>
+    <p></p>
+    <ul>
+      <!-- job done -->
+      <li>two down, using only one concept ... next</li>
+    </ul>
   </section>
 
   <section>
-    <t1>microservices</t1>
+    <t1>Microservices microservices microservices</t1>
     <br/>
     <ul>
-      <li>i don't want a faster scala compiler</li> <!-- it keeps you honest, it's a good alarm bell -->
-      <li>clean compile > 1 min rule</li> <!-- codebase is too big -->
+      <li>we love them</li>
+      <li>I don't want a faster scala compiler</li> <!-- it keeps you honest, it's a good alarm bell -->
+      <li>alarm bell: clean compile > 1 min</li> <!-- codebase is too big -->
+      <li>results in lots of small services</li> <!-- compile quickly, easy to replace/remove -->
+      <li>which is great, but a new problem emerges ...</li>
     </ul>
   </section>
 
@@ -301,12 +348,16 @@ BOS,clearing,uat,http://localhost:4253/clearing
         integration testing a suite of applications/services
     -->
 
-    <t1>is it safe to release?</t1>
+    <t1>Is it safe to release?</t1>
+    <t2>all unit and acceptance tests for each component pass</t2>
+
+    <ul>
+      <li>what about integration testing?</li> <!-- using similar style -->
+    </ul>
+
     <!-- every app/service was well tested, but the more services we added, more we realised there was a gap,
      because not tested the whole thing -->
-    <br/>
-    <br/>
-    <img src="http://www.plantuml.com:80/plantuml/png/TL3BJiCm43ndls8bZX2fl2I84591wga7fF83Zhq9LbslsJegZ_3lk96XIYXpyUxix8orsxNrGOdQu9PUE_AQy1EAkGZl7jcnuCdLnKsj5M36C5gmZolxGNWvWs9f6rfQJmyiXYHltGu0A9wKHAjjK3xkjuwRJaIh-Eu8QtRcNyKGVZso7-NF1epdIgzRuSwRh5aCW2-0S52bM4utQKTS56McN91KJJZjICcK50gSkiH2zhuhxtDLeTAQGbJfyD3tFUIafCZ-5LeVgHKLBVk9v2Ukmfqrz4TuIFlzGeLDvnoIDsNaCZrd-7nw3W0lUuE6ETRyzWq0"/>
+    <img src="http://www.plantuml.com:80/plantuml/png/VL3BIiGm55ttVaN0fHR65-WWWWgpceKm_a2QtDRGc1jlKyP7_NVJ61dQ6JsR9ES9wLhZl6Jv8ZfyxT4f59zGt37Jze4iiJYwEBkgb0IHaQGLkR0n7oZE5r2iJOrhu_2UM2Fdr7K2GF4eEHXbl7HXJ1qkdPasuTsYgCZgFnrf_79IFzbV94nrgTg6gNSwUrO9y0NWTwuuI_5FcWddETvcN62fvnoRhfqGogBaFHTwYg_8GXwxAM_pn58O5x1X6Gmv68O1yawqZEtx-gxYHzyQZV-PViUNekwj5UXq6QYCnubuEZu5U1xpDL6ewEqR"/>
 
     <ul>
       <li>... what if we could also change the system state ...</li> <!-- using similar style -->
@@ -314,26 +365,53 @@ BOS,clearing,uat,http://localhost:4253/clearing
   </section>
 
   <section>
-    <t1>action</t1>
-        <pre>   POST /action/create/trade
+    <t1>concept #2 - the action</t1>
+    <div style="width: 50%; float: left;">
+    <pre>
+POST /action/create/trade
 
-        {"in":[
-          {"name":"notional", "value:":"100m"}
-        ]}</pre>
-    <br/>
-    <t2>Success</t2>
-    <pre>   =>   {"failures":[], "returnValue": "12345"}  //optional</pre>
+{"in":[
+  {"name":"notional", "value:":"100m"}
+]}</pre>
+      <br/>
+      <t2>Success</t2>
+    <pre>
+=>  {"failures":[], "returnValue": "12345"}
+                    //optional</pre>
 
-    <br/>
-    <t2>Failure</t2>
-    <!-- need to add a better failure message -->
-    <pre>   =>   {"failures":["trade creation failed"]}</pre>
+      <br/>
+      <t2>Failure</t2>
+    <pre>
+=>  {"failures":["trade creation failed"]}</pre>
+    </div>
+    <div style="width: 50%; float: right;">
+    <pre>
+trait Action {
+  def run(in: List[In]): ActionResponse
+
+  def success(returnValue: Option[String]) =
+    ActionResponse(Nil, returnValue)
+
+  def failure(failures: List[String]) =
+    ActionResponse(failures, None)
+}
+
+case class ActionResponse(
+  failures: List[String],
+  returnValue: Option[String])
+
+case class In(name: String,
+  value: String,
+  validValues: List[String] = Nil)
+    </pre>
+
+    </div>
   </section>
 
   <section>
-    <t1>bring it all together</t1>
+    <t1>Bringing it all together</t1>
 
-    <t2><p>checks + actions</p><p>+ runner </p>= test anything</t2>
+    <t2><p>primitives (checks + actions)</p><p>+ script/dsl </p><p>+ runner </p></t2>= test anything
     <!--
         bring it altogether
         its just a case of assembling tests out of endpoints in a script
@@ -341,27 +419,26 @@ BOS,clearing,uat,http://localhost:4253/clearing
 
         we call this .... shoreditch
     -->
-
   </section>
 
   <section>
-    <t1>shoreditch</t1> <!-- this is more than just an approach, there is a reference implementation -->
+    <t1>What is shoreditch?</t1> <!-- this is more than just an approach, there is a reference implementation -->
 
     <ul>
-      <li>implementation in scala, using json and akka</li>
-      <li>'hipster' scripting language</li> <!-- describes actions and checks -->
-      <li>multiple runners</li> <!-- gui, command line, api -->
-      <li>open source</li>
-      <li>doesnt have any documentation right now</li> <!-- and the code is hideous -->
-      <li>future: UI for test creation/refactoring</li>
+      <li>implementation in scala, using json and akka, ui's in liftweb</li>
+      <li>'hipster' scripting language describes workflow</li> <!-- describes actions and checks -->
+      <li>engine for executing checks and actions</li> <!-- describes actions and checks -->
+      <li>multiple runners: API, GUI, CLI</li> <!-- gui, command line, api -->
+      <li>open source, rather lacks documentation right now</li> <!-- and the code is hideous -->
+      <li>teaser: checks and actions are discoverable ...</li>
+      <li>in progress: GUI for test authoring/refactoring</li>
     </ul>
   </section>
 
   <!-- TODO: colourise the id -->
 
   <section>
-    <t1>hipster - a new trade must be</t1>
-    <br/>
+    <t1>Hipster - a new trade must be</t1>
     <t2>booked, priced, accepted and cleared</t2>
     <br/>
     <br/>
@@ -370,27 +447,38 @@ BOS,clearing,uat,http://localhost:4253/clearing
    check trade <b>priced</b> in:pricing => <b>@id</b>
    check trade <b>accepted</b> in:trading => <b>@id</b>
    check trade <b>cleared</b> in:clearing => <b>@id</b></pre>
+
+    <ul>
+      <li>engine converts hipster into actions and checks</li>
+      <li>executes it against a given environment</li>
+      <li>fails fast if any components does not offer action/check x </li>
+    </ul>
   </section>
 
   <!-- need to explain what this maps to ... -->
 
   <section>
-    <t1>shoreditch gui runner</t1>
-    <!-- need to make the text on this bigger -->
+    <t1>Shoreditch gui runner</t1>
     <iframe width="90%" height="80%" frameborder="0" src="http://localhost:4253/"></iframe>
   </section>
 
   <section>
-    <t1>a few more things ...</t1>
+    <t1>Two primitives go a long way</t1>
+    <t2>e.g. how do you ...</t2>
     <ul>
-      <li>how do you know it's quick enough?
-      <li>how do you know what your capacity is?
-      <li>how do you test long running workflows (i.e. days to execute, events T+x)?
-      <li>how do you break up a monolithic app into microservices?
-      <li>how do you test services you don't own/have the source for?
-      <li>how do you generate test evidence for everything?
+      <li>test your platform is quick enough?
+      <li>know your capacity limits?
+      <li>test long running workflows (i.e. days to execute, events T+x)?
+      <li>break up a monolithic app into microservices?
+      <li>test services you don't own/have the source for?
+      <li>generate test evidence for everything?
     </ul>
-    <!-- with just two primitives, check and action you can answer all of the above -->
+  </section>
+
+  <section>
+    <t1>thats it!</t1>
+    <br/>
+    <t2>over to Franck ...</t2>
   </section>
 
   <!-- its all the same, with checks and actions, it's just a case of assembling tests out of endpooints -->
@@ -402,7 +490,6 @@ BOS,clearing,uat,http://localhost:4253/clearing
   even though everything is fully TDD'd with rafts of acceptance tests, things still
   allowed to write the code, arent allowed to use it!
   -->
-
 
   <!-- /guff -->
 
