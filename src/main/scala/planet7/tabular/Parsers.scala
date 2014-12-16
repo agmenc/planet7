@@ -14,6 +14,13 @@ case class DefaultParser(delimiter: Char) extends Parser {
   override val delim = s"$delimiter"
 }
 
+/**
+* Simple parser with common defaults:
+*   - Quoted strings are preserved, even with embedded delimiters, e.g.:
+*       foo, "one, monkey, two", bar ===> Array("foo", "one, monkey, two", "bar")
+*   - spaces around elements are ignored (unless quoted)
+*       foo    ,  bar ,   "   monkey one  ", baz ===> Array("foo", "bar", "   monkey one  ", "baz")
+*/
 case class RegexTwoPassParser(delimiter: Char) extends Parser {
   override val delim = s"$delimiter"
 
@@ -31,7 +38,7 @@ case class RegexTwoPassParser(delimiter: Char) extends Parser {
       else replaced.split(wideDelim, -1)
     }
 
-    Row((s"§$line§" split(quotes, -1) zipWithIndex) flatMap splitEvenItems)
+    Row((s"§${line.trim}§" split(quotes, -1) zipWithIndex) flatMap splitEvenItems)
   }
 
   override def write(row: Row) = row.data map quoteDelims mkString delim

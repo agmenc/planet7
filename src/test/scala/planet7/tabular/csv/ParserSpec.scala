@@ -85,4 +85,23 @@ class ParserSpec extends WordSpec with MustMatchers {
     new RegexTwoPassParser(',').write(Row(Array("Index","Name","Value-of-thing", "Id"))) mustEqual """Index,Name,Value-of-thing,Id"""
     new RegexTwoPassParser('-').write(Row(Array("Index","Name","Value-of-thing", "Id"))) mustEqual """Index-Name-"Value-of-thing"-Id"""
   }
+
+  "The RegexTwoPassParser trims all data elements" in {
+    val spaceyInput = """     First Name , Surname, Age
+                        | Sue, Smith, 24
+                        |Bob    ,Smith  , 24
+                        | Fred , "Black   "    , 127
+                        | Jeremiah Jehosephat     ,     Jones,36     """.stripMargin
+
+    val trimmedOutput = """First Name,Surname,Age
+                   |Sue,Smith,24
+                   |Bob,Smith,24
+                   |Fred,Black   ,127
+                   |Jeremiah Jehosephat,Jones,36""".stripMargin
+
+    val parser = RegexTwoPassParser(',')
+    val parsed = spaceyInput.split("\n").map(parser.read).map(parser.write).mkString("\n")
+
+    parsed mustEqual trimmedOutput
+  }
 }
