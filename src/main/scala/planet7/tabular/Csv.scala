@@ -35,7 +35,7 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
 
     row => Row(desiredColumnIndices map {
       case newColumn if newColumn == -1 => ""
-      case invalidIndex if invalidIndex >= row.data.length => throw new ColumnNotFoundInDataRowException(header.data(invalidIndex), row)
+      case invalidIndex if invalidIndex >= row.data.length => throw new TruncatedDataRowException(invalidIndex, header, row)
       case validIndex => row.data(validIndex)
     })
   }
@@ -46,12 +46,12 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
 
   def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, rows.map(valuesXformerFor(mappings: _*)))
 
-  private def indexOf(column: String): Int = header.data.indexOf(column) match {
-    case notFound if notFound < 0 => throw new ColumnNotFoundInHeaderException(column, header)
-    case ok => ok
-  }
-
   private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
+    def indexOf(column: String): Int = header.data.indexOf(column) match {
+      case notFound if notFound < 0 => throw new ColumnDoesNotExistException(column, header)
+      case ok => ok
+    }
+
     val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => indexOf(column) -> mapper }(collection.breakOut)
 
     desiredMappings foreach {
@@ -80,10 +80,16 @@ object Csv {
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.rows))
 }
 
-class ColumnNotFoundInHeaderException(columnName: String, header: Row) extends RuntimeException {
+class ColumnDoesNotExistException(columnName: String, header: Row) extends RuntimeException {
   override def getMessage = s"Cannot find column '$columnName' in header with columns:\n${header.data.mkString("\n")}\n"
 }
 
-class ColumnNotFoundInDataRowException(columnName: String, row: Row) extends RuntimeException{
-  override def getMessage = s"Cannot find column '$columnName' in data row\n${}\n"
+class TruncatedDataRowException(invalidIndex: Int, header: Row, row: Row) extends RuntimeException {
+  def describeRow: String = (header.data zip row.data) map { case (heading, element) => s"$heading: $element" } mkString "\n"
+  override def getMessage =
+    s"""
+       |Column '${header.data(invalidIndex)}' is not present in this data row. The header
+       |contains ${header.data.length} elements, but the data row only contains ${row.data.length}:
+       |$describeRow
+       |""".stripMargin
 }

@@ -259,7 +259,17 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     val csv = Csv(input).columnStructure("val1", "val2", "val3")
 
-    a [ColumnNotFoundInDataRowException] should be thrownBy export(csv)
+    a [TruncatedDataRowException] should be thrownBy export(csv)
+  }
+
+  "Fails if we try to use a bad column name in a data transformation" in {
+    val input = """
+                  |val1,val2,val3
+                  |0,""".stripMargin
+
+    val csv = Csv(input).withMappings("val840" -> (_.toUpperCase))
+
+    a [ColumnDoesNotExistException] should be thrownBy export(csv)
   }
 
   "The user can supply row-level validations" in {
