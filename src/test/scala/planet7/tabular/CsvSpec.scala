@@ -251,4 +251,28 @@ class CsvSpec extends WordSpec with MustMatchers {
 
     noException should be thrownBy export(csv)
   }
+
+  "Handles incomplete rows disgracefully" in {
+    val input = """
+                  |val1,val2,val3
+                  |0,""".stripMargin
+
+    val csv = Csv(input).columnStructure("val1", "val2", "val3")
+
+    a [ColumnNotFoundInDataRowException] should be thrownBy export(csv)
+  }
+
+  "The user can supply row-level validations" in {
+    // Validations can be:
+    //  - aborting (fail-fast, throwing Exceptions or some such)
+    //  - reporting (written to some output buffer) - is this a genuine case for a write monad?
+    // Sensible defaults (fail-fast)
+    // User-provided validations
+    // Standard validations provided free-of-charge
+
+//    val csv = Csv(input)
+//      .withValidations(allRowsComplete)
+
+    fail("Nope")
+  }
 }

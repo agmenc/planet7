@@ -33,8 +33,11 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
   private[tabular] def columnXformerFor(columns: (String, String)*): (Row) => Row = {
     val desiredColumnIndices: Array[Int] = columns.map { case (sourceCol, targetCol) => header.data.indexOf(sourceCol) }(collection.breakOut)
 
-    // TODO - CAS - 15/08/2014 - If row has fewer elements than lookup index, i.e. it is invalid, this fn throws ArrayIndexOutOfBoundsException
-    row => Row(desiredColumnIndices map (index => if (index == -1) "" else row.data(index)))
+    row => Row(desiredColumnIndices map {
+      case newColumn if newColumn == -1 => ""
+      case invalidIndex if invalidIndex >= row.data.length => throw new ColumnNotFoundInDataRowException(header.data(invalidIndex), row)
+      case validIndex => row.data(validIndex)
+    })
   }
 
   private[tabular] def headerRenamerFor(columns: (String, String)*) = (row: Row) => Row(columns.map {
@@ -43,12 +46,12 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
 
   def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, rows.map(valuesXformerFor(mappings: _*)))
 
-  private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
-    def indexOf(column: String): Int = header.data.indexOf(column) match {
-      case notFound if notFound < 0 => throw new MappingException(s"Cannot apply mapping. Column '$column' does not exist")
-      case ok => ok
-    }
+  private def indexOf(column: String): Int = header.data.indexOf(column) match {
+    case notFound if notFound < 0 => throw new ColumnNotFoundInHeaderException(column, header)
+    case ok => ok
+  }
 
+  private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
     val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => indexOf(column) -> mapper }(collection.breakOut)
 
     desiredMappings foreach {
@@ -77,4 +80,10 @@ object Csv {
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.rows))
 }
 
-class MappingException(description: String) extends RuntimeException(description)
+class ColumnNotFoundInHeaderException(columnName: String, header: Row) extends RuntimeException {
+  override def getMessage = s"Cannot find column '$columnName' in header with columns:\n${header.data.mkString("\n")}\n"
+}
+
+class ColumnNotFoundInDataRowException(columnName: String, row: Row) extends RuntimeException{
+  override def getMessage = s"Cannot find column '$columnName' in data row\n${}\n"
+}
