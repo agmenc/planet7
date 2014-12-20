@@ -24,7 +24,6 @@ trait TabularDataSource extends Closeable {
 }
 
 class NoDataInSourceException(sourceDescription: String) extends RuntimeException(sourceDescription)
-class ParsingFailureException(description: String) extends RuntimeException(description)
 
 class ScannerDataSource(file: File, parser: Parser) extends TabularDataSource {
   private val scanner = new Scanner(Paths.get(file.toURI))
