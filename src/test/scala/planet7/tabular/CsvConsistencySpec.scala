@@ -17,7 +17,7 @@ class CsvConsistencySpec extends WordSpec with MustMatchers {
       val csv = Csv(loadMethod())
       csv.header must equal(expectedHeader)
 
-      val allRowsMaterialised = csv.rows.to[List]
+      val allRowsMaterialised = csv.iterator.to[List]
       allRowsMaterialised.size must be (expectedRowCount)
       allRowsMaterialised.head must be (expectedFirstRow)
       allRowsMaterialised.last must be (expectedLastRow)
@@ -39,7 +39,7 @@ class CsvConsistencySpec extends WordSpec with MustMatchers {
       val csv = Csv(loadMethod())
 
       csv.header must equal(Row(Array("First name", "Surname", "Company", "Company account", "Postcode", "Pet names")))
-      csv.rows mustBe empty
+      csv.iterator mustBe empty
     }
   }
 }

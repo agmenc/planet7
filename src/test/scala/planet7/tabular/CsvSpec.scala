@@ -68,7 +68,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     val csv = Csv(CSVReader.open(TestDataFile(largeDataFile)))
 
     csv.header must equal(expectedHeader)
-    csv.rows.next() must be (expectedFirstRow)
+    csv.iterator.next() must be (expectedFirstRow)
   }
 
   "We can add empty columns to a Csv" in {
@@ -85,7 +85,7 @@ class CsvSpec extends WordSpec with MustMatchers {
     val result = twoColumns.columnStructure("ID", "Value", "Name")
 
     result.header mustEqual Row(Array("ID", "Value", "Name"))
-    result.rows.toList must equal(threeColumns.rows.toList)
+    result.iterator.toList must equal(threeColumns.iterator.toList)
   }
 
   "We can map data and specify default values by column" in {
@@ -114,7 +114,7 @@ class CsvSpec extends WordSpec with MustMatchers {
         "Name" -> (_.toLowerCase)   // Mapping function
       )
 
-    result.rows.toList must equal(threeColumns.rows.toList)
+    result.iterator.toList must equal(threeColumns.iterator.toList)
   }
 
   "Exporting a Csv generates output which could be read by any other CSV parser" in {
@@ -244,22 +244,32 @@ class CsvSpec extends WordSpec with MustMatchers {
 
   "Handles empty cells gracefully" in {
     val input = """
-                  |val2,val3,val4
+                  |val1,val2,val3
                   |0,,""".stripMargin
 
-    val csv = Csv(input).columnStructure("val2", "val3", "val4")
-
-    noException should be thrownBy export(csv)
+    noException should be thrownBy export(Csv(input))
   }
 
-  "Handles incomplete rows disgracefully" in {
+  "Strict (normal) mode: throws exception when trying to restructure non-existent data rows" in {
     val input = """
                   |val1,val2,val3
-                  |0,""".stripMargin
+                  |0,
+                  |a,b,c""".stripMargin
 
     val csv = Csv(input).columnStructure("val1", "val2", "val3")
 
     a [TruncatedDataRowException] should be thrownBy export(csv)
+  }
+
+  "Tolerant mode: does NOT throw exception when trying to restructure non-existent data rows" in {
+    val input = """
+                  |val1,val2,val3
+                  |0,
+                  |a,b,c""".stripMargin
+
+    val csv = Csv(input).columnStructure("val1", "val2", "val3").tolerant()
+
+    noException should be thrownBy export(csv)
   }
 
   "Fails if we try to use a bad column name in a data transformation" in {
@@ -272,17 +282,5 @@ class CsvSpec extends WordSpec with MustMatchers {
     a [ColumnDoesNotExistException] should be thrownBy export(csv)
   }
 
-  "The user can supply row-level validations" in {
-    // Validations can be:
-    //  - aborting (fail-fast, throwing Exceptions or some such)
-    //  - reporting (written to some output buffer) - is this a genuine case for a write monad?
-    // Sensible defaults (fail-fast)
-    // User-provided validations
-    // Standard validations provided free-of-charge
 
-//    val csv = Csv(input)
-//      .withValidations(allRowsComplete)
-
-    fail("Nope")
-  }
 }

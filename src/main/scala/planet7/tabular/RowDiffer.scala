@@ -25,7 +25,7 @@ case class RowDiffer(header: Row, fieldComps: (String, Comparator[String])*) ext
   }
 }
 
-object EmptyRow extends Row(Array.empty[String])
+object EmptyRow extends Row(Array.empty[String], Nil)
 
 case object FieldDiffer extends Differentiator[(String, String)] {
   override def zero = ("", "")

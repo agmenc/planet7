@@ -1,9 +1,6 @@
 package planet7.tabular
 
-/**
- * A Row is an Array of data
- */
-case class Row(data: Array[String]) {
+case class Row(data: Array[String], validationFailures: Seq[String] = Nil) {
   override def toString = data.mkString(",")
 
   override def canEqual(that: Any) = that.isInstanceOf[Row]

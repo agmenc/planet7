@@ -18,7 +18,7 @@ class DiffSpec extends WordSpec with MustMatchers {
                   |A,B,C
                   |G,X,I""".stripMargin)
 
-    val result: Seq[(Row, Row)] = Diff(left.rows, right.rows, RowDiffer(left.header, "ID"))
+    val result: Seq[(Row, Row)] = Diff(left.iterator, right.iterator, RowDiffer(left.header, "ID"))
 
     assert(result === List(
       (Row(Array("G", "H", "I")), Row(Array("G", "X", "I"))),

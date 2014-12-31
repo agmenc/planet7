@@ -20,12 +20,12 @@ package planet7.tabular
  * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
  * TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
  */
-case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
+case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Seq[Row => Row => Row] = Csv.defaultValidations) extends Iterable[Row] {
 
   def columnStructure(columns: (String, String)*): Csv = {
     val columnXformer = columnXformerFor(columns: _*)
     val headerRenamer = headerRenamerFor(columns: _*)
-    Csv(headerRenamer(columnXformer(header)), rows.map(columnXformer))
+    Csv(headerRenamer(columnXformer(header)), dataRows.map(columnXformer), validations)
   }
 
   def columnStructure(restructurer: Array[String] => Array[String]): Csv = columnStructure(restructurer(header.data) map (s => s -> s) :_*)
@@ -33,9 +33,8 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
   private[tabular] def columnXformerFor(columns: (String, String)*): (Row) => Row = {
     val desiredColumnIndices: Array[Int] = columns.map { case (sourceCol, targetCol) => header.data.indexOf(sourceCol) }(collection.breakOut)
 
-    row => Row(desiredColumnIndices map {
+    row => Row(desiredColumnIndices filter (_ < row.data.length) map {
       case newColumn if newColumn == -1 => ""
-      case invalidIndex if invalidIndex >= row.data.length => throw new TruncatedDataRowException(invalidIndex, header, row)
       case validIndex => row.data(validIndex)
     })
   }
@@ -44,7 +43,7 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
     case (before, after) => after
   }(collection.breakOut))
 
-  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, rows.map(valuesXformerFor(mappings: _*)))
+  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, dataRows.map(valuesXformerFor(mappings: _*)), validations)
 
   private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
     def indexOf(column: String): Int = header.data.indexOf(column) match {
@@ -61,13 +60,22 @@ case class Csv(header: Row, rows: Iterator[Row]) extends Iterable[Row] {
     Row(row.data)
   }
 
-  def filter(predicates: (String, String => Boolean)*): Csv = Csv(header, rows.withFilter(nextRowFilter(predicates:_*)))
+  def tolerant() = asserting()
+
+  def asserting(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations)
+
+  // TODO - CAS - 31/12/14 - Switch all new Csv instances to this.copy(...)
+  def filter(predicates: (String, String => Boolean)*): Csv = Csv(header, dataRows.withFilter(nextRowFilter(predicates:_*)), validations)
 
   private[tabular] def nextRowFilter(predicates: (String, String => Boolean)*): Row => Boolean = row => predicates.forall {
     case (columnName, predicate) => predicate(row.data(header.data.indexOf(columnName)))
   }
 
-  override def iterator = rows
+  override def iterator = {
+    val actualValidations: Seq[Row => Row] = validations.map(_(header))
+    def blowIfBad(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
+    dataRows map blowIfBad
+  }
 }
 
 object Csv {
@@ -77,19 +85,26 @@ object Csv {
   }
 
   // TODO - CAS - 07/12/14 - Check all CSVs have the same header
-  def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.rows))
+  // TODO - CAS - 31/12/14 - Should we also fold in the validations?
+  def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.dataRows))
+
+  def defaultValidations: Seq[Row => Row => Row] = Seq(
+    (header: Row) => (row: Row) => {
+      if (row.data.length < header.data.length) throw new TruncatedDataRowException(header, row)
+      row
+    }
+  )
 }
 
 class ColumnDoesNotExistException(columnName: String, header: Row) extends RuntimeException {
   override def getMessage = s"Cannot find column '$columnName' in header with columns:\n${header.data.mkString("\n")}\n"
 }
 
-class TruncatedDataRowException(invalidIndex: Int, header: Row, row: Row) extends RuntimeException {
+class TruncatedDataRowException(header: Row, row: Row) extends RuntimeException {
   def describeRow: String = (header.data zip row.data) map { case (heading, element) => s"$heading: $element" } mkString "\n"
   override def getMessage =
     s"""
-       |Column '${header.data(invalidIndex)}' is not present in this data row. The header
-       |contains ${header.data.length} elements, but the data row only contains ${row.data.length}:
+       |The header contains ${header.data.length} elements, but the data row only contains ${row.data.length}:
        |$describeRow
        |""".stripMargin
 }

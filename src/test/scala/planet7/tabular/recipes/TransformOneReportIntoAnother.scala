@@ -7,8 +7,8 @@ import org.scalatest.{MustMatchers, WordSpec}
 class TransformOneReportIntoAnother extends WordSpec with MustMatchers {
   import planet7.tabular._
 
-  private val postcodeLookupTable = Csv(new File("src/test/resources/planet7/tabular/before/postcodes.csv")).rows.map {
-    case Row(Array(oldCode, newCode)) => oldCode -> newCode
+  private val postcodeLookupTable = Csv(new File("src/test/resources/planet7/tabular/before/postcodes.csv")).iterator.map {
+    case Row(Array(oldCode, newCode), _) => oldCode -> newCode
   }.toMap
 
   private val gravidaExpectedOutput = "GRAVIDA FOUNDATION,TR729188509373842450961594,0.00,39376"

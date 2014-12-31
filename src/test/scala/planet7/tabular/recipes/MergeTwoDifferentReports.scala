@@ -9,8 +9,8 @@ class MergeTwoDifferentReports extends WordSpec with MustMatchers {
 
   import planet7.tabular._
 
-  val postcodeLookupTable = Csv(new File("src/test/resources/planet7/tabular/before/postcodes.csv")).rows.map {
-    case Row(Array(oldCode, newCode)) => oldCode -> newCode
+  val postcodeLookupTable = Csv(new File("src/test/resources/planet7/tabular/before/postcodes.csv")).iterator.map {
+    case Row(Array(oldCode, newCode), _) => oldCode -> newCode
   }.toMap
 
   val expectedOutput = new File("src/test/resources/planet7/tabular/after/after.csv")
