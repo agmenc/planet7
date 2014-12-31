@@ -14,7 +14,7 @@ package planet7.tabular
  *
  * Csv is designed to be lazy. All materialisation of the datasource is done OUTSIDE of the Csv, i.e. as late as possible. Thus,
  * there should be no appreciable time cost to constructing a Csv, merging Csvs, restructuring columns, and so forth. The time
- * cost is only paid once, when the client code exports or otherwise materialises then Csv.
+ * cost is only paid once, when the client code exports or otherwise materialises the Csv.
  *
  * TODO - CAS - 07/08/2014 - A Y-shaped pipeline (spits out two CSVs)
  * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
@@ -25,7 +25,7 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
   def columnStructure(columns: (String, String)*): Csv = {
     val columnXformer = columnXformerFor(columns: _*)
     val headerRenamer = headerRenamerFor(columns: _*)
-    Csv(headerRenamer(columnXformer(header)), dataRows.map(columnXformer), validations)
+    this.copy(header = headerRenamer(columnXformer(header)), dataRows = dataRows.map(columnXformer))
   }
 
   def columnStructure(restructurer: Array[String] => Array[String]): Csv = columnStructure(restructurer(header.data) map (s => s -> s) :_*)
@@ -43,7 +43,7 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
     case (before, after) => after
   }(collection.breakOut))
 
-  def withMappings(mappings: (String, (String) => String)*): Csv = Csv(header, dataRows.map(valuesXformerFor(mappings: _*)), validations)
+  def withMappings(mappings: (String, (String) => String)*): Csv = this.copy(dataRows = dataRows.map(valuesXformerFor(mappings: _*)))
 
   private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
     def indexOf(column: String): Int = header.data.indexOf(column) match {
@@ -64,8 +64,7 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
 
   def asserting(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations)
 
-  // TODO - CAS - 31/12/14 - Switch all new Csv instances to this.copy(...)
-  def filter(predicates: (String, String => Boolean)*): Csv = Csv(header, dataRows.withFilter(nextRowFilter(predicates:_*)), validations)
+  def filter(predicates: (String, String => Boolean)*): Csv = this.copy(dataRows = dataRows.withFilter(nextRowFilter(predicates:_*)))
 
   private[tabular] def nextRowFilter(predicates: (String, String => Boolean)*): Row => Boolean = row => predicates.forall {
     case (columnName, predicate) => predicate(row.data(header.data.indexOf(columnName)))
@@ -88,23 +87,9 @@ object Csv {
   // TODO - CAS - 31/12/14 - Should we also fold in the validations?
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.dataRows))
 
-  def defaultValidations: Seq[Row => Row => Row] = Seq(
-    (header: Row) => (row: Row) => {
-      if (row.data.length < header.data.length) throw new TruncatedDataRowException(header, row)
-      row
-    }
-  )
+  def defaultValidations: Seq[Row => Row => Row] = Seq(Validations.rowNotTruncated)
 }
 
 class ColumnDoesNotExistException(columnName: String, header: Row) extends RuntimeException {
   override def getMessage = s"Cannot find column '$columnName' in header with columns:\n${header.data.mkString("\n")}\n"
-}
-
-class TruncatedDataRowException(header: Row, row: Row) extends RuntimeException {
-  def describeRow: String = (header.data zip row.data) map { case (heading, element) => s"$heading: $element" } mkString "\n"
-  override def getMessage =
-    s"""
-       |The header contains ${header.data.length} elements, but the data row only contains ${row.data.length}:
-       |$describeRow
-       |""".stripMargin
 }
