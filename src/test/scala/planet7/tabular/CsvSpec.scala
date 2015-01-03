@@ -250,29 +250,27 @@ class CsvSpec extends WordSpec with MustMatchers {
     noException should be thrownBy export(Csv(input))
   }
 
-  "Strict (normal) mode: throws exception when trying to restructure non-existent data rows" in {
+  "Strict (normal) mode: applies default validations and throws exception when they break" in {
     val input = """
                   |val1,val2,val3
                   |0,
                   |a,b,c""".stripMargin
 
-    val csv = Csv(input).columnStructure("val1", "val2", "val3")
-
-    a [TruncatedDataRowException] should be thrownBy export(csv)
+    a [TruncatedDataRowException] should be thrownBy export(Csv(input))
   }
 
-  "Tolerant mode: does NOT throw exception when trying to restructure non-existent data rows" in {
+  "Tolerant mode: does NOT throw an exception when when data is invalid" in {
     val input = """
                   |val1,val2,val3
                   |0,
                   |a,b,c""".stripMargin
 
-    val csv = Csv(input).columnStructure("val1", "val2", "val3").tolerant()
+    val csv = Csv(input).tolerantReader()
 
     noException should be thrownBy export(csv)
   }
 
-  "Fails if we try to use a bad column name in a data transformation" in {
+  "Fails fast if we try to use a bad column name in a data transformation" in {
     val input = """
                   |val1,val2,val3
                   |0,""".stripMargin
@@ -282,5 +280,32 @@ class CsvSpec extends WordSpec with MustMatchers {
     a [ColumnDoesNotExistException] should be thrownBy export(csv)
   }
 
+//  "The user can supply row-level validations" in {
+//    val input = """
+//                  |val1,val2,val3
+//                  |1,2
+//                  |3,X,5""".stripMargin
+//
+//    implicit def toValidation(t: (String, String => Boolean)): Row => Row => Row = {
+//      (header: Row)(row: Row) =>
+//      ???
+//    }
+//
+//    val csv = Csv(input).asserting(
+//      StoreInRowValidations.rowNotTruncated,
+//      "val2" -> (s: String) => s.toInt > 0
+////      allRows(row => row.size < header.size),
+////      "val2" => (s: String => s.notEmpty)
+//    )
+//
+//    a [TruncatedDataRowException] should be thrownBy export(csv)
+//  }
 
+  // Validations can be:
+  //  - aborting (fail-fast, throwing Exceptions)
+  //  - reporting (written to the finished Row)
+  // Sensible defaults (fail-fast)
+  // User-provided validations
+  // Validation composers provided free-of-charge (e.g. allColumns(Row => Boolean))
+  // Standard validations provided free-of-charge (e.g. allColumnsPresent)
 }

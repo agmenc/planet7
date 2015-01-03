@@ -60,7 +60,7 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
     Row(row.data)
   }
 
-  def tolerant() = asserting()
+  def tolerantReader() = asserting()
 
   def asserting(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations)
 
@@ -87,7 +87,7 @@ object Csv {
   // TODO - CAS - 31/12/14 - Should we also fold in the validations?
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.dataRows))
 
-  def defaultValidations: Seq[Row => Row => Row] = Seq(Validations.rowNotTruncated)
+  def defaultValidations: Seq[Row => Row => Row] = Seq(FailFastValidations.rowNotTruncated)
 }
 
 class ColumnDoesNotExistException(columnName: String, header: Row) extends RuntimeException {
