@@ -28,6 +28,6 @@ package object tabular extends DataSourceLoaders {
     (header: Row) => (row: Row) => {
       val (columnName, validationFunction) = columnAssertion
       if (validationFunction(row.data(Row.indexOf(header, columnName)))) row
-      else row.copy(validationFailures = s"Validation failed or column: '$columnName'" +: row.validationFailures)
+      else row.copy(validationFailures = s"Validation failed for column: '$columnName'\n${Validations.describe(header, row)}" +: row.validationFailures)
     }
 }

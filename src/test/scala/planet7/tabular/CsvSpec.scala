@@ -6,8 +6,6 @@ import planet7.NonSortingDiff
 
 class CsvSpec extends WordSpec with MustMatchers {
   "We can construct a Csv from a RelationalInputSource, including blank rows" in {
-    import planet7.tabular._
-
     val data = """
                  |
                  |

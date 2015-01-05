@@ -17,8 +17,8 @@ package planet7.tabular
  * cost is only paid once, when the client code exports or otherwise materialises the Csv.
  *
  * TODO - CAS - 07/08/2014 - A Y-shaped pipeline (spits out two CSVs)
- * TODO - CAS - 07/08/2014 - Aggregator 1 - combine multiple columns
- * TODO - CAS - 07/08/2014 - Aggregator 2 - combine multiple rows - provide a predicate for row grouping/inclusion/exclusion
+ * TODO - CAS - 07/08/2014 - Aggregator 1 - merge columns (e.g. (firstName, surname) -> s"$firstName $surname")
+ * TODO - CAS - 07/08/2014 - Aggregator 2 - merge rows - provide a predicate for row grouping/inclusion/exclusion
  */
 case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Seq[Row => Row => Row] = Csv.defaultValidations) extends Iterable[Row] {
 
