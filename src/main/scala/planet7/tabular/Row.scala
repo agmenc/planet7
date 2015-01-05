@@ -12,3 +12,14 @@ case class Row(data: Array[String], validationFailures: Seq[String] = Nil) {
     case _ => false
   }
 }
+
+object Row {
+  def indexOf(header: Row, column: String): Int = header.data.indexOf(column) match {
+    case notFound if notFound < 0 => throw new ColumnDoesNotExistException(column, header)
+    case ok => ok
+  }
+}
+
+class ColumnDoesNotExistException(columnName: String, header: Row) extends RuntimeException {
+  override def getMessage = s"Cannot find column '$columnName' in header with columns:\n${header.data.mkString("\n")}\n"
+}

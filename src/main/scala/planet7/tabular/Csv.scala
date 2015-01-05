@@ -46,12 +46,7 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
   def withMappings(mappings: (String, (String) => String)*): Csv = this.copy(dataRows = dataRows.map(valuesXformerFor(mappings: _*)))
 
   private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
-    def indexOf(column: String): Int = header.data.indexOf(column) match {
-      case notFound if notFound < 0 => throw new ColumnDoesNotExistException(column, header)
-      case ok => ok
-    }
-
-    val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => indexOf(column) -> mapper }(collection.breakOut)
+    val desiredMappings: Map[Int, (String) => String] = mappings.map { case (column, mapper) => Row.indexOf(header, column) -> mapper }(collection.breakOut)
 
     desiredMappings foreach {
       case (index, mapper) => row.data(index) = mapper(row.data(index))
@@ -60,9 +55,11 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
     Row(row.data)
   }
 
-  def tolerantReader() = asserting()
+  def tolerantReader() = assertAndReport()
 
-  def asserting(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations)
+  def assertAndReport(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations map Validations.catchingUnexpectedExceptions)
+
+  def assertAndAbort(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations map Validations.failFast)
 
   def filter(predicates: (String, String => Boolean)*): Csv = this.copy(dataRows = dataRows.withFilter(nextRowFilter(predicates:_*)))
 
@@ -72,8 +69,8 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
 
   override def iterator = {
     val actualValidations: Seq[Row => Row] = validations.map(_(header))
-    def blowIfBad(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
-    dataRows map blowIfBad
+    def validateRow(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
+    dataRows map validateRow
   }
 }
 
@@ -87,9 +84,5 @@ object Csv {
   // TODO - CAS - 31/12/14 - Should we also fold in the validations?
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.dataRows))
 
-  def defaultValidations: Seq[Row => Row => Row] = Seq(FailFastValidations.rowNotTruncated)
-}
-
-class ColumnDoesNotExistException(columnName: String, header: Row) extends RuntimeException {
-  override def getMessage = s"Cannot find column '$columnName' in header with columns:\n${header.data.mkString("\n")}\n"
+  def defaultValidations: Seq[Row => Row => Row] = Seq(Validations.rowNotTruncated _) map Validations.failFast
 }

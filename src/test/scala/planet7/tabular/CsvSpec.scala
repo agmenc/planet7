@@ -256,7 +256,7 @@ class CsvSpec extends WordSpec with MustMatchers {
                   |0,
                   |a,b,c""".stripMargin
 
-    a [TruncatedDataRowException] should be thrownBy export(Csv(input))
+    a [ValidationFailedException] should be thrownBy export(Csv(input))
   }
 
   "Tolerant mode: does NOT throw an exception when when data is invalid" in {
@@ -280,26 +280,73 @@ class CsvSpec extends WordSpec with MustMatchers {
     a [ColumnDoesNotExistException] should be thrownBy export(csv)
   }
 
-//  "The user can supply row-level validations" in {
-//    val input = """
-//                  |val1,val2,val3
-//                  |1,2
-//                  |3,X,5""".stripMargin
-//
-//    implicit def toValidation(t: (String, String => Boolean)): Row => Row => Row = {
-//      (header: Row)(row: Row) =>
-//      ???
-//    }
-//
-//    val csv = Csv(input).asserting(
-//      StoreInRowValidations.rowNotTruncated,
-//      "val2" -> (s: String) => s.toInt > 0
-////      allRows(row => row.size < header.size),
-////      "val2" => (s: String => s.notEmpty)
-//    )
-//
-//    a [TruncatedDataRowException] should be thrownBy export(csv)
-//  }
+  "Validation failures are reported when using assertAndReport()" in {
+    val input = """
+                  |val1,val2,val3
+                  |1,2
+                  |3,X,5""".stripMargin
+
+    val csv = Csv(input).assertAndReport(
+      Validations.rowNotTruncated
+    )
+
+    val rows = csv.iterator
+    rows.next().validationFailures.head must include ("The header contains 3 elements, but the data row only contains 2")
+  }
+
+  "Validation failures abort processing when using assertAndAbort()" in {
+    val input = """
+                  |val1,val2,val3
+                  |1,2
+                  |3,X,5""".stripMargin
+
+    val csv = Csv(input).assertAndAbort(
+      Validations.rowNotTruncated
+    )
+
+    a [ValidationFailedException] should be thrownBy export(csv)
+  }
+
+  "Unexpected exceptions are caught and not rethrown when using assertAndReport()" in {
+    val input = """
+                  |val1,val2,val3
+                  |1,2
+                  |3,X,5""".stripMargin
+
+    val csv = Csv(input).assertAndReport(
+      "val2" -> ((dataValue: String) => dataValue.toInt > 0) // NumberFormatException
+    )
+
+    noException should be thrownBy export(csv)
+  }
+
+  "Unexpected exceptions are reported when using assertAndReport()" in {
+    val input = """
+                  |val1,val2,val3
+                  |1,2
+                  |3,X,5""".stripMargin
+
+    val csv = Csv(input).assertAndReport(
+      "val2" -> ((dataValue: String) => dataValue.toInt > 0) // NumberFormatException
+    )
+
+    val rows = csv.iterator
+    rows.next()
+    rows.next().validationFailures.head must include ("For input string: \"X\"")
+  }
+
+  "Unexpected exceptions abort processing when using assertAndAbort()" in {
+    val input = """
+                  |val1,val2,val3
+                  |1,2
+                  |3,X,5""".stripMargin
+
+    val csv = Csv(input).assertAndAbort(
+      "val2" -> ((dataValue: String) => dataValue.toInt > 0) // NumberFormatException
+    )
+
+    a [NumberFormatException] should be thrownBy export(csv)
+  }
 
   // Validations can be:
   //  - aborting (fail-fast, throwing Exceptions)

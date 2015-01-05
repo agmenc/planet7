@@ -22,4 +22,12 @@ package object tabular extends DataSourceLoaders {
   implicit def toStringCompare(s: String): (String, Comparator[String]) = s -> new Comparator[String] {
     override def compare(o1: String, o2: String) = o1.compareTo(o2)
   }
+
+  /** Used in Cvs.assertAndAbort() and Csv.assertAndReport(), to build simple validation checks */
+  implicit def toValidation(columnAssertion: (String, String => Boolean)): Row => Row => Row =
+    (header: Row) => (row: Row) => {
+      val (columnName, validationFunction) = columnAssertion
+      if (validationFunction(row.data(Row.indexOf(header, columnName)))) row
+      else row.copy(validationFailures = s"Validation failed or column: '$columnName'" +: row.validationFailures)
+    }
 }
