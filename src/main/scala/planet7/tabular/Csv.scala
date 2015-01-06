@@ -1,20 +1,22 @@
 package planet7.tabular
 
 /**
- * Csv encapsulates a tabular data structure, as found in a CSV file or spreadsheet. This class is a thin wrapper around an
- * Iterator[Row] and a header Row. It allows client code to:
+ * Csv encapsulates a tabular data structure, as found in a CSV file or spreadsheet. It allows
+ * client code to:
  *  - read CSV data from a tabular data-source (String, File, InputStream, or anything else)
  *  - Change the column structure (add, remove, rename and reorder columns)
  *  - Map data values according to a function (e.g. a lookup, a data-conversion, a default value)
+ *  - Apply fail-fast or reporting-only validations to each row
  *  - Export the results
  *
  * This class may be useful for:
  *  - ETL of externally-generated data
  *  - Pre-formatting data before Diffing it during a reconciliation. @see Diff
  *
- * Csv is designed to be lazy. All materialisation of the datasource is done OUTSIDE of the Csv, i.e. as late as possible. Thus,
- * there should be no appreciable time cost to constructing a Csv, merging Csvs, restructuring columns, and so forth. The time
- * cost is only paid once, when the client code exports or otherwise materialises the Csv.
+ * Csv is designed to be lazy. The datasource is traversed ONCE, when accessed via the Csv.iterator
+ * method. All other operations are declarative (restructuring, data transformations, validations,
+ * etc). Thus, the time cost of traversing the data and applying these functions is only paid
+ * once, when the client code materialises the Csv.
  *
  * TODO - CAS - 07/08/2014 - A Y-shaped pipeline (spits out two CSVs)
  * TODO - CAS - 07/08/2014 - Aggregator 1 - merge columns (e.g. (firstName, surname) -> s"$firstName $surname")
