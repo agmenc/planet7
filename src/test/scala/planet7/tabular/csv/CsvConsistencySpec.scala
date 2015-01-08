@@ -1,14 +1,15 @@
-package planet7.tabular
+package planet7.tabular.csv
 
-import java.io.{FileInputStream, ByteArrayInputStream}
+import java.io.{ByteArrayInputStream, FileInputStream}
 import java.nio.charset.StandardCharsets
 
 import org.scalatest.{MustMatchers, WordSpec}
+import planet7.tabular._
 
 import scala.io.Source
 
 class CsvConsistencySpec extends WordSpec with MustMatchers {
-  import CsvConsistencySpec._
+  import planet7.tabular.csv.CsvConsistencySpec._
 
   "All methods of accessing data produce the same Csv structure" in {
     import planet7.tabular.LargeDataSet._

@@ -1,8 +1,10 @@
-package planet7.tabular
+package planet7.tabular.csv
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
 import planet7.NonSortingDiff
+import planet7.tabular._
+import planet7.tabular.datasources.CsvReaderDataSource
 
 class CsvSpec extends WordSpec with MustMatchers {
   "We can construct a Csv from a RelationalInputSource, including blank rows" in {
@@ -60,8 +62,8 @@ class CsvSpec extends WordSpec with MustMatchers {
   }
 
   "We can use external readers as DataSources, such as (the incredibly slow) CsvReader" in {
+    import CsvReaderDataSource._
     import planet7.tabular.LargeDataSet._
-    import planet7.tabular.CsvReaderDataSource._
 
     val csv = Csv(CSVReader.open(TestDataFile(largeDataFile)))
 

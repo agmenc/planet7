@@ -1,8 +1,9 @@
-package planet7.tabular
+package planet7.tabular.diff
 
 import org.scalatest.{MustMatchers, WordSpec}
+import planet7.tabular._
 import planet7.timing._
-import planet7.{NonSortingDiff, Diff}
+import planet7.{Diff, NonSortingDiff}
 
 class DiffSpec extends WordSpec with MustMatchers {
 

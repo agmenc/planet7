@@ -1,16 +1,22 @@
-package planet7.tabular
+package planet7.tabular.csv
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
+import planet7.tabular._
+import planet7.tabular.datasources.CsvReaderDataSource
 
 class CsvPerformanceSpec extends WordSpec with MustMatchers {
-  import CsvConsistencySpec._
+  import planet7.tabular.csv.CsvConsistencySpec._
 
   /**
    * Data is sourced from Mockaroo. To regenerate:
    * curl http://www.mockaroo.com/7aa9b980/download?count=1000 > "My Saved Schema.csv"
    *
-   * Typical results:
+   * Typical results, given:
+   *  (1) Run as a single test, via the IDE (so it isn't competing with other tests for CPU)
+   *  (2) -XX:MaxPermSize=256m -Xms1024m -Xmx2048m -Xss2m
+   *  (3) The CPU isn't overloaded with other tasks (e.g. bloated browser tabs, other IDE projects, ...)
+   *
 
            exp. scanner       273.94 ms (avg. of 17 readings)
       stringInputStream       259.76 ms (avg. of 17 readings)
@@ -48,7 +54,7 @@ class CsvPerformanceSpec extends WordSpec with MustMatchers {
 
   // 143 seconds to load 25000 rows, i.e. 1,000 times slower than just reading the file into Csv Rows. Hells bells.
   "Users of the planet7 library can gauge the performance impact of external parsers such as CsvReader" in {
-    import planet7.tabular.CsvReaderDataSource._
+    import CsvReaderDataSource._
     import planet7.timing._
 
     val timer = new Timer(2)

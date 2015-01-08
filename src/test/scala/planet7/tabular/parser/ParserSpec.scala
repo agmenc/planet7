@@ -1,11 +1,10 @@
-package planet7.tabular.csv
+package planet7.tabular.parser
 
 import org.scalatest.{MustMatchers, WordSpec}
 import planet7.tabular.LargeDataSet._
 import planet7.tabular._
 import planet7.timing.Timer
 
-import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 class ParserSpec extends WordSpec with MustMatchers {
@@ -72,8 +71,7 @@ class ParserSpec extends WordSpec with MustMatchers {
   }
 
   "We keep spaces inside quotes, and trim them outside" in {
-    val input: String = """"Index "- " Name " -some-values-  "Value-of-thing  "-normal-again"""
-    println(input)
+    val input = """"Index "- " Name " -some-values-  "Value-of-thing  "-normal-again"""
     new RegexTwoPassParser('-').read(input) mustEqual Row(Array("Index "," Name ","some", "values", "Value-of-thing  ", "normal", "again"))
   }
 

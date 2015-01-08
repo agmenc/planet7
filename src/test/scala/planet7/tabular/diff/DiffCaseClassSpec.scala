@@ -1,9 +1,10 @@
-package planet7.tabular
+package planet7.tabular.diff
 
 import org.scalatest.WordSpec
 import planet7.Diff
+import planet7.tabular.{Differentiator, FieldDiffer}
 
-class CaseClassSpec extends WordSpec {
+class DiffCaseClassSpec extends WordSpec {
 
   "We can diff collections containing case class instances" in {
     case class SomeCaseClass(name: String, age: Integer, role: String)

@@ -1,4 +1,4 @@
-package planet7.tabular
+package planet7.tabular.rec
 
 import org.scalatest.{MustMatchers, WordSpec}
 

@@ -1,10 +1,11 @@
-package planet7.tabular
+package planet7.tabular.datasources
 
 import java.io.{BufferedReader, IOException, StringReader}
 
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{MustMatchers, WordSpec}
+import planet7.tabular.{LineReader, Parsers}
 
 class LineReaderSpec extends WordSpec with MustMatchers with MockitoSugar {
   implicit def buffy(str: String) = new BufferedReader(new StringReader(str))

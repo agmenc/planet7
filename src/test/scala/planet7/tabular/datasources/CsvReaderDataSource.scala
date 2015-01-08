@@ -1,6 +1,7 @@
-package planet7.tabular
+package planet7.tabular.datasources
 
 import com.github.tototoshi.csv.CSVReader
+import planet7.tabular.{NoDataInSourceException, Row, TabularDataSource}
 
 object CsvReaderDataSource {
   implicit def fromCsvReader(reader: CSVReader): TabularDataSource = new TabularDataSource {
