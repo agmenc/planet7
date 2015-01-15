@@ -19,7 +19,7 @@ package planet7.tabular
  * once, when the client code materialises the Csv.
  *
  * TODO - CAS - 07/08/2014 - A Y-shaped pipeline (spits out two CSVs)
- * TODO - CAS - 07/08/2014 - Aggregator 1 - merge columns (e.g. (firstName, surname) -> s"$firstName $surname")
+ * TODO - CAS - 07/08/2014 - Aggregator 1 - merge columns using a Row => Row (e.g. (firstName, surname) -> s"$firstName $surname")
  * TODO - CAS - 07/08/2014 - Aggregator 2 - merge rows - provide a predicate for row grouping/inclusion/exclusion
  */
 case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Seq[Row => Row => Row] = Csv.defaultValidations) extends Iterable[Row] {
@@ -30,7 +30,7 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
     this.copy(header = headerRenamer(columnXformer(header)), dataRows = dataRows.map(columnXformer))
   }
 
-  def columnStructure(restructurer: Array[String] => Array[String]): Csv = columnStructure(restructurer(header.data) map (s => s -> s) :_*)
+  def columnStructure(headerRestructurer: Array[String] => Array[String]): Csv = columnStructure(headerRestructurer(header.data) map (s => s -> s) :_*)
 
   private[tabular] def columnXformerFor(columns: (String, String)*): (Row) => Row = {
     val desiredColumnIndices: Array[Int] = columns.map { case (sourceCol, targetCol) => header.data.indexOf(sourceCol) }(collection.breakOut)
@@ -57,11 +57,21 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
     Row(row.data)
   }
 
-  def tolerantReader() = assertAndReport()
+  def clearDefaultValidations() = this.copy(validations = Nil)
 
-  def assertAndReport(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations map Validations.catchingUnexpectedExceptions)
+  def assertAndReport(validationsToAdd: (Row => Row => Row)*): Csv = {
+    val actualValidations: Seq[Row => Row] = validations.map(_(header))
+    def validateRow(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
 
-  def assertAndAbort(validations: (Row => Row => Row)*): Csv = this.copy(validations = validations map Validations.failFast)
+    this.copy(validations = validationsToAdd map Validations.catchingUnexpectedExceptions, dataRows = dataRows map validateRow)
+  }
+
+  def assertAndAbort(validationsToAdd: (Row => Row => Row)*): Csv = {
+    val actualValidations: Seq[Row => Row] = validations.map(_(header))
+    def validateRow(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
+
+    this.copy(validations = validationsToAdd map Validations.failFast, dataRows = dataRows map validateRow)
+  }
 
   def filter(predicates: (String, String => Boolean)*): Csv = this.copy(dataRows = dataRows.withFilter(nextRowFilter(predicates:_*)))
 
