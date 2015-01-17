@@ -9,12 +9,8 @@ class CsvValidationSpec extends WordSpec with MustMatchers {
                      |1,2
                      |3,X,5""".stripMargin
 
-  "Strict (normal) mode: applies default validations and throws exception when they break" in {
-    a [ValidationFailedException] should be thrownBy export(Csv(brokenData))
-  }
-
   "Tolerant mode: does NOT throw an exception when when data is invalid" in {
-    val csv = Csv(brokenData).clearDefaultValidations()
+    val csv = Csv(brokenData)
 
     noException should be thrownBy export(csv)
   }
@@ -31,7 +27,6 @@ class CsvValidationSpec extends WordSpec with MustMatchers {
 
   "Validation failures are reported when using assertAndReport()" in {
     val csv = Csv(brokenData)
-      .clearDefaultValidations()
       .assertAndReport(Validations.rowNotTruncated)
 
     csv.iterator.next().validationFailures.head must include ("The header contains 3 elements, but the data row only contains 2")
@@ -47,7 +42,6 @@ class CsvValidationSpec extends WordSpec with MustMatchers {
 
   "Unexpected exceptions are caught and not rethrown when using assertAndReport()" in {
     val csv = Csv(brokenData)
-      .clearDefaultValidations()
       .assertAndReport("val2" -> throwsNumberFormatException _)
 
     noException should be thrownBy export(csv)
@@ -55,7 +49,6 @@ class CsvValidationSpec extends WordSpec with MustMatchers {
 
   "Unexpected exceptions are reported when using assertAndReport()" in {
     val csv = Csv(brokenData)
-      .clearDefaultValidations()
       .assertAndReport("val2" -> throwsNumberFormatException _)
 
     val rows = csv.iterator
@@ -65,7 +58,6 @@ class CsvValidationSpec extends WordSpec with MustMatchers {
 
   "Unexpected exceptions abort processing when using assertAndAbort()" in {
     val csv = Csv(brokenData)
-      .clearDefaultValidations()
       .assertAndAbort("val2" -> throwsNumberFormatException _)
 
     a [NumberFormatException] should be thrownBy export(csv)
@@ -76,7 +68,6 @@ class CsvValidationSpec extends WordSpec with MustMatchers {
 
   "We can mix aborting and reporting validations" in {
     val csv = Csv(brokenData)
-      .clearDefaultValidations()
       .assertAndAbort("val1" -> alwaysSucceeds _)
       .assertAndReport("val1" -> alwaysFails _)
 

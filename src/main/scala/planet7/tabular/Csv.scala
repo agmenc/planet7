@@ -22,7 +22,7 @@ package planet7.tabular
  * TODO - CAS - 07/08/2014 - Aggregator 1 - merge columns using a Row => Row (e.g. (firstName, surname) -> s"$firstName $surname")
  * TODO - CAS - 07/08/2014 - Aggregator 2 - merge rows - provide a predicate for row grouping/inclusion/exclusion
  */
-case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Seq[Row => Row => Row] = Csv.defaultValidations) extends Iterable[Row] {
+case class Csv(header: Row, private val dataRows: Iterator[Row]) extends Iterable[Row] {
 
   def columnStructure(columns: (String, String)*): Csv = {
     val columnXformer = columnXformerFor(columns: _*)
@@ -57,33 +57,24 @@ case class Csv(header: Row, private val dataRows: Iterator[Row], validations: Se
     Row(row.data)
   }
 
-  def clearDefaultValidations() = this.copy(validations = Nil)
+  def assertAndReport(validationsToAdd: (Row => Row => Row)*): Csv =  this.copy(
+    dataRows = dataRows map validateAgainst(validationsToAdd map Validations.catchingUnexpectedExceptions))
 
-  def assertAndReport(validationsToAdd: (Row => Row => Row)*): Csv = {
-    val actualValidations: Seq[Row => Row] = validations.map(_(header))
-    def validateRow(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
-
-    this.copy(validations = validationsToAdd map Validations.catchingUnexpectedExceptions, dataRows = dataRows map validateRow)
-  }
-
-  def assertAndAbort(validationsToAdd: (Row => Row => Row)*): Csv = {
-    val actualValidations: Seq[Row => Row] = validations.map(_(header))
-    def validateRow(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
-
-    this.copy(validations = validationsToAdd map Validations.failFast, dataRows = dataRows map validateRow)
-  }
+  def assertAndAbort(validationsToAdd: (Row => Row => Row)*): Csv = this.copy(
+    dataRows = dataRows map validateAgainst(validationsToAdd map Validations.failFast))
 
   def filter(predicates: (String, String => Boolean)*): Csv = this.copy(dataRows = dataRows.withFilter(nextRowFilter(predicates:_*)))
 
   private[tabular] def nextRowFilter(predicates: (String, String => Boolean)*): Row => Boolean = row => predicates.forall {
     case (columnName, predicate) => predicate(row.data(header.data.indexOf(columnName)))
   }
-
-  override def iterator = {
+  
+  private def validateAgainst(validations: Seq[Row => Row => Row]): Row => Row = {
     val actualValidations: Seq[Row => Row] = validations.map(_(header))
-    def validateRow(row: Row): Row = actualValidations.foldLeft(row)((r,v) => v(r))
-    dataRows map validateRow
+    (row: Row) => actualValidations.foldLeft(row)((r,v) => v(r))
   }
+
+  override def iterator = dataRows
 }
 
 object Csv {
@@ -95,6 +86,4 @@ object Csv {
   // TODO - CAS - 07/12/14 - Check all CSVs have the same header
   // TODO - CAS - 31/12/14 - Should we also fold in the validations?
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.dataRows))
-
-  def defaultValidations: Seq[Row => Row => Row] = Seq(Validations.rowNotTruncated _) map Validations.failFast
 }
