@@ -14,7 +14,7 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
   val inputPath = "src/test/resources/planet7/tabular/before/old_company_format.csv"
   val outputPath = "target/remastered.csv"
 
-  def validZipCodeAlwaysFails(zip: String): Boolean = false // zip.length < 5
+  def validZipCode(zip: String): Boolean = zip.length < 5
 
   "All available CSV-manipulation features" in {
     import planet7.tabular._
@@ -32,7 +32,7 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
         "Zip code" -> postcodeLookupTable,  // Specify a (String) => String to change data
         "Surname" -> (_.toUpperCase))
       .assertAndReport(                     // Reporting-only validations
-        "Zip code" -> validZipCodeAlwaysFails _)  // Report any invalid zip codes
+        "Zip code" -> validZipCode _)       // Report any invalid zip codes
       .columnStructure(ignore("Zip code"))  // Drop column, now we've validated against it
 
     write(sort(csv), outputPath)
