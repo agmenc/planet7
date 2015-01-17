@@ -43,8 +43,10 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
   // TODO - CAS - 13/01/15 - DataSink
   def write(csv: Csv, path: String) = {
     val writer = new FileWriter(path)
-    def writeRow(row: Row) = writer.write(row.toString.toCharArray)
+    def writeRow(row: Row) = writer.write(s"${row.toString}\n".toCharArray)
     writeRow(csv.header)
     csv.iterator.foreach(writeRow)
+    writer.flush()
+    writer.close()
   }
 }
