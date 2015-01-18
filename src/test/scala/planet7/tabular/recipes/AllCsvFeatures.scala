@@ -8,13 +8,14 @@ import planet7.Diff
 class AllCsvFeatures extends WordSpec with MustMatchers {
   import planet7.tabular._
 
-  val postcodeLookupTable = Csv(new File("src/test/resources/planet7/tabular/before/postcodes.csv")).iterator.map {
-    case Row(Array(oldCode, newCode), _) => oldCode -> newCode
-  }.toMap
-
+  val postcodesPath = "src/test/resources/planet7/tabular/before/postcodes.csv"
   val inputPath = "src/test/resources/planet7/tabular/before/old_company_format.csv"
   val outputPath = "target/remastered.csv"
   val modelAnswerPath = "src/test/resources/planet7/tabular/after/remastered_company_format.csv"
+
+  val postcodeLookupTable: Map[String, String] = Csv(new File(postcodesPath)).iterator.map {
+    case Row(Array(oldCode, newCode), _) => oldCode -> newCode
+  }.toMap
 
   def validZipCode(zip: String): Boolean = zip.length == 5
 
@@ -39,7 +40,7 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
 
     write(sort(csv), outputPath)            // Sort the output and write to disk
 
-    Diff(Csv(new File(outputPath)), Csv(new File(modelAnswerPath)), NaiveRowDiffer).length mustEqual 0
+    Diff(Csv(new File(outputPath)), Csv(new File(modelAnswerPath)), NaiveRowDiffer) mustBe empty
   }
 
   // TODO - CAS - 13/01/15 - DataSink
