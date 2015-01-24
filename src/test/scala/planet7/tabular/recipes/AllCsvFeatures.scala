@@ -42,14 +42,4 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
 
     Diff(Csv(new File(outputPath)), Csv(new File(modelAnswerPath)), NaiveRowDiffer) mustBe empty
   }
-
-  // TODO - CAS - 13/01/15 - DataSink
-  def write(csv: Csv, path: String) = {
-    val writer = new FileWriter(path)
-    def writeRow(row: Row) = writer.write(s"${row.toString}\n".toCharArray)
-    writeRow(csv.header)
-    csv.iterator.foreach(writeRow)
-    writer.flush()
-    writer.close()
-  }
 }
