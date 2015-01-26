@@ -1,3 +1,6 @@
+changequote(§,§)dnl
+define(ScalaStart, §```scala§)dnl
+define(ScalaEnd, §```§)dnl
 planet7
 =======
 
@@ -17,9 +20,9 @@ Fast ETL and reconciliation tool for Scala users:
 
 **build.sbt:**
 
-```scala
+ScalaStart
 libraryDependencies += "com.github.agmenc" %% "planet7" % "0.1.7"
-```
+ScalaEnd
 
 
 **Basic ETL:**
@@ -45,7 +48,7 @@ We also manipulate the data:
 * Map the characters "A" and "C" to the numerals "1" and "3".
 
 
-```scala
+ScalaStart
 "We can map data and specify default values by column" in {
   val twoColumns = Csv("""
                          |Name,ID
@@ -74,13 +77,15 @@ We also manipulate the data:
 
   result.rows.toList must equal(threeColumns.rows.toList)
 }
-```
+ScalaEnd
 
 ### All CSV Features
 
-```scala
-<#include "src/test/scala/planet7/tabular/recipes/AllCsvFeatures.scala">
-```
+ScalaStart
+divert(-1)dnl
+include(src/test/scala/planet7/tabular/recipes/AllCsvFeatures.scala)
+divert(0)dnl
+ScalaEnd
 
 ### More Examples
 
@@ -89,7 +94,7 @@ These examples are taken from [CsvSpec.scala](https://github.com/agmenc/planet7/
 
 **Extract and remodel a CSV:**
 
-```scala
+ScalaStart
 "Extract a CSV, remodel it, and convert the data" in {
   import planet7.tabular.CompanyAccountsData._
 
@@ -109,23 +114,23 @@ These examples are taken from [CsvSpec.scala](https://github.com/agmenc/planet7/
   // Now convert the data to your data model, or export to a feed, or reconcile against another source, etc.
   // reshapedCsv.rows map ( ... )
 }
-```
+ScalaEnd
 
 
 **Export a CSV:**
 
 Materialises the data. Use this in tests or for small files, but consider iterating through Csv.rows and writing to a BufferedWriter or similar, to avoid sucking all your data into the heap at once.
 
-```scala
+ScalaStart
 val allYourData: String = export(reshapedCsv)
-```
+ScalaEnd
 
 
 **Use an external CSV parser:**
 
 Pimp external libraries into TabularDataSources:
 
-```scala
+ScalaStart
 implicit def fromCsvReader(reader: CSVReader): TabularDataSource = new TabularDataSource {
   override val header = reader.readNext() match {
     case Some(items) => Row(items.toArray)
@@ -136,11 +141,11 @@ implicit def fromCsvReader(reader: CSVReader): TabularDataSource = new TabularDa
 
   override def close() = reader.close()
 }
-```
+ScalaEnd
 
 Now work with Csv in the usual way:
 
-```scala
+ScalaStart
 "We can use external parsers such as (the incredibly slow) CSVReader" in {
   import LargeDataSet._
 
@@ -149,14 +154,14 @@ Now work with Csv in the usual way:
   csv.header must equal(expectedHeader)
   csv.rows.next() must be (expectedFirstRow)
 }
-```
+ScalaEnd
 
 
 **Diff/reconciliation:**
 
 Convert two CSVs to a canonical format and Diff them, aggregating and formatting the output for easy reconciliation:
 
-```scala
+ScalaStart
 "We can Diff Csv instances and generate readable output" in {
   import planet7.Diff
   import planet7.tabular.CompanyAccountsData._
@@ -193,7 +198,7 @@ Convert two CSVs to a canonical format and Diff them, aggregating and formatting
     "Postcode: 22656 -> 22756"
   ))
 }
-```
+ScalaEnd
 
 
 **Laziness:**
@@ -206,7 +211,7 @@ All structure and filtering operations are lazy. Aside from the header row, the 
 External parsers, large datasets or naive coding can slow down CSV transformations. Don't optmise prematurely; instead, time your operations and fix only those that need fixing:
 
 
-```scala
+ScalaStart
 "Users of the planet7 library can gauge the performance impact of external parsers such as CsvReader" in {
   import planet7.timing._
 
@@ -224,7 +229,7 @@ External parsers, large datasets or naive coding can slow down CSV transformatio
   println(timer)
   timer.overallTime.average must be < 150.0
 }
-```
+ScalaEnd
 
 
 **More examples:**

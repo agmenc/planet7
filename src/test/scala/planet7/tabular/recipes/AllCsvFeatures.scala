@@ -19,6 +19,7 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
 
   def validZipCode(zip: String): Boolean = zip.length == 5
 
+  // divert(0)dnl
   "All available CSV-manipulation features" in {
     import planet7.tabular._
 
@@ -42,4 +43,5 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
 
     Diff(Csv(new File(outputPath)), Csv(new File(modelAnswerPath)), NaiveRowDiffer) mustBe empty
   }
+  // divert(-1)dnl
 }
