@@ -1,9 +1,11 @@
 package planet7.tabular
 
-case class Row(data: Array[String], validationFailures: Seq[String] = Nil) {
+case class Row(data: Array[String], validationFailures: Seq[String] = Nil) extends Iterable[String] {
   override def toString = data.mkString(",")
 
   def isInvalid = validationFailures != Nil && validationFailures.nonEmpty
+
+  def apply(index: Int): String = this.data(index)
 
   override def canEqual(that: Any) = that.isInstanceOf[Row]
 
@@ -11,6 +13,8 @@ case class Row(data: Array[String], validationFailures: Seq[String] = Nil) {
     case thatRow: Row => this.data.deep == thatRow.data.deep
     case _ => false
   }
+
+  override def iterator = data.iterator
 }
 
 object Row {
