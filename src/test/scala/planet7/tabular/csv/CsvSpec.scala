@@ -250,32 +250,11 @@ class CsvSpec extends WordSpec with MustMatchers {
     noException should be thrownBy export(Csv(input))
   }
 
-  "We can merge Csvs on a key column" in {
-    val names = Csv( """ID,First Name,Surname
-                          |1,Sue,Smith
-                          |3,Bob,Smith
-                          |4,Fred,Black
-                          |5,Jeremiah,Jones""".stripMargin)
-
-    val ageAndAddress = Csv( """ID,Age,Address
-                          |1,24,18 Monkey Street
-                          |2,36,94 Elephant Street
-                          |4,127,6 Otter Passage
-                          |5,36,47 Baboon Way""".stripMargin)
-
-    val expected = Csv( """ID,First Name,Surname,Age,Address
-                          |1,Sue,Smith,24,18 Monkey Street
-                          |2,[MISSING \"First Name\"],[MISSING \"Surname\"],36,94 Elephant Street
-                          |3,Bob,Smith,,
-                          |4,Fred,Black,127,6 Otter Passage
-                          |5,Jeremiah,Jones,36,47 Baboon Way""".stripMargin)
-
-    merge(on("ID"), names, ageAndAddress)
-
-    fail("nope")
-  }
-
   "Csvs to merge must contain the key in the header" in {
     fail("Nope")
+  }
+
+  "It is easier to use the RegexTwoPassParser" in {
+    fail("it is still hard to use")
   }
 }

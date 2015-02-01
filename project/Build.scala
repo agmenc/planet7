@@ -5,10 +5,11 @@ object Build extends Build {
 
   def sharedSettings = Seq(
     name := "planet7",
-    scalaVersion:= "2.11.1",
+    scalaVersion:= "2.11.5",
     incOptions := incOptions.value.withNameHashing(true),
-    crossScalaVersions := Seq("2.10.4", "2.11.1"),
+    crossScalaVersions := Seq("2.10.4", "2.11.5"),
     scalacOptions += "-deprecation",
+    resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= Seq(
       "junit" % "junit" % "4.11" % "test->default",
       "org.scalatest" %% "scalatest" % "2.1.3" % "test",

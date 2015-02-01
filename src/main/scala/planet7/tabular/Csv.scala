@@ -84,6 +84,5 @@ object Csv {
   }
 
   // TODO - CAS - 07/12/14 - Check all CSVs have the same header
-  // TODO - CAS - 31/12/14 - Should we also fold in the validations?
   def apply(csvs: Csv*): Csv = Csv(csvs.head.header, csvs.foldLeft(Iterator[Row]())((i: Iterator[Row], c: Csv) => i ++ c.dataRows))
 }
