@@ -16,6 +16,8 @@ package object tabular extends DataSourceLoaders with DataSinks {
 
   def ignore(columnNames: String*) = (headerColumns: Array[String]) => headerColumns filter (col => !columnNames.contains(col))
 
+  def defaultTo(other: String) = (s: String) => if(s.isEmpty) other else s
+
   /** Converts Csv(data).columnStructure("Name") to Csv(data).columnStructure("Name" -> "Name") */
   implicit def toColumnStructure(s: String): (String, String) = s -> s
 
