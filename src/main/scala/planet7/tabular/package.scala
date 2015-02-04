@@ -24,6 +24,9 @@ package object tabular extends DataSourceLoaders with DataSinks {
   /** Converts Seq("foo", "bar") to Seq("foo" -> "foo", "bar" -> "bar") to make operations on column names easier */
   implicit def toColumnStructure(s: Seq[String]): Seq[(String, String)] = s.map(toColumnStructure)
 
+  /** Converts Seq("foo" -> "foo", "bar" -> "bar") to Seq("foo", "bar"), to make building header rows easier */
+  implicit def fromColumnStructure(s: Seq[(String, String)]): Array[String] = s.map(_._1).toArray
+
   /** Converts sort(input, "Surname") into sort(input, "Surname" -> Comparator[String]) */
   implicit def toStringCompare(s: String): (String, Comparator[String]) = s -> new Comparator[String] {
     override def compare(o1: String, o2: String) = o1.compareTo(o2)
