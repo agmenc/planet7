@@ -75,6 +75,8 @@ case class Csv(header: Row, private val dataRows: Iterator[Row]) extends Iterabl
   }
 
   override def iterator = dataRows
+
+  override def toString() = s"Csv with columns: ${header}"
 }
 
 object Csv {
