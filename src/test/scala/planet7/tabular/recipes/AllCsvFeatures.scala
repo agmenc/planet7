@@ -1,11 +1,10 @@
 package planet7.tabular.recipes
 
-import java.io.{FileWriter, File}
-
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.Diff
 
 class AllCsvFeatures extends WordSpec with MustMatchers {
+  import java.io.File
+  import planet7.Diff
   import planet7.tabular._
 
   val postcodesPath = "src/test/resources/planet7/tabular/before/postcodes.csv"
