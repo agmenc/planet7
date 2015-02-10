@@ -2,7 +2,7 @@ package planet7
 
 import java.util.Comparator
 
-package object tabular extends DataSourceLoaders with DataSinks {
+package object tabular extends DataSourceImplicits with DataSinkImplicits {
   def export(csv: Csv, parser: Parser = Parsers.basic): String = parser.write(csv.header) + "\n" + csv.iterator.map(parser.write).mkString("\n")
 
   def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = sort(csv, new RowDiffer(csv.header, fieldComps:_*))
@@ -25,7 +25,7 @@ package object tabular extends DataSourceLoaders with DataSinks {
   implicit def toColumnStructure(s: Seq[String]): Seq[(String, String)] = s.map(toColumnStructure)
 
   /** Converts Seq("foo" -> "foo", "bar" -> "bar") to Seq("foo", "bar"), to make building header rows easier */
-  implicit def fromColumnStructure(s: Seq[(String, String)]): Array[String] = s.map(_._1).toArray
+  implicit def fromColumnStructure(s: Seq[(String, String)]): Array[String] = s.map(_._2).toArray
 
   /** Converts sort(input, "Surname") into sort(input, "Surname" -> Comparator[String]) */
   implicit def toStringCompare(s: String): (String, Comparator[String]) = s -> new Comparator[String] {

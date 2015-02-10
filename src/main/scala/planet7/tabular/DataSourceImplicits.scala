@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.file.{Paths, Files}
 
-trait DataSourceLoaders {
+trait DataSourceImplicits {
   implicit def fromString(s: String): TabularDataSource = fromString(s, Parsers.basic)
   implicit def fromFile(f: File): TabularDataSource = fromFile(f, Parsers.basic)
 
