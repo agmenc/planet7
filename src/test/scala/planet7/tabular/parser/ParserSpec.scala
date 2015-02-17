@@ -107,7 +107,6 @@ class ParserSpec extends WordSpec with MustMatchers {
     val dataStructure = Row(Array("one", "two", "three"))
 
     Seq('§', '±', '~', '`'/*, '|'*/) foreach {delim =>
-      println(s"Delim: ${delim}")
       val flatFile = s"one${delim}two${delim}three"
       val parser = RegexTwoPassParser(delim)
       parser.read(flatFile) mustEqual dataStructure

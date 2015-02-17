@@ -25,7 +25,7 @@ class RegexTwoPassParser(val delimiter: Char) extends Parser {
   override val delim = s"$delimiter"
 
   private val quotes = s"""\""""
-  private val wideDelim = s""" *$delimiter *"""
+  private val wideDelim = s""" *$delim *"""
   private val token = "§‡".filterNot(_ == delimiter)
 
   override def read(line: String): Row = {
@@ -44,7 +44,7 @@ class RegexTwoPassParser(val delimiter: Char) extends Parser {
 
   override def write(row: Row) = row.data map quoteDelims mkString delim
 
-  private def quoteDelims(elem: String): String = if (elem.contains(delimiter)) s""""$elem"""" else elem
+  private def quoteDelims(elem: String): String = if (elem.contains(delim)) s""""$elem"""" else elem
 }
 
 object RegexTwoPassParser {
