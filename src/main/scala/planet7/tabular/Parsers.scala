@@ -24,11 +24,11 @@ case class DefaultParser(delimiter: Char) extends Parser {
 class RegexTwoPassParser(val delimiter: Char) extends Parser {
   override val delim = escapeIfRegex(delimiter)
 
-  private val quotes = s"""\""""
-  private val wideDelim = s""" *$delim *"""
-  private val token = "§‡".filterNot(_ == delimiter)
+  protected val quotes = s"""\""""
+  protected val wideDelim = s""" *$delim *"""
+  protected val token = "§‡".filterNot(_ == delimiter)
 
-  private def escapeIfRegex(delimCandidate: Char): String = delimCandidate match {
+  protected def escapeIfRegex(delimCandidate: Char): String = delimCandidate match {
     case '|' => "\\|"
     case x => s"$x"
   }
@@ -49,7 +49,7 @@ class RegexTwoPassParser(val delimiter: Char) extends Parser {
 
   override def write(row: Row) = row.data map quoteDelims mkString s"$delimiter"
 
-  private def quoteDelims(elem: String): String = if (elem.contains(delim)) s""""$elem"""" else elem
+  protected def quoteDelims(elem: String): String = if (elem.contains(delim)) s""""$elem"""" else elem
 }
 
 object RegexTwoPassParser {
