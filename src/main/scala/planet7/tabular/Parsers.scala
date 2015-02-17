@@ -26,6 +26,7 @@ class RegexTwoPassParser(val delimiter: Char) extends Parser {
 
   private val quotes = s"""\""""
   private val wideDelim = s""" *$delimiter *"""
+  private val token = "§‡".filterNot(_ == delimiter)
 
   override def read(line: String): Row = {
     def splitEvenItems(y: (String, Int)): Array[String] =
@@ -33,12 +34,12 @@ class RegexTwoPassParser(val delimiter: Char) extends Parser {
       else Array(y._1)
 
     def splitDelimitedString(string: String): Array[String] = {
-      val replaced: String = string.replaceAll(s"^$wideDelim|$wideDelim$$|§", "")
+      val replaced: String = string.replaceAll(s"^$wideDelim|$wideDelim$$|$token", "")
       if (replaced.isEmpty) Array[String]()
       else replaced.split(wideDelim, -1)
     }
 
-    Row((s"§${line.trim}§" split(quotes, -1) zipWithIndex) flatMap splitEvenItems)
+    Row((s"$token${line.trim}$token" split(quotes, -1) zipWithIndex) flatMap splitEvenItems)
   }
 
   override def write(row: Row) = row.data map quoteDelims mkString delim

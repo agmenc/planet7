@@ -102,4 +102,16 @@ class ParserSpec extends WordSpec with MustMatchers {
 
     parsed mustEqual trimmedOutput
   }
+
+  "We can use a single § as a delimiter" in {
+    val dataStructure = Row(Array("one", "two", "three"))
+
+    Seq('§', '±', '~', '`'/*, '|'*/) foreach {delim =>
+      println(s"Delim: ${delim}")
+      val flatFile = s"one${delim}two${delim}three"
+      val parser = RegexTwoPassParser(delim)
+      parser.read(flatFile) mustEqual dataStructure
+      parser.write(dataStructure) mustEqual flatFile
+    }
+  }
 }
