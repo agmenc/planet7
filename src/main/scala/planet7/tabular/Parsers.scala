@@ -21,7 +21,7 @@ case class DefaultParser(delimiter: Char) extends Parser {
 *   - spaces around elements are ignored (unless quoted)
 *       foo    ,  bar ,   "   monkey one  ", baz ===> Array("foo", "bar", "   monkey one  ", "baz")
 */
-case class RegexTwoPassParser(delimiter: Char) extends Parser {
+class RegexTwoPassParser(val delimiter: Char) extends Parser {
   override val delim = s"$delimiter"
 
   private val quotes = s"""\""""
@@ -44,4 +44,8 @@ case class RegexTwoPassParser(delimiter: Char) extends Parser {
   override def write(row: Row) = row.data map quoteDelims mkString delim
 
   private def quoteDelims(elem: String): String = if (elem.contains(delimiter)) s""""$elem"""" else elem
+}
+
+object RegexTwoPassParser {
+  def apply(delimiter: Char): RegexTwoPassParser = new RegexTwoPassParser(delimiter)
 }

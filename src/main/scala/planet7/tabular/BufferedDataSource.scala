@@ -2,7 +2,7 @@ package planet7.tabular
 
 import java.io.{BufferedReader, Reader}
 
-class BufferedDataSource(source: Reader, parser: Parser) extends TabularDataSource {
+class BufferedDataSource(val source: Reader, val parser: Parser) extends TabularDataSource {
   val lines = new LineReader(new BufferedReader(source), parser)
   val header = if (lines.hasNext) lines.next() else throw new NoDataInSourceException(source.toString)
 
