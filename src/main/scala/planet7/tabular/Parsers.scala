@@ -22,11 +22,16 @@ case class DefaultParser(delimiter: Char) extends Parser {
 *       foo    ,  bar ,   "   monkey one  ", baz ===> Array("foo", "bar", "   monkey one  ", "baz")
 */
 class RegexTwoPassParser(val delimiter: Char) extends Parser {
-  override val delim = s"$delimiter"
+  override val delim = escapeIfRegex(delimiter)
 
   private val quotes = s"""\""""
   private val wideDelim = s""" *$delim *"""
   private val token = "§‡".filterNot(_ == delimiter)
+
+  private def escapeIfRegex(delimCandidate: Char): String = delimCandidate match {
+    case '|' => "\\|"
+    case x => s"$x"
+  }
 
   override def read(line: String): Row = {
     def splitEvenItems(y: (String, Int)): Array[String] =
@@ -42,7 +47,7 @@ class RegexTwoPassParser(val delimiter: Char) extends Parser {
     Row((s"$token${line.trim}$token" split(quotes, -1) zipWithIndex) flatMap splitEvenItems)
   }
 
-  override def write(row: Row) = row.data map quoteDelims mkString delim
+  override def write(row: Row) = row.data map quoteDelims mkString s"$delimiter"
 
   private def quoteDelims(elem: String): String = if (elem.contains(delim)) s""""$elem"""" else elem
 }
