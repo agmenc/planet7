@@ -145,4 +145,15 @@ class DiffSpec extends WordSpec with MustMatchers {
     println(s"""\nAdded:${summary("Added").map(_._2).mkString("\n  +", "\n  +", "")}""")
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
   }
+
+  "There is a really simple way to show different rows under-and-over" in {
+    val left = Row(Array("some", "row", "data", "right", "here"))
+    val right = Row(Array("some", "other", "row", "data", "wrong", "here"))
+    
+    Row.showDiffs(left, right) mustEqual
+      """
+        |some,row,data,right,here
+        |some,other,row,data,wrong,here
+        |""".stripMargin
+  }
 }

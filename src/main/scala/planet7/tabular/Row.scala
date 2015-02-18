@@ -22,6 +22,12 @@ object Row {
     case notFound if notFound < 0 => throw new ColumnDoesNotExistException(column, header)
     case ok => ok
   }
+
+  def showDiffs(left: Row, right: Row): String =
+    s"""
+       |$left
+       |$right
+       |""".stripMargin
 }
 
 class ColumnDoesNotExistException(columnName: String, header: Row) extends RuntimeException {
