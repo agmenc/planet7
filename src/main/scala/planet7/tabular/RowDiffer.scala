@@ -38,6 +38,12 @@ case object FieldDiffer extends Differentiator[(String, String)] {
   }
 }
 
+case object StringDiffer extends Differentiator[String] {
+  override def zero = ""
+
+  override def ordering = Ordering.String
+}
+
 object NaiveRowDiffer extends Differentiator[Row] {
   override def zero = EmptyRow
   override def ordering = NaiveRowOrdering

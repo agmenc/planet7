@@ -3,7 +3,7 @@ package planet7.tabular.diff
 import org.scalatest.{MustMatchers, WordSpec}
 import planet7.tabular._
 import planet7.timing._
-import planet7.{Diff, NonSortingDiff}
+import planet7.{NonSortingDiff, Diff}
 
 class DiffSpec extends WordSpec with MustMatchers {
 
@@ -146,14 +146,34 @@ class DiffSpec extends WordSpec with MustMatchers {
     println(s"""\nDiffs:${readableDiffs.mkString("\n  ~", "\n  ~", "")}""")
   }
 
-  "There is a really simple way to show different rows under-and-over" in {
-    val left = Row(Array("some", "row", "data", "right", "here"))
-    val right = Row(Array("some", "other", "row", "data", "wrong", "here"))
-    
-    Row.showDiffs(left, right) mustEqual
-      """
-        |some,row,data,right,here
-        |some,other,row,data,wrong,here
-        |""".stripMargin
+  "We can match the positions of columns names in a Seq" in {
+    val left = Seq("a","c","d","e","f","x","y","h","i", "j")
+    val right = Seq("a","b","c","d","f","g","h","i")
+
+    val matched: (Seq[String], Seq[String]) = Row.matchPositions(left, right, Nil).reverse.unzip
+
+    matched._1 mustEqual Seq("a", "*", "c", "d", "e", "f", "x", "y", "h", "i", "j")
+    matched._2 mustEqual Seq("a", "b", "c", "d", "*", "f", "g", "*", "h", "i", "*")
   }
+
+//  "We can show different rows under-and-over, so that we can see the diffs" in {
+//    val leftHeader = Row(Array("Name", "Phone", "Pet", "ID", "Status"))
+//    val left = Row(Array("some", "", "data", "12345", "here"))
+//    val rightHeader = Row(Array("Name", "Address", "Phone", "Pet", "ID", "Status"))
+//    val right = Row(Array("some", "other", "123", "data", "123", "here"))
+//
+//    val leftRight = NonSortingDiff(left, right, StringDiffer).toList
+//    println(s"leftRight: ${leftRight}")
+//    // leftRight: List((right,), (here,), (,here), (,nope), (,other))
+//
+//    val rightLeft = NonSortingDiff(left, right, StringDiffer).toList
+//    println(s"rightLeft: ${rightLeft}")
+//    // rightLeft: List((right,), (here,), (,here), (,nope), (,other))
+//
+//    Row.showDiffs(left, right) mustEqual
+//      """
+//        |some,[x],[],data,[12345],here
+//        |some,other,123,data,[123],here
+//        |""".stripMargin
+//  }
 }
