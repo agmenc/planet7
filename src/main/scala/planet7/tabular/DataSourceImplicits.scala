@@ -43,4 +43,14 @@ trait DataSourceImplicits {
 
   // 384 ms. Should only be used on small files, whatever that means
   def experimentalFromScanner(f: File): TabularDataSource = new ScannerDataSource(f, Parsers.basic)
+
+  implicit class AppendableDataSource(tds: TabularDataSource) {
+    def +(that: TabularDataSource): TabularDataSource = new TabularDataSource {
+      override def header = tds.header
+      override def rows = tds.rows ++ that.rows
+      override def close() = { tds.close(); that.close() }
+    }
+  }
+
+  def combine(datasources: TabularDataSource*): TabularDataSource = datasources.reduceLeft[TabularDataSource](_ + _)
 }
