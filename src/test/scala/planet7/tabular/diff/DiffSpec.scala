@@ -150,7 +150,7 @@ class DiffSpec extends WordSpec with MustMatchers {
     val left = Seq("a","c","d","e","f","x","y","h","i", "j")
     val right = Seq("a","b","c","d","f","g","h","i")
 
-    val matched: (Seq[String], Seq[String]) = Row.matchPositions(left, right, Nil).reverse.unzip
+    val matched: (Seq[String], Seq[String]) = new RowPrinter().matchPositions(left, right, Nil).reverse.unzip
 
     matched._1 mustEqual Seq("a", "*", "c", "d", "e", "f", "x", "y", "h", "i", "j")
     matched._2 mustEqual Seq("a", "b", "c", "d", "*", "f", "g", "*", "h", "i", "*")
@@ -160,7 +160,7 @@ class DiffSpec extends WordSpec with MustMatchers {
     val left = Row(Array("some", "", "data", "12345", "here"))
     val right = Row(Array("some", "other", "123", "data", "123", "here"))
 
-    Row.showDiffs(left, right) mustEqual
+    showDiffs(left, right) mustEqual
       """
         |some,[]     ,     ,data,[12345],here
         |some,[other],[123],data,[123]  ,here
