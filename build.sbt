@@ -4,7 +4,7 @@ sonatypeSettings
 
 organization := "com.github.agmenc"
 
-version := "0.1.11"
+version := "0.1.12"
 
 pomExtra := {
   <url>https://github.com/agmenc/planet7</url>

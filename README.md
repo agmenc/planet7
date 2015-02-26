@@ -18,7 +18,7 @@ Fast ETL and reconciliation tool for Scala users:
 **build.sbt:**
 
 ```scala
-libraryDependencies += "com.github.agmenc" %% "planet7" % "0.1.8"
+libraryDependencies += "com.github.agmenc" %% "planet7" % "0.1.12"
 ```
 
 
