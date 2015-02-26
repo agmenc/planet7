@@ -1,5 +1,7 @@
 package planet7.tabular
 
+import scala.collection.immutable.IndexedSeq
+
 case class Row(data: Array[String], validationFailures: Seq[String] = Nil) extends Iterable[String] {
   override def toString = data.mkString(",")
 
@@ -28,20 +30,33 @@ object Row {
 
   def showDiffs(left: Row, right: Row): String = matchPositions(left, right) match {
     case (l, r) => s"""
-                   |$left
-                   |$right
+                   |$l
+                   |$r
                    |""".stripMargin
   }
 
-
   def matchPositions(left: Row, right: Row): (Row, Row) = {
-    val x: Seq[(String, String)] = matchPositions(left.data.toSeq, right.data.toSeq, Nil)
-    val y: (Seq[String], Seq[String]) = x.unzip
+    val x = matchPositions(left.data.toSeq, right.data.toSeq, Nil)
+      .map(brackets _ andThen padding)
 
-    y match {
+    x.reverse.unzip match {
       case (l, r) => (Row(l.toArray), Row(r.toArray))
     }
   }
+
+  def brackets(t: (String, String)): (String, String) = (t._1, t._2) match {
+    case (l, r) if l == r => (l, r)
+    case ("*", r) => ("", s"[$r]")
+    case (l, "*") => (s"[$l]", "")
+    case (l, r) => (s"[$l]", s"[$r]")
+  }
+
+  def padding(t: (String, String)): (String, String) = (t._1, t._2) match {
+    case (l, r) => pad(l, r, Math.max(l.length, r.length))
+  }
+
+  def pad(left: String, right: String, length: Int): (String, String) =
+    (left.padTo(length, ' '), right.padTo(length, ' '))
 
   def matchPositions(left: Seq[String], right: Seq[String], acc: Seq[(String, String)]): Seq[(String, String)] = {
     (left, right) match {

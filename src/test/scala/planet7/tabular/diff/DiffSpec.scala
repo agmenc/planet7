@@ -156,24 +156,14 @@ class DiffSpec extends WordSpec with MustMatchers {
     matched._2 mustEqual Seq("a", "b", "c", "d", "*", "f", "g", "*", "h", "i", "*")
   }
 
-//  "We can show different rows under-and-over, so that we can see the diffs" in {
-//    val leftHeader = Row(Array("Name", "Phone", "Pet", "ID", "Status"))
-//    val left = Row(Array("some", "", "data", "12345", "here"))
-//    val rightHeader = Row(Array("Name", "Address", "Phone", "Pet", "ID", "Status"))
-//    val right = Row(Array("some", "other", "123", "data", "123", "here"))
-//
-//    val leftRight = NonSortingDiff(left, right, StringDiffer).toList
-//    println(s"leftRight: ${leftRight}")
-//    // leftRight: List((right,), (here,), (,here), (,nope), (,other))
-//
-//    val rightLeft = NonSortingDiff(left, right, StringDiffer).toList
-//    println(s"rightLeft: ${rightLeft}")
-//    // rightLeft: List((right,), (here,), (,here), (,nope), (,other))
-//
-//    Row.showDiffs(left, right) mustEqual
-//      """
-//        |some,[x],[],data,[12345],here
-//        |some,other,123,data,[123],here
-//        |""".stripMargin
-//  }
+  "We can show different rows under-and-over, so that we can see the diffs" in {
+    val left = Row(Array("some", "", "data", "12345", "here"))
+    val right = Row(Array("some", "other", "123", "data", "123", "here"))
+
+    Row.showDiffs(left, right) mustEqual
+      """
+        |some,[]     ,     ,data,[12345],here
+        |some,[other],[123],data,[123]  ,here
+        |""".stripMargin
+  }
 }
