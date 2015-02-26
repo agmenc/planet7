@@ -2,7 +2,7 @@ package planet7
 
 import java.util.Comparator
 
-package object tabular extends DataSourceImplicits with DataSinkImplicits with PrintingImplicits {
+package object tabular extends DataSourceImplicits with DataSinkImplicits with PrettyPrinters {
   def export(csv: Csv, parser: Parser = Parsers.basic): String = parser.write(csv.header) + "\n" + csv.iterator.map(parser.write).mkString("\n")
 
   def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = sort(csv, new RowDiffer(csv.header, fieldComps:_*))
