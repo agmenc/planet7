@@ -1,6 +1,5 @@
 package planet7.tabular
 
-import scala.annotation.tailrec
 import scala.collection.immutable.Seq
 
 class CsvPrinter() {
