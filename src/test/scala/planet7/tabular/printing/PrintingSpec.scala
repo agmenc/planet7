@@ -9,7 +9,7 @@ class PrintingSpec extends WordSpec with MustMatchers {
                        |1,12.3,bob
                        |2,52.7,dave
                        |3,26.8,sue
-                       |4,52.7,mary
+                       |4,52.7,merideth
                        |5,52.5,fred
                        |6,84.5,frank
                        |7,38.4,jo
@@ -18,17 +18,17 @@ class PrintingSpec extends WordSpec with MustMatchers {
 
   "We can pretty-print the Csv for quick feedback in the REPL or while developing tests" in {
     val expected = """
-                     |ID  Owed amount  Name
-                     |--  -----------  ----
-                     | 1         12.3   bob
-                     | 2         52.7  dave
-                     | 3         26.8   sue
-                     | 4         52.7  mary
-                     | 5         52.5  fred
+                     |ID  Owed amount      Name
+                     |--  -----------  --------
+                     | 1         12.3       bob
+                     | 2         52.7      dave
+                     | 3         26.8       sue
+                     | 4         52.7  merideth
+                     | 5         52.5      fred
                      |""".stripMargin
 
     val csv = Csv(data)
 
-    print(csv) mustEqual expected
+    new CsvPrinter().top5(csv) mustEqual expected
   }
 }

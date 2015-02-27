@@ -1,16 +1,17 @@
 package planet7.tabular
 
+import scala.annotation.tailrec
 import scala.collection.immutable.Seq
 
 class CsvPrinter() {
-  def print(csv: Csv): String = {
-    val top: Seq[Row] = csv.header +: (csv.iterator.toStream take 5).toSeq
+  def top5(csv: Csv): String = {
+    val top: List[Row] = csv.header +: (csv.iterator.toStream take 5).toList
 
     def length(row: Row): Array[Int] = row.data.map(_.length)
+    def max(t: (Int, Int)): Int = t match { case (l, r) => Math.max(l,r) }
+    def maxes(row1: Array[Int], row2: Array[Int]): Array[Int] = (row1 zip row2) map max
 
-    def max(row1: Array[Int], row2: Array[Int]): Array[Int] = row1
-
-    val overallMaxes = top.map(length).foldLeft(length(csv.header))(max)
+    val overallMaxes: Array[Int] = top.map(length).foldLeft(length(csv.header))(maxes)
 
     val dataWithSize: Seq[Array[(String, Int)]] = top.map(_.data zip overallMaxes)
 
