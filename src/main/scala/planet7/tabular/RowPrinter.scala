@@ -4,27 +4,25 @@ class RowPrinter() {
   def showDiffs(left: Row, right: Row): String = matchPositions(left, right) match {
     case (l, r) => s"""
                       |$l
-        |$r
-        |""".stripMargin
+                      |$r
+                      |""".stripMargin
   }
 
-  def matchPositions(left: Row, right: Row): (Row, Row) = {
-    val x = matchPositions(left.data.toSeq, right.data.toSeq, Nil)
-      .map(brackets _ andThen padding)
-
-    x.reverse.unzip match {
+  def matchPositions(left: Row, right: Row): (Row, Row) =
+    matchPositions(left.data.toSeq, right.data.toSeq, Nil)
+      .map(addBrackets _ andThen addPadding)
+      .reverse.unzip match {
       case (l, r) => (Row(l.toArray), Row(r.toArray))
     }
-  }
 
-  def brackets(t: (String, String)): (String, String) = (t._1, t._2) match {
+  def addBrackets(t: (String, String)): (String, String) = (t._1, t._2) match {
     case (l, r) if l == r => (l, r)
     case ("*", r) => ("", s"[$r]")
     case (l, "*") => (s"[$l]", "")
     case (l, r) => (s"[$l]", s"[$r]")
   }
 
-  def padding(t: (String, String)): (String, String) = (t._1, t._2) match {
+  def addPadding(t: (String, String)): (String, String) = (t._1, t._2) match {
     case (l, r) => pad(l, r, Math.max(l.length, r.length))
   }
 
