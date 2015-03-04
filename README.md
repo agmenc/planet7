@@ -106,7 +106,7 @@ We also manipulate the data:
 
 ### More Examples
 
-These examples are taken from [CsvSpec.scala](https://github.com/agmenc/planet7/blob/master/src/test/scala/planet7/tabular/CsvSpec.scala). They are not exhaustive, so see [CsvSpec.scala](https://github.com/agmenc/planet7/blob/master/src/test/scala/planet7/tabular/CsvSpec.scala) for a full range of working examples.
+These examples are taken from [CsvSpec.scala](https://github.com/agmenc/planet7/blob/master/src/test/scala/planet7/tabular/CsvSpec.scala). They are not exhaustive, so see [CsvSpec.scala](https://github.com/agmenc/planet7/blob/master/src/test/scala/planet7/tabular/csv/CsvSpec.scala) for a full range of working examples.
 
 
 **Extract and remodel a CSV:**

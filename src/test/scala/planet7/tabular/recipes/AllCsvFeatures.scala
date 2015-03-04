@@ -41,6 +41,5 @@ class AllCsvFeatures extends WordSpec with MustMatchers {
     write(sort(csv), outputPath)            // Sort the output and write to disk
 
     Diff(Csv(new File(outputPath)), Csv(new File(modelAnswerPath)), NaiveRowDiffer) mustBe empty
-  }
-  // divert(-1)dnl
+  } // divert(-1)dnl
 }
