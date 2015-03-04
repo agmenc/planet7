@@ -73,4 +73,12 @@ class CsvValidationSpec extends WordSpec with MustMatchers {
 
     noException should be thrownBy export(csv)
   }
+
+  "We can guarantee the presence of certain columns" in {
+//    val csv = Csv(brokenData)
+//      .guarantee("val1", "val4") // We don't care about val2 and val3
+//
+//    noException should be thrownBy export(csv)
+    fail("We offer no guarantees")
+  }
 }
