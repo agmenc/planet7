@@ -101,8 +101,8 @@ We also manipulate the data:
     write(sort(csv), outputPath)            // Sort the output and write to disk
 
     Diff(Csv(new File(outputPath)), Csv(new File(modelAnswerPath)), NaiveRowDiffer) mustBe empty
-  }
-  // ```
+}
+```
 
 ### More Examples
 
