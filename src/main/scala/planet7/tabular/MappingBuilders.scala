@@ -30,9 +30,9 @@ trait MappingBuilders {
     (implicit t1Conv: Conv[T1], t2Conv: Conv[T2]): String => Row => Row => Row = {
         
     (targetColumn: String) => (header: Row) => {
-      val col1index = header.data.indexOf(col1)
-      val col2index = header.data.indexOf(col2)
-      val targetIndex = header.data.indexOf(targetColumn)
+      val col1index = Row.indexOf(header, col1)
+      val col2index = Row.indexOf(header, col2)
+      val targetIndex = Row.indexOf(header, targetColumn)
 
       row: Row => {
         val data1: T1 = t1Conv(row.data(col1index))

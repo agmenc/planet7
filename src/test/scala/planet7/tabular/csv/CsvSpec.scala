@@ -257,35 +257,38 @@ class CsvSpec extends WordSpec with MustMatchers {
   "We can define one column as a function of other columns" in {
     // Row => Row => Row
 
-    val input1, input2 = Csv( """Item name,Quantity,Cost
+    val input1, input2 = Csv( """Item name,Quantity,Price
                                 |glue,2,7.35
                                 |ice cream,4,4.55
                                 |sandwiches,7,2.50""".stripMargin)
 
-    val expectedOutput = Csv( """Item name,Subtotal
+    val expectedOutput1, expectedOutput2 = Csv( """Item name,Subtotal
                                 |glue,14.70
                                 |ice cream,18.20
                                 |sandwiches,17.50""".stripMargin)
 
 
-    val alteredInput1 = input1.transformRows(
-      "Subtotal" -> given[BigDecimal, Int]("Price", "Quantity") {
-        case (price, quantity) => (price * quantity).toString()
-      }
-    )
-
-    val alteredInput2 = Csv(input2)
-      .withMappings2(
-//        "Item name" -> (_.toUpperCase),
+    val alteredInput1 = input1
+      .columnStructure("Item name", "Quantity", "Price", "Subtotal")
+      .transformRows(
         "Subtotal" -> given[BigDecimal, Int]("Price", "Quantity") {
           case (price, quantity) => (price * quantity).toString()
-        }
-      )
+        })
+      .columnStructure(ignore("Quantity", "Price"))
+
+    val alteredInput2 = input2
+      .columnStructure("Item name", "Quantity", "Price", "Subtotal")
+      .withMappings2(
+        //        "Item name" -> (_.toUpperCase),
+        "Subtotal" -> given[BigDecimal, Int]("Price", "Quantity") {
+          case (price, quantity) => (price * quantity).toString()
+        })
+      .columnStructure(ignore("Quantity", "Price"))
     
-    val results1 = Diff(alteredInput1, expectedOutput, NaiveRowDiffer)
+    val results1 = Diff(alteredInput1, expectedOutput1, NaiveRowDiffer)
     results1 mustBe empty
     
-    val results2 = Diff(alteredInput2, expectedOutput, NaiveRowDiffer)
+    val results2 = Diff(alteredInput2, expectedOutput2, NaiveRowDiffer)
     results2 mustBe empty
   }
 }
