@@ -7,6 +7,7 @@ object Build extends Build {
     name := "planet7",
     scalaVersion:= "2.11.5",
     incOptions := incOptions.value.withNameHashing(true),
+    updateOptions := updateOptions.value.withCachedResolution(true),
     crossScalaVersions := Seq("2.10.4", "2.11.5"),
     scalacOptions += "-deprecation",
     resolvers += Resolver.sonatypeRepo("releases"),

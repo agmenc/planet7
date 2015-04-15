@@ -101,8 +101,7 @@ We also manipulate the data:
     write(sort(csv), outputPath)            // Sort the output and write to disk
 
     Diff(Csv(new File(outputPath)), Csv(new File(modelAnswerPath)), NaiveRowDiffer) mustBe empty
-}
-```
+  } // ```
 
 ### More Examples
 
@@ -251,5 +250,5 @@ External parsers, large datasets or naive coding can slow down CSV transformatio
 
 **More examples:**
 
-See [CsvSpec.scala](https://github.com/agmenc/planet7/blob/master/src/test/scala/planet7/tabular/CsvSpec.scala) for a full range of working examples 
+See [CsvSpec.scala](https://github.com/agmenc/planet7/blob/master/src/test/scala/planet7/tabular/csv/CsvSpec.scala) for a full range of working examples 
 
