@@ -45,6 +45,14 @@ case class Csv(header: Row, private val dataRows: Iterator[Row]) extends Iterabl
     case (before, after) => after
   }(collection.breakOut))
 
+  // (Row => Row => Row)*
+  // SO THAT all our front-end methods can use the same underlying transformation
+  // Offer implicit magnets AND a method-based non-implicit option (or just use the implicit defs?)
+  // We might only need one front-end method
+  def transformRows(rowTransformers: (Row => Row => Row)*): Csv = this.copy(dataRows = dataRows map transformWith(rowTransformers))
+
+  def withMappings2(mappings: (String, String => Row => Row => Row)*): Csv = transformRows(mappings map toRowTransformer:_*)
+
   def withMappings(mappings: (String, (String) => String)*): Csv = this.copy(dataRows = dataRows.map(valuesXformerFor(mappings: _*)))
 
   private[tabular] def valuesXformerFor(mappings: (String, (String) => String)*): Row => Row = (row: Row) => {
@@ -58,10 +66,10 @@ case class Csv(header: Row, private val dataRows: Iterator[Row]) extends Iterabl
   }
 
   def assertAndReport(validationsToAdd: (Row => Row => Row)*): Csv =  this.copy(
-    dataRows = dataRows map validateAgainst(validationsToAdd map Validations.catchingUnexpectedExceptions))
+    dataRows = dataRows map transformWith(validationsToAdd map Validations.catchingUnexpectedExceptions))
 
   def assertAndAbort(validationsToAdd: (Row => Row => Row)*): Csv = this.copy(
-    dataRows = dataRows map validateAgainst(validationsToAdd map Validations.failFast))
+    dataRows = dataRows map transformWith(validationsToAdd map Validations.failFast))
 
   def filter(predicates: (String, String => Boolean)*): Csv = this.copy(dataRows = dataRows.withFilter(nextRowFilter(predicates:_*)))
 
@@ -69,14 +77,14 @@ case class Csv(header: Row, private val dataRows: Iterator[Row]) extends Iterabl
     case (columnName, predicate) => predicate(row.data(header.data.indexOf(columnName)))
   }
   
-  private def validateAgainst(validations: Seq[Row => Row => Row]): Row => Row = {
-    val actualValidations: Seq[Row => Row] = validations.map(_(header))
-    (row: Row) => actualValidations.foldLeft(row)((r,v) => v(r))
+  private def transformWith(transformations: Seq[Row => Row => Row]): Row => Row = {
+    val actualTransformations: Seq[Row => Row] = transformations.map(_(header))
+    (row: Row) => actualTransformations.foldLeft(row)((r,v) => v(r))
   }
 
   override def iterator = dataRows
 
-  override def toString() = s"Csv with columns: ${header}"
+  override def toString() = s"Csv with columns: $header"
 }
 
 object Csv {

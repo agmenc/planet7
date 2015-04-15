@@ -2,7 +2,7 @@ package planet7.tabular.csv
 
 import com.github.tototoshi.csv.CSVReader
 import org.scalatest.{MustMatchers, WordSpec}
-import planet7.NonSortingDiff
+import planet7.{Diff, NonSortingDiff}
 import planet7.tabular._
 import planet7.tabular.datasources.CsvReaderDataSource
 
@@ -254,7 +254,38 @@ class CsvSpec extends WordSpec with MustMatchers {
     fail("Nope")
   }
 
-  "It is easier to use the RegexTwoPassParser" in {
-    fail("it is still hard to use")
+  "We can define one column as a function of other columns" in {
+    // Row => Row => Row
+
+    val input1, input2 = Csv( """Item name,Quantity,Cost
+                                |glue,2,7.35
+                                |ice cream,4,4.55
+                                |sandwiches,7,2.50""".stripMargin)
+
+    val expectedOutput = Csv( """Item name,Subtotal
+                                |glue,14.70
+                                |ice cream,18.20
+                                |sandwiches,17.50""".stripMargin)
+
+
+    val alteredInput1 = input1.transformRows(
+      "Subtotal" -> given[BigDecimal, Int]("Price", "Quantity") {
+        case (price, quantity) => (price * quantity).toString()
+      }
+    )
+
+    val alteredInput2 = Csv(input2)
+      .withMappings2(
+//        "Item name" -> (_.toUpperCase),
+        "Subtotal" -> given[BigDecimal, Int]("Price", "Quantity") {
+          case (price, quantity) => (price * quantity).toString()
+        }
+      )
+    
+    val results1 = Diff(alteredInput1, expectedOutput, NaiveRowDiffer)
+    results1 mustBe empty
+    
+    val results2 = Diff(alteredInput2, expectedOutput, NaiveRowDiffer)
+    results2 mustBe empty
   }
 }

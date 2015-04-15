@@ -2,7 +2,8 @@ package planet7
 
 import java.util.Comparator
 
-package object tabular extends DataSourceImplicits with DataSinkImplicits with PrettyPrinters {
+// TODO - CAS - 22/03/15 - Move Csv operations (sort, export, etc) into the Csv companion object
+package object tabular extends MappingBuilders with DataSourceImplicits with DataSinkImplicits with PrettyPrinters {
   def export(csv: Csv, parser: Parser = Parsers.basic): String = parser.write(csv.header) + "\n" + csv.iterator.map(parser.write).mkString("\n")
 
   def sort(csv: Csv, fieldComps: (String, Comparator[String])*): Csv = sort(csv, new RowDiffer(csv.header, fieldComps:_*))
