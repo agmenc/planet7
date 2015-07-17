@@ -5,10 +5,10 @@ object Build extends Build {
 
   def sharedSettings = Seq(
     name := "planet7",
-    scalaVersion:= "2.11.5",
+    scalaVersion:= "2.11.7",
     incOptions := incOptions.value.withNameHashing(true),
     updateOptions := updateOptions.value.withCachedResolution(true),
-    crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    crossScalaVersions := Seq("2.10.5", "2.11.7"),
     scalacOptions += "-deprecation",
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= Seq(
@@ -22,7 +22,7 @@ object Build extends Build {
     // this mechanism supports cross-version publishing
     libraryDependencies := {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, scalaMajor)) if scalaMajor >= 11 => libraryDependencies.value :+ "org.scala-lang.modules" %% "scala-xml" % "1.0.1"
+        case Some((2, scalaMajor)) if scalaMajor >= 11 => libraryDependencies.value :+ "org.scala-lang.modules" %% "scala-xml" % "1.0.4"
         case _ => libraryDependencies.value
       }
     }
